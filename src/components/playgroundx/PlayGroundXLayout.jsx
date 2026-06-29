@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   Home, Trophy, Tv2, Radio, LayoutGrid, Users, MessageSquare, 
   Wallet, Receipt, Bell, UserCircle, Settings, HelpCircle,
-  Search, LogOut, ChevronLeft, ChevronRight, Gamepad2, CircleDot
+  Search, LogOut, ChevronLeft, ChevronRight, Gamepad2, CircleDot, UserPlus
 } from 'lucide-react';
 
 const PlayGroundXLayout = () => {
@@ -148,8 +148,15 @@ const PlayGroundXLayout = () => {
 
       {/* Right Activity Panel (Friends) */}
       <aside className="hidden xl:flex w-72 flex-shrink-0 bg-[#09090B] border-l border-white/5 flex-col shadow-[-4px_0_24px_rgba(0,0,0,0.5)] z-20">
-         <div className="h-16 flex items-center px-6 border-b border-white/5">
+         <div className="h-16 flex items-center justify-between px-6 border-b border-white/5">
            <h3 className="font-bold text-white tracking-tight">Active Friends</h3>
+           <button className="text-gray-400 hover:text-[#7C3AED] transition-colors"><UserPlus className="w-4 h-4" /></button>
+         </div>
+         <div className="p-4 border-b border-white/5">
+           <div className="relative">
+             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+             <input type="text" placeholder="Add friend by username..." className="w-full bg-[#13131A] border border-white/10 rounded-lg pl-9 pr-3 py-2 text-xs text-white focus:outline-none focus:border-[#7C3AED]" />
+           </div>
          </div>
          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4">
             <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Online — {onlineFriends.length}</div>
@@ -166,6 +173,9 @@ const PlayGroundXLayout = () => {
                     {friend.game}
                   </div>
                 </div>
+                <button className="opacity-0 group-hover:opacity-100 p-1.5 bg-[#7C3AED]/20 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white rounded-lg transition-all" title="Invite to Lobby">
+                  <UserPlus className="w-4 h-4" />
+                </button>
               </div>
             ))}
          </div>

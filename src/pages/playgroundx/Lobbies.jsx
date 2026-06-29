@@ -18,9 +18,11 @@ const Lobbies = () => {
   const totalLobbies = Math.ceil(allScreens.length / SCREENS_PER_LOBBY);
   
   const [activeLobbyIndex, setActiveLobbyIndex] = useState(0);
-  
-  // State for the screens currently visible in the active lobby. This allows Reorder to work.
   const [currentLobbyScreens, setCurrentLobbyScreens] = useState([]);
+  
+  // Modal states
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
   useEffect(() => {
     const start = activeLobbyIndex * SCREENS_PER_LOBBY;
@@ -36,7 +38,7 @@ const Lobbies = () => {
           <h1 className="text-3xl font-black text-white tracking-tight">Watch Party Lobbies</h1>
           <p className="text-gray-400 text-sm mt-1">Drag and drop screens to arrange your multi-view. Max 4 screens per lobby.</p>
         </div>
-        <button className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-6 py-3 rounded-xl text-sm font-bold shadow-[0_0_20px_rgba(124,58,237,0.4)] transition-colors flex items-center gap-2 hover:scale-105">
+        <button onClick={() => setIsCreateModalOpen(true)} className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-6 py-3 rounded-xl text-sm font-bold shadow-[0_0_20px_rgba(124,58,237,0.4)] transition-colors flex items-center gap-2 hover:scale-105">
           <Plus className="w-4 h-4" /> Create Private Lobby
         </button>
       </div>
@@ -63,7 +65,7 @@ const Lobbies = () => {
          
          <div className="absolute top-4 right-4 z-10 flex gap-2">
             <button className="bg-black/50 hover:bg-[#7C3AED] border border-white/10 hover:border-[#7C3AED] text-white p-2 rounded-lg backdrop-blur-md transition-colors"><Settings className="w-4 h-4" /></button>
-            <button className="bg-black/50 hover:bg-[#7C3AED] border border-white/10 hover:border-[#7C3AED] text-white p-2 rounded-lg backdrop-blur-md transition-colors flex items-center gap-2 px-3 text-xs font-bold">
+            <button onClick={() => setIsInviteModalOpen(true)} className="bg-black/50 hover:bg-[#7C3AED] border border-white/10 hover:border-[#7C3AED] text-white p-2 rounded-lg backdrop-blur-md transition-colors flex items-center gap-2 px-3 text-xs font-bold">
               <Users className="w-4 h-4" /> Invite Friends
             </button>
          </div>
@@ -100,7 +102,7 @@ const Lobbies = () => {
                 </Reorder.Item>
               ))}
               
-              {/* Empty state if lobby has less than 4 screens */}
+             {/* Empty state if lobby has less than 4 screens */}
               {Array.from({ length: Math.max(0, SCREENS_PER_LOBBY - currentLobbyScreens.length) }).map((_, idx) => (
                 <div key={`empty-${idx}`} className="rounded-2xl border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-gray-500 bg-[#13131A]/30">
                    <Plus className="w-8 h-8 mb-2 opacity-50" />
@@ -109,8 +111,66 @@ const Lobbies = () => {
               ))}
             </Reorder.Group>
          </div>
-
       </div>
+
+      {/* Create Private Lobby Modal */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-lg p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <h2 className="text-2xl font-black text-white mb-2">Create Private Lobby</h2>
+            <p className="text-gray-400 text-sm mb-6">Set up a private viewing room and select 4 live channels.</p>
+            
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Lobby Name</label>
+                <input type="text" placeholder="e.g. UFC 300 Watch Party" className="w-full bg-[#09090B] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7C3AED] transition-colors" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Select Channels (Max 4)</label>
+                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto custom-scrollbar pr-2">
+                  {allScreens.map(s => (
+                     <div key={s.id} className="flex items-center gap-3 p-2 border border-white/5 rounded-lg hover:border-[#7C3AED]/50 cursor-pointer transition-colors bg-white/5">
+                        <input type="checkbox" className="accent-[#7C3AED]" />
+                        <span className="text-sm text-white font-bold truncate">{s.name}</span>
+                     </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 justify-end border-t border-white/5 pt-4">
+              <button onClick={() => setIsCreateModalOpen(false)} className="px-5 py-2.5 rounded-xl text-white font-bold hover:bg-white/10 transition-colors">Cancel</button>
+              <button onClick={() => setIsCreateModalOpen(false)} className="px-5 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold rounded-xl shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors">Create Lobby</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Invite Friends Modal */}
+      {isInviteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-sm p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <h2 className="text-xl font-black text-white mb-2">Invite Friends</h2>
+            <p className="text-gray-400 text-sm mb-6">Send a private invite to your active friends.</p>
+            
+            <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-2 mb-6">
+              {['AlexTheGreat', 'SarahConnor', 'CryptoKing'].map((friend, i) => (
+                 <div key={i} className="flex items-center justify-between p-3 border border-white/5 rounded-xl hover:bg-white/5 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#7C3AED] to-cyan-500"></div>
+                      <span className="text-sm font-bold text-white">{friend}</span>
+                    </div>
+                    <button className="text-xs font-bold bg-[#7C3AED]/20 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white px-3 py-1.5 rounded-lg transition-colors">Invite</button>
+                 </div>
+              ))}
+            </div>
+
+            <div className="border-t border-white/5 pt-4">
+              <button onClick={() => setIsInviteModalOpen(false)} className="w-full px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold transition-colors">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
