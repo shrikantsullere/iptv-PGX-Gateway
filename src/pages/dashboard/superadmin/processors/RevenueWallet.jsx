@@ -1,60 +1,204 @@
 import { useState } from 'react';
-import { ShieldCheck, Search, Activity, AlertTriangle } from 'lucide-react';
+import { Wallet, ArrowUpRight, ArrowDownToLine, TrendingUp, Loader2, CheckCircle2, X, DollarSign } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-export default function ProcessorRevenue() {
+const earningsHistory = [
+  { month: 'Jan', earnings: 18400 }, { month: 'Feb', earnings: 22100 }, { month: 'Mar', earnings: 19800 },
+  { month: 'Apr', earnings: 28400 }, { month: 'May', earnings: 32100 }, { month: 'Jun', earnings: 41200 },
+];
+
+const withdrawals = [
+  { id: 'WDR-501', date: 'Jun 15, 2025', amount: '$25,000.00', destination: 'Bank ****4421', status: 'Completed' },
+  { id: 'WDR-500', date: 'May 15, 2025', amount: '$20,000.00', destination: 'Bank ****4421', status: 'Completed' },
+  { id: 'WDR-499', date: 'Apr 15, 2025', amount: '$18,500.00', destination: 'Cold Wallet', status: 'Completed' },
+  { id: 'WDR-498', date: 'Mar 15, 2025', amount: '$15,000.00', destination: 'Bank ****4421', status: 'Completed' },
+];
+
+export default function RevenueWallet() {
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [withdrawn, setWithdrawn] = useState(false);
+
+  const handleWithdraw = () => {
+    setWithdrawing(true);
+    setTimeout(() => {
+      setWithdrawing(false);
+      setWithdrawn(true);
+      setTimeout(() => { setWithdrawn(false); setShowWithdrawModal(false); }, 2000);
+    }, 1800);
+  };
+
   return (
-    <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500 w-full pb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-black text-white flex items-center gap-3">
-            <ShieldCheck className="w-8 h-8 text-[#7C3AED]" /> Revenue & Profit Tracking
+            <Wallet className="w-8 h-8 text-[#7C3AED]" /> Revenue Wallet
           </h1>
-          <p className="text-gray-400 mt-1">Wallet view tracking Gateway profit margins.</p>
+          <p className="text-gray-400 mt-1">Your gateway's total revenue from processing fee markups.</p>
+        </div>
+        <button
+          onClick={() => setShowWithdrawModal(true)}
+          className="w-full sm:w-auto bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(124,58,237,0.3)] flex items-center justify-center gap-2"
+        >
+          <ArrowDownToLine className="w-4 h-4" /> Withdraw Funds
+        </button>
+      </div>
+
+      {/* Primary Balance Card */}
+      <div className="bg-gradient-to-br from-[#7C3AED]/30 via-[#13131A] to-[#13131A] border border-[#7C3AED]/30 rounded-3xl p-8 relative overflow-hidden shadow-2xl">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#7C3AED]/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <div className="text-sm text-gray-400 font-medium mb-2">Total Revenue Pool</div>
+              <div className="text-5xl font-black text-white mb-3">$41,240.<span className="text-3xl text-gray-400">88</span></div>
+              <div className="flex items-center gap-2 text-sm font-bold text-green-500">
+                <ArrowUpRight className="w-4 h-4" /> +$8,200 this month (+24.8%)
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
+                <div className="text-xs text-gray-400 font-medium mb-1">This Month</div>
+                <div className="text-xl font-black text-[#7C3AED]">$8,200</div>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
+                <div className="text-xs text-gray-400 font-medium mb-1">Avg. Daily</div>
+                <div className="text-xl font-black text-green-400">$273</div>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
+                <div className="text-xs text-gray-400 font-medium mb-1">Total Withdrawn</div>
+                <div className="text-xl font-black text-orange-400">$78,500</div>
+              </div>
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
+                <div className="text-xs text-gray-400 font-medium mb-1">Fee Sources</div>
+                <div className="text-xl font-black text-blue-400">4</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="bg-[#13131A] border border-white/5 rounded-2xl shadow-xl overflow-hidden p-8 flex flex-col items-center justify-center text-center">
-        <Activity className="w-16 h-16 text-cyan-500 mb-4 opacity-50" />
-        <h2 className="text-2xl font-bold text-white mb-2">Module Active: Revenue & Profit Tracking</h2>
-        <p className="text-gray-400 max-w-md">This operational engine is currently active. Advanced UI controls are loaded from the backend configuration matrix.</p>
-      </div>
-      
-      
-<div className="bg-[#13131A] border border-white/5 rounded-2xl shadow-xl overflow-hidden mt-6">
-    <div className="p-4 border-b border-white/5 flex gap-4">
-        <div className="relative flex-1 max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-        <input type="text" placeholder="Search records..." className="w-full bg-[#09090B] border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-[#7C3AED]" />
+      {/* Earnings Chart */}
+      <div className="bg-[#13131A] border border-white/5 rounded-3xl p-6 shadow-xl">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-[#7C3AED]" /> Monthly Earnings
+          </h3>
+          <select className="bg-black/50 border border-white/10 rounded-xl px-3 py-1.5 text-sm text-white focus:outline-none text-xs">
+            <option>Last 6 months</option>
+            <option>Last year</option>
+          </select>
         </div>
-    </div>
-    <table className="w-full text-left border-collapse">
-        <thead>
-        <tr className="text-gray-500 text-xs font-bold uppercase border-b border-white/5 bg-white/[0.02]">
-            <th className="p-4">Record ID</th>
-            <th className="p-4">Status</th>
-            <th className="p-4">Details</th>
-        </tr>
-        </thead>
-        <tbody className="divide-y divide-white/5 text-sm">
-        <tr className="hover:bg-white/[0.02]">
-            <td className="p-4 font-mono font-bold text-gray-400">REC-9821</td>
-            <td className="p-4"><span className="px-2 py-1 rounded text-xs font-bold bg-green-500/10 text-green-500">Active</span></td>
-            <td className="p-4 text-gray-300">System processed successfully.</td>
-        </tr>
-        <tr className="hover:bg-white/[0.02]">
-            <td className="p-4 font-mono font-bold text-gray-400">REC-9820</td>
-            <td className="p-4"><span className="px-2 py-1 rounded text-xs font-bold bg-yellow-500/10 text-yellow-500">Pending</span></td>
-            <td className="p-4 text-gray-300">Awaiting secondary validation.</td>
-        </tr>
-        <tr className="hover:bg-white/[0.02]">
-            <td className="p-4 font-mono font-bold text-gray-400">REC-9819</td>
-            <td className="p-4"><span className="px-2 py-1 rounded text-xs font-bold bg-red-500/10 text-red-500">Failed</span></td>
-            <td className="p-4 text-gray-300">Validation error code 400.</td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+        <div className="h-[250px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={earningsHistory} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="earningsGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.6}/>
+                  <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+              <XAxis dataKey="month" stroke="rgba(255,255,255,0.2)" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis stroke="rgba(255,255,255,0.2)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={v => `$${(v/1000).toFixed(0)}k`} />
+              <Tooltip
+                contentStyle={{ backgroundColor: '#09090B', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                formatter={v => [`$${v.toLocaleString()}`, 'Earnings']}
+              />
+              <Area type="monotone" dataKey="earnings" stroke="#7C3AED" fill="url(#earningsGrad)" strokeWidth={2.5} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
 
+      {/* Withdrawals History */}
+      <div className="bg-[#13131A] border border-white/5 rounded-2xl overflow-hidden shadow-xl">
+        <div className="p-6 border-b border-white/5">
+          <h3 className="text-lg font-bold text-white">Withdrawal History</h3>
+        </div>
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[600px]">
+            <thead>
+              <tr className="text-gray-500 text-xs border-b border-white/5 bg-black/20">
+                <th className="p-5 font-bold uppercase tracking-wider">ID</th>
+                <th className="p-5 font-bold uppercase tracking-wider">Date</th>
+                <th className="p-5 font-bold uppercase tracking-wider">Amount</th>
+                <th className="p-5 font-bold uppercase tracking-wider">Destination</th>
+                <th className="p-5 font-bold uppercase tracking-wider text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody className="text-sm divide-y divide-white/5">
+              {withdrawals.map((w, i) => (
+                <tr key={i} className="hover:bg-white/[0.02] transition-colors">
+                  <td className="p-5 font-mono font-bold text-gray-300 text-xs">{w.id}</td>
+                  <td className="p-5 text-gray-400 text-xs font-medium">{w.date}</td>
+                  <td className="p-5 font-black text-white font-mono">{w.amount}</td>
+                  <td className="p-5 text-gray-300 text-sm">{w.destination}</td>
+                  <td className="p-5 text-right">
+                    <span className="inline-flex items-center gap-1 bg-green-500/10 text-green-500 text-xs font-bold px-3 py-1 rounded-full border border-green-500/20">
+                      <CheckCircle2 className="w-3 h-3" /> {w.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Withdraw Modal */}
+      {showWithdrawModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-md shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#09090B] rounded-t-3xl">
+              <h3 className="font-black text-white text-lg flex items-center gap-2">
+                <ArrowDownToLine className="w-5 h-5 text-[#7C3AED]" /> Withdraw Revenue
+              </h3>
+              {!withdrawing && !withdrawn && <button onClick={() => setShowWithdrawModal(false)} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full"><X className="w-5 h-5" /></button>}
+            </div>
+            <div className="p-6">
+              {withdrawn ? (
+                <div className="flex flex-col items-center text-center py-8 animate-in zoom-in duration-300">
+                  <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mb-4 border border-green-500/30 shadow-[0_0_20px_rgba(34,197,94,0.3)]">
+                    <CheckCircle2 className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-xl font-bold text-white mb-2">Withdrawal Initiated!</h4>
+                  <p className="text-gray-400 text-sm">Funds will arrive within 1–3 business days.</p>
+                </div>
+              ) : (
+                <div className="space-y-5">
+                  <div className="bg-[#7C3AED]/10 border border-[#7C3AED]/20 rounded-xl p-4 text-sm">
+                    <div className="text-gray-400 text-xs mb-1">Available Balance</div>
+                    <div className="font-black text-white text-2xl">$41,240.88</div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Withdrawal Amount</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-3 text-gray-400 font-bold">$</span>
+                      <input className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 pl-8 text-white focus:outline-none focus:border-[#7C3AED] transition-colors text-sm font-mono" placeholder="0.00" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Destination</label>
+                    <select className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#7C3AED] transition-colors text-sm">
+                      <option>Primary Bank (****4421)</option>
+                      <option>Reserve Account (****8821)</option>
+                      <option>Cold Wallet (0x...a82c)</option>
+                    </select>
+                  </div>
+                  <button
+                    onClick={handleWithdraw}
+                    className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold py-3 rounded-xl h-12 flex items-center justify-center transition-all shadow-[0_0_15px_rgba(124,58,237,0.3)]"
+                  >
+                    {withdrawing ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirm Withdrawal'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
