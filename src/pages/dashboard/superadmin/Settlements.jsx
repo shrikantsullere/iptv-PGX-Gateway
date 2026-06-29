@@ -1,7 +1,14 @@
 import { useState } from 'react';
-import { Landmark, ArrowRight, ArrowDownRight, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { Landmark, ArrowRight, ArrowDownRight, Clock, CheckCircle2, XCircle, X } from 'lucide-react';
 
 const Settlements = () => {
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [selectedSettlement, setSelectedSettlement] = useState(null);
+
+  const openReview = (settlement) => {
+    setSelectedSettlement(settlement);
+    setIsReviewModalOpen(true);
+  };
   const settlements = [
     { id: 'SET-991', merchant: 'Acme Corp', amount: '$45,200.00', status: 'Completed', date: '2023-11-20', method: 'Wire Transfer (USD)' },
     { id: 'SET-992', merchant: 'Global Tech', amount: '$12,450.00', status: 'Processing', date: '2023-11-21', method: 'SEPA (EUR)' },
@@ -77,7 +84,7 @@ const Settlements = () => {
                   </td>
                   <td className="p-4 text-sm text-gray-400">{s.date}</td>
                   <td className="p-4 text-right">
-                    <button className="text-[#7C3AED] hover:text-white font-bold text-sm transition-colors">Review</button>
+                    <button onClick={() => openReview(s)} className="text-[#7C3AED] hover:text-white font-bold text-sm transition-colors">Review</button>
                   </td>
                 </tr>
               ))}
@@ -85,6 +92,63 @@ const Settlements = () => {
           </table>
         </div>
       </div>
+
+      {/* Review Modal */}
+      {isReviewModalOpen && selectedSettlement && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-white/5">
+              <h2 className="text-xl font-bold text-white">Review Settlement</h2>
+              <button onClick={() => setIsReviewModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Settlement ID</p>
+                  <p className="text-white font-mono">{selectedSettlement.id}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Date</p>
+                  <p className="text-white">{selectedSettlement.date}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Merchant</p>
+                  <p className="text-white font-bold">{selectedSettlement.merchant}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Amount</p>
+                  <p className="text-white font-black text-lg">{selectedSettlement.amount}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Method</p>
+                  <p className="text-white">{selectedSettlement.method}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Status</p>
+                  <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2 py-1 rounded-full ${
+                    selectedSettlement.status === 'Completed' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 
+                    selectedSettlement.status === 'Processing' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' : 
+                    selectedSettlement.status === 'Failed' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 
+                    'bg-orange-500/10 text-orange-500 border border-orange-500/20'
+                  }`}>
+                    {selectedSettlement.status}
+                  </span>
+                </div>
+              </div>
+              <div className="pt-4 flex gap-3 border-t border-white/5 mt-6">
+                <button onClick={() => setIsReviewModalOpen(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg font-bold transition-colors border border-white/10">
+                  Close
+                </button>
+                <button onClick={() => { alert('Action processed'); setIsReviewModalOpen(false); }} className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors">
+                  Take Action
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
