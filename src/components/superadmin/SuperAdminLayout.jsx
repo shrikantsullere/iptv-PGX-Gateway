@@ -319,14 +319,6 @@ const SuperAdminLayout = () => {
           {/* Left: hamburger (mobile) */}
           <div className="flex items-center gap-3">
             {isMobile && (
-              <button
-                onClick={() => setIsMobileOpen(true)}
-                className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'text-gray-400 hover:bg-white/10 hover:text-white' : 'text-gray-600 hover:bg-gray-100'}`}
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-            )}
-            {isMobile && (
               <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/super-admin')}>
                 <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#7C3AED] to-blue-600 flex items-center justify-center font-black text-white text-sm shadow-[0_0_10px_rgba(124,58,237,0.5)]">P</div>
                 <span className="font-bold text-sm tracking-tight text-white">PGX Gateway</span>
@@ -402,9 +394,20 @@ const SuperAdminLayout = () => {
 
             {/* Profile */}
             <div className="flex items-center gap-2 sm:gap-3 cursor-pointer group">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-r from-[#7C3AED] to-cyan-500 flex items-center justify-center font-bold text-white text-xs sm:text-sm shrink-0">
+              <div className={`w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center font-bold text-white text-sm shadow-md cursor-pointer hover:scale-105 transition-transform shrink-0 ${isDarkMode ? '' : 'shadow-sm'}`}>
                 SA
               </div>
+              
+              {/* Mobile Menu Toggle (Right Side) */}
+              {isMobile && (
+                <button
+                  onClick={() => setIsMobileOpen(true)}
+                  className={`p-2 rounded-xl transition-colors ${isDarkMode ? 'text-gray-400 hover:bg-white/10 hover:text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                >
+                  <Menu className="w-5 h-5" />
+                </button>
+              )}
+
               <div className="hidden lg:block">
                 <div className={`text-sm font-bold leading-tight ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Super Admin</div>
                 <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>Owner</div>

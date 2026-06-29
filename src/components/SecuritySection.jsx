@@ -9,7 +9,7 @@ const SecuritySection = () => {
   ];
 
   return (
-    <section className="py-24 bg-[#050508] border-b border-white/5">
+    <section id="security" className="py-24 bg-[#050508] border-b border-white/5">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           

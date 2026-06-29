@@ -9,6 +9,7 @@ import {
 const PlayGroundXLayout = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   const menuItems = [
@@ -37,9 +38,21 @@ const PlayGroundXLayout = () => {
   return (
     <div className="h-screen overflow-hidden flex bg-[#050508] text-white font-sans">
       
+      {/* Mobile Backdrop */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        ></div>
+      )}
+
       {/* Left Sidebar */}
       <aside 
-        className={`${isSidebarOpen ? 'w-64' : 'w-20'} flex-shrink-0 bg-[#09090B] flex flex-col transition-all duration-300 relative z-20 shadow-[4px_0_24px_rgba(0,0,0,0.5)]`}
+        className={`
+          fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 md:relative md:translate-x-0
+          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+          ${isSidebarOpen ? 'w-56' : 'w-20'} flex-shrink-0 bg-[#09090B] flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.5)]
+        `}
       >
         {/* Logo */}
         <div className={`h-16 flex items-center ${isSidebarOpen ? 'justify-between px-6' : 'justify-center'} border-b border-white/5`}>
@@ -61,6 +74,7 @@ const PlayGroundXLayout = () => {
                 key={i}
                 to={item.path}
                 end={item.path === '/playgroundx'}
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={({ isActive }) => `
                   flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative
                   ${isActive 
@@ -94,10 +108,10 @@ const PlayGroundXLayout = () => {
           </button>
         </div>
 
-        {/* Sidebar Toggle */}
+        {/* Sidebar Toggle (Desktop Only) */}
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="absolute -right-3 top-20 w-6 h-6 rounded-full flex items-center justify-center shadow-lg bg-[#13131A] border border-white/10 text-gray-400 hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+          className="hidden md:flex absolute -right-3 top-20 w-6 h-6 rounded-full items-center justify-center shadow-lg bg-[#13131A] border border-white/10 text-gray-400 hover:text-white transition-colors hover:shadow-[0_0_10px_rgba(255,255,255,0.2)]"
         >
           {isSidebarOpen ? <ChevronLeft className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
         </button>
@@ -107,13 +121,17 @@ const PlayGroundXLayout = () => {
       <div className="flex-1 flex flex-col min-w-0 bg-[#050508] relative">
         
         {/* Top Header */}
-        <header className="h-16 flex-shrink-0 flex items-center justify-between px-6 bg-gradient-to-b from-[#09090B] to-transparent sticky top-0 z-10">
+        <header className="h-16 flex-shrink-0 flex items-center justify-between px-4 sm:px-6 bg-gradient-to-b from-[#09090B] to-[#050508] border-b border-white/5 md:border-transparent sticky top-0 z-30">
           
-          <div className="flex items-center gap-6 w-full max-w-xl">
-             {/* Left side empty since search is removed */}
+          <div className="flex items-center gap-4 w-full max-w-xl">
+             {/* Mobile Logo Title */}
+             <div className="md:hidden flex items-center gap-2">
+               <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#7C3AED] to-blue-600 flex items-center justify-center font-black text-white text-xs shadow-[0_0_10px_rgba(124,58,237,0.5)]">P</div>
+               <span className="font-bold text-base tracking-tight text-white">PGX Gateway</span>
+             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {/* Wallet Balance Pill */}
             <div onClick={() => navigate('/playgroundx/wallet')} className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:border-[#7C3AED]/50 transition-colors cursor-pointer hover:scale-105 active:scale-95">
                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#7C3AED] to-cyan-400 flex items-center justify-center shadow-[0_0_10px_rgba(124,58,237,0.5)]">
@@ -158,6 +176,14 @@ const PlayGroundXLayout = () => {
             <div onClick={() => navigate('/playgroundx/profile')} className="flex items-center gap-2 cursor-pointer group" title="My Profile">
               <img src="https://i.pravatar.cc/150?u=9" className="w-9 h-9 rounded-full border-2 border-transparent group-hover:border-[#7C3AED] transition-colors hover:scale-110 active:scale-95" alt="Profile" />
             </div>
+
+             {/* Mobile Menu Toggle (Right Side) */}
+             <button 
+               className="md:hidden p-2 -mr-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
+               onClick={() => setIsMobileMenuOpen(true)}
+             >
+               <LayoutGrid className="w-6 h-6" />
+             </button>
           </div>
         </header>
 
@@ -172,7 +198,7 @@ const PlayGroundXLayout = () => {
       </div>
 
       {/* Right Activity Panel (Friends) */}
-      <aside className="hidden xl:flex w-72 flex-shrink-0 bg-[#09090B] border-l border-white/5 flex-col shadow-[-4px_0_24px_rgba(0,0,0,0.5)] z-20">
+      <aside className="hidden xl:flex w-64 flex-shrink-0 bg-[#09090B] border-l border-white/5 flex-col shadow-[-4px_0_24px_rgba(0,0,0,0.5)] z-20">
          <div className="h-16 flex items-center justify-between px-6 border-b border-white/5">
            <h3 className="font-bold text-white tracking-tight">Active Friends</h3>
            <button onClick={() => navigate('/playgroundx/friends')} className="text-gray-400 hover:text-[#7C3AED] transition-colors" title="Add Friend"><UserPlus className="w-4 h-4" /></button>
