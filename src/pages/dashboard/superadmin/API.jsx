@@ -1,11 +1,30 @@
 import { useState } from 'react';
-import { Code, Key, Copy, RefreshCw, ShieldAlert, Zap } from 'lucide-react';
+import { Code, Key, Copy, RefreshCw, ShieldAlert, Zap, X } from 'lucide-react';
 
 export default function API() {
-  const [keys] = useState([
+  const [keys, setKeys] = useState([
     { name: 'Gateway Production Key', key: 'pk_live_8f92j...x92j', env: 'Production', created: '2023-10-12', lastUsed: '2 mins ago' },
     { name: 'Sandbox Testing Key', key: 'pk_test_3m9k2...k20m', env: 'Sandbox', created: '2023-10-12', lastUsed: '5 hrs ago' },
   ]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleGenerate = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const env = formData.get('environment');
+    const newKeyStr = env === 'Production' ? `pk_live_${Math.random().toString(36).substr(2, 9)}...` : `pk_test_${Math.random().toString(36).substr(2, 9)}...`;
+    
+    const newKey = {
+      name: formData.get('name'),
+      key: newKeyStr,
+      env: env,
+      created: new Date().toISOString().split('T')[0],
+      lastUsed: 'Never'
+    };
+    
+    setKeys([newKey, ...keys]);
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -16,7 +35,7 @@ export default function API() {
           </h1>
           <p className="text-gray-400 mt-1">SuperAdmin API keys for external system integrations.</p>
         </div>
-        <button className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-4 py-2 rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] flex items-center gap-2 transition-all">
+        <button onClick={() => setIsModalOpen(true)} className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-4 py-2 rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] flex items-center gap-2 transition-all">
           <Key className="w-4 h-4" /> Generate New Key
         </button>
       </div>
@@ -76,6 +95,42 @@ export default function API() {
           </tbody>
         </table>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-white/5">
+              <h2 className="text-xl font-bold text-white">Generate API Key</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleGenerate} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-400 mb-1">Key Name</label>
+                <input name="name" type="text" required placeholder="e.g. Mobile App Gateway" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-400 mb-1">Environment</label>
+                <select name="environment" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none appearance-none">
+                  <option>Sandbox</option>
+                  <option>Production</option>
+                </select>
+                <p className="text-xs text-red-400 mt-2">Warning: Production keys have full access.</p>
+              </div>
+              
+              <div className="pt-4 flex gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg font-bold transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors">
+                  Generate Key
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,13 +1,32 @@
 import { useState } from 'react';
-import { Webhook, Activity, Plus, Search, CheckCircle2, XCircle } from 'lucide-react';
+import { Webhook, Activity, Plus, Search, CheckCircle2, XCircle, X } from 'lucide-react';
 
 export default function Webhooks() {
-  const [logs] = useState([
+  const [logs, setLogs] = useState([
     { event: 'merchant.created', endpoint: 'https://api.internal.com/hooks', status: 200, time: '1 min ago' },
     { event: 'transaction.failed', endpoint: 'https://api.internal.com/hooks', status: 200, time: '5 mins ago' },
     { event: 'settlement.processed', endpoint: 'https://api.internal.com/hooks', status: 500, time: '1 hour ago' },
     { event: 'processor.failover', endpoint: 'https://api.internal.com/hooks', status: 200, time: '3 hours ago' },
   ]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAddEndpoint = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const endpointUrl = formData.get('endpoint');
+    const eventType = formData.get('event');
+    
+    // Add a mock active log for the new endpoint
+    const newLog = {
+      event: eventType === '*' ? 'all_events' : eventType,
+      endpoint: endpointUrl,
+      status: 200,
+      time: 'Just now'
+    };
+    
+    setLogs([newLog, ...logs]);
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -18,7 +37,7 @@ export default function Webhooks() {
           </h1>
           <p className="text-gray-400 mt-1">Manage system-wide event streams and endpoint deliveries.</p>
         </div>
-        <button className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-4 py-2 rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] flex items-center gap-2 transition-all">
+        <button onClick={() => setIsModalOpen(true)} className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-4 py-2 rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] flex items-center gap-2 transition-all">
           <Plus className="w-4 h-4" /> Add Endpoint
         </button>
       </div>
@@ -78,6 +97,47 @@ export default function Webhooks() {
           </tbody>
         </table>
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-white/5">
+              <h2 className="text-xl font-bold text-white">Add Webhook Endpoint</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleAddEndpoint} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-400 mb-1">Endpoint URL</label>
+                <input name="endpoint" type="url" required placeholder="https://your-domain.com/webhook" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-400 mb-1">Event Type</label>
+                <select name="event" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none appearance-none">
+                  <option value="*">All Events (*)</option>
+                  <option value="merchant.created">merchant.created</option>
+                  <option value="transaction.failed">transaction.failed</option>
+                  <option value="settlement.processed">settlement.processed</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-400 mb-1">Secret Key (Optional)</label>
+                <input name="secret" type="text" placeholder="Leave blank to auto-generate" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none" />
+              </div>
+              
+              <div className="pt-4 flex gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg font-bold transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors">
+                  Save Endpoint
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

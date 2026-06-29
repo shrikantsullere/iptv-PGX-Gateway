@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Percent, PieChart, Plus, Save, ChevronDown, ArrowUpRight } from 'lucide-react';
+import { Percent, PieChart, Plus, Save, ChevronDown, ArrowUpRight, Check, X } from 'lucide-react';
 import { PieChart as RechartsPieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 
 const feeDistribution = [
@@ -23,7 +23,43 @@ const barData = [
 ];
 
 export default function FeeSplitEngine() {
-  const [activeRule, setActiveRule] = useState(null);
+  const [rules, setRules] = useState(markupRules);
+  const [isSaved, setIsSaved] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [editRule, setEditRule] = useState(null);
+
+  const handleSave = () => {
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2000);
+  };
+
+  const handleAddRule = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const newRule = {
+      type: formData.get('type'),
+      base: formData.get('base'),
+      markup: formData.get('markup'),
+      total: formData.get('total'),
+      status: 'Active'
+    };
+    setRules([...rules, newRule]);
+    setShowAddModal(false);
+  };
+
+  const handleEditRule = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const updated = {
+      ...editRule,
+      type: formData.get('type'),
+      base: formData.get('base'),
+      markup: formData.get('markup'),
+      total: formData.get('total'),
+    };
+    setRules(rules.map(r => r.type === editRule.type ? updated : r));
+    setEditRule(null);
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500 w-full pb-8">
@@ -35,8 +71,8 @@ export default function FeeSplitEngine() {
           <p className="text-gray-400 mt-1">Configure how transaction fees are distributed between gateway, merchant, and processors.</p>
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
-          <button className="flex-1 sm:flex-none bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(34,197,94,0.3)] flex items-center justify-center gap-2">
-            <Save className="w-4 h-4" /> Save Configuration
+          <button onClick={handleSave} className="flex-1 sm:flex-none bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(34,197,94,0.3)] flex items-center justify-center gap-2">
+            {isSaved ? <><Check className="w-4 h-4" /> Saved Successfully!</> : <><Save className="w-4 h-4" /> Save Configuration</>}
           </button>
         </div>
       </div>
@@ -103,7 +139,7 @@ export default function FeeSplitEngine() {
       <div className="bg-[#13131A] border border-white/5 rounded-2xl overflow-hidden shadow-xl">
         <div className="p-6 border-b border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h3 className="text-lg font-bold text-white">Markup Rules</h3>
-          <button className="flex items-center gap-2 bg-[#7C3AED]/20 hover:bg-[#7C3AED]/30 text-[#7C3AED] px-4 py-2 rounded-xl text-sm font-bold border border-[#7C3AED]/30 transition-colors">
+          <button onClick={() => setShowAddModal(true)} className="flex items-center gap-2 bg-[#7C3AED]/20 hover:bg-[#7C3AED]/30 text-[#7C3AED] px-4 py-2 rounded-xl text-sm font-bold border border-[#7C3AED]/30 transition-colors">
             <Plus className="w-4 h-4" /> Add Rule
           </button>
         </div>
@@ -119,14 +155,14 @@ export default function FeeSplitEngine() {
               </tr>
             </thead>
             <tbody className="text-sm divide-y divide-white/5">
-              {markupRules.map((rule, i) => (
+              {rules.map((rule, i) => (
                 <tr key={i} className="hover:bg-white/[0.02] transition-colors">
                   <td className="p-5 font-bold text-white">{rule.type}</td>
                   <td className="p-5 text-gray-300 font-mono">{rule.base}</td>
                   <td className="p-5 font-mono text-green-400 font-bold">{rule.markup}</td>
                   <td className="p-5 font-black text-white font-mono">{rule.total}</td>
                   <td className="p-5 text-right">
-                    <button className="text-xs font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-colors bg-[#7C3AED]/10 hover:bg-[#7C3AED]/20 px-3 py-1.5 rounded-lg border border-[#7C3AED]/20">
+                    <button onClick={() => setEditRule(rule)} className="text-xs font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-colors bg-[#7C3AED]/10 hover:bg-[#7C3AED]/20 px-3 py-1.5 rounded-lg border border-[#7C3AED]/20">
                       Edit Rule
                     </button>
                   </td>
@@ -136,6 +172,76 @@ export default function FeeSplitEngine() {
           </table>
         </div>
       </div>
+
+      {/* Add Rule Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-md shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#09090B] rounded-t-3xl">
+              <h3 className="font-black text-white text-xl flex items-center gap-2">
+                New Markup Rule
+              </h3>
+              <button onClick={() => setShowAddModal(false)} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full transition-colors"><X className="w-4 h-4" /></button>
+            </div>
+            <form onSubmit={handleAddRule} className="p-6 space-y-4">
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Transaction Type</label>
+                <input name="type" required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm" placeholder="e.g. AMEX Cards" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Processor Base</label>
+                <input name="base" required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm font-mono" placeholder="e.g. 2.9%" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Gateway Markup</label>
+                <input name="markup" required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm font-mono" placeholder="e.g. +1.0%" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Total Fee</label>
+                <input name="total" required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm font-mono" placeholder="e.g. 3.9%" />
+              </div>
+              <button type="submit" className="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl mt-2 transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+                Add Rule
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Rule Modal */}
+      {editRule && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-md shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#09090B] rounded-t-3xl">
+              <h3 className="font-black text-white text-xl flex items-center gap-2">
+                Edit Markup Rule
+              </h3>
+              <button onClick={() => setEditRule(null)} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full transition-colors"><X className="w-4 h-4" /></button>
+            </div>
+            <form onSubmit={handleEditRule} className="p-6 space-y-4">
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Transaction Type</label>
+                <input name="type" defaultValue={editRule.type} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm" placeholder="e.g. AMEX Cards" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Processor Base</label>
+                <input name="base" defaultValue={editRule.base} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm font-mono" placeholder="e.g. 2.9%" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Gateway Markup</label>
+                <input name="markup" defaultValue={editRule.markup} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm font-mono" placeholder="e.g. +1.0%" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Total Fee</label>
+                <input name="total" defaultValue={editRule.total} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm font-mono" placeholder="e.g. 3.9%" />
+              </div>
+              <button type="submit" className="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl mt-2 transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+                Save Changes
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

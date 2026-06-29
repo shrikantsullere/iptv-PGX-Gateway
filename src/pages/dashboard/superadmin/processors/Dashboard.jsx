@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Activity, ShieldCheck, AlertTriangle, ArrowUpRight, ArrowDownRight, Server, Zap, CheckCircle2 } from 'lucide-react';
+import { Activity, ShieldCheck, AlertTriangle, ArrowUpRight, ArrowDownRight, Server, Zap, CheckCircle2, X } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const volumeData = [
@@ -21,6 +21,22 @@ const nodes = [
 ];
 
 export default function ProcessorDashboard() {
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [selectedNode, setSelectedNode] = useState(null);
+
+  const handleDownload = () => {
+    const content = `PGX Gateway - Processor Health Report\nGenerated: ${new Date().toLocaleString()}`;
+    const blob = new Blob([content], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `processor_health_report.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500 w-full pb-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -31,10 +47,10 @@ export default function ProcessorDashboard() {
           <p className="text-gray-400 mt-1">Global processor health, volume distribution, and node status.</p>
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
-          <button className="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 text-white px-4 py-2.5 rounded-xl text-sm font-bold border border-white/10 transition-colors">
+          <button onClick={handleDownload} className="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 text-white px-4 py-2.5 rounded-xl text-sm font-bold border border-white/10 transition-colors">
             Download Report
           </button>
-          <button className="flex-1 sm:flex-none bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(124,58,237,0.3)]">
+          <button onClick={() => setIsConfigModalOpen(true)} className="flex-1 sm:flex-none bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(124,58,237,0.3)]">
             Configure Nodes
           </button>
         </div>
@@ -215,7 +231,7 @@ export default function ProcessorDashboard() {
                   <td className="p-5 text-gray-300 font-mono font-medium">{node.latency}</td>
                   <td className="p-5 font-bold text-white">{node.successRate}</td>
                   <td className="p-5 text-right">
-                    <button className="text-xs font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-colors bg-[#7C3AED]/10 hover:bg-[#7C3AED]/20 px-3 py-1.5 rounded-lg border border-[#7C3AED]/20">
+                    <button onClick={() => setSelectedNode(node)} className="text-xs font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-colors bg-[#7C3AED]/10 hover:bg-[#7C3AED]/20 px-3 py-1.5 rounded-lg border border-[#7C3AED]/20">
                       View Metrics
                     </button>
                   </td>
@@ -225,6 +241,73 @@ export default function ProcessorDashboard() {
           </table>
         </div>
       </div>
+
+      {isConfigModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-white/5">
+              <h2 className="text-xl font-bold text-white">Configure Active Nodes</h2>
+              <button onClick={() => setIsConfigModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-400 mb-1">Failover Threshold (%)</label>
+                <input type="number" defaultValue={98} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-400 mb-1">Load Balancing Strategy</label>
+                <select className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none appearance-none">
+                  <option>Round Robin</option>
+                  <option>Least Connections</option>
+                  <option>Weighted Performance</option>
+                </select>
+              </div>
+              <div className="pt-4 flex gap-3">
+                <button onClick={() => setIsConfigModalOpen(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg font-bold transition-colors">Cancel</button>
+                <button onClick={() => setIsConfigModalOpen(false)} className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors">Save config</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedNode && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-white/5">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2"><Server className="w-5 h-5 text-[#7C3AED]" /> {selectedNode.name} Metrics</h2>
+              <button onClick={() => setSelectedNode(null)} className="text-gray-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-black/50 border border-white/5 rounded-xl p-4">
+                   <p className="text-gray-500 text-xs font-bold uppercase mb-1">Uptime</p>
+                   <p className="text-white font-bold text-xl">{selectedNode.uptime}</p>
+                </div>
+                <div className="bg-black/50 border border-white/5 rounded-xl p-4">
+                   <p className="text-gray-500 text-xs font-bold uppercase mb-1">Latency</p>
+                   <p className="text-white font-bold text-xl">{selectedNode.latency}</p>
+                </div>
+                <div className="bg-black/50 border border-white/5 rounded-xl p-4">
+                   <p className="text-gray-500 text-xs font-bold uppercase mb-1">Success Rate</p>
+                   <p className="text-white font-bold text-xl">{selectedNode.successRate}</p>
+                </div>
+                <div className="bg-black/50 border border-white/5 rounded-xl p-4">
+                   <p className="text-gray-500 text-xs font-bold uppercase mb-1">Status</p>
+                   <p className={`font-bold text-xl ${selectedNode.status === 'Operational' ? 'text-green-500' : 'text-orange-500'}`}>{selectedNode.status}</p>
+                </div>
+              </div>
+              <div className="pt-4">
+                <button onClick={() => setSelectedNode(null)} className="w-full bg-[#7C3AED]/20 hover:bg-[#7C3AED]/30 text-[#7C3AED] py-2 rounded-lg font-bold border border-[#7C3AED]/30 transition-colors">Close Metrics</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

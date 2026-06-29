@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShieldAlert, AlertTriangle, TrendingUp, TrendingDown, Activity, CheckCircle2, ArrowUpRight, Server, Zap } from 'lucide-react';
+import { ShieldAlert, AlertTriangle, TrendingUp, TrendingDown, Activity, CheckCircle2, ArrowUpRight, Server, Zap, X } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 
 const riskTrend = [
@@ -34,6 +34,9 @@ const riskBg = (score) => {
 };
 
 export default function RiskDashboard() {
+  const [showConfigModal, setShowConfigModal] = useState(false);
+  const [showIncidentsModal, setShowIncidentsModal] = useState(false);
+
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500 w-full pb-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -44,10 +47,10 @@ export default function RiskDashboard() {
           <p className="text-gray-400 mt-1">Real-time threat scoring, anomaly detection, and risk posture overview.</p>
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
-          <button className="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 text-white px-4 py-2.5 rounded-xl text-sm font-bold border border-white/10 transition-colors">
+          <button onClick={() => setShowConfigModal(true)} className="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 text-white px-4 py-2.5 rounded-xl text-sm font-bold border border-white/10 transition-colors">
             Configure Rules
           </button>
-          <button className="flex-1 sm:flex-none bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(239,68,68,0.3)] flex items-center justify-center gap-2">
+          <button onClick={() => setShowIncidentsModal(true)} className="flex-1 sm:flex-none bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(239,68,68,0.3)] flex items-center justify-center gap-2">
             <AlertTriangle className="w-4 h-4" /> Active Incidents
           </button>
         </div>
@@ -170,6 +173,71 @@ export default function RiskDashboard() {
           </table>
         </div>
       </div>
+
+      {/* Configure Rules Modal */}
+      {showConfigModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-md shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#09090B] rounded-t-3xl">
+              <h3 className="font-black text-white text-lg flex items-center gap-2">
+                <Zap className="w-5 h-5 text-red-500" /> Configure Risk Rules
+              </h3>
+              <button onClick={() => setShowConfigModal(false)} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Global Risk Threshold</label>
+                <input type="range" min="0" max="100" defaultValue="80" className="w-full accent-red-500" />
+                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                  <span>Lenient</span>
+                  <span className="font-bold text-white">80 / 100</span>
+                  <span>Strict</span>
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Action on High Risk</label>
+                <select className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors text-sm">
+                  <option>Block Transaction & Alert</option>
+                  <option>Hold for Manual Review</option>
+                  <option>Alert Only (Monitor)</option>
+                </select>
+              </div>
+              <div className="pt-4 flex gap-3">
+                <button onClick={() => setShowConfigModal(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl border border-white/10 transition-colors text-sm">Cancel</button>
+                <button onClick={() => setShowConfigModal(false)} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)]">Save Rules</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Active Incidents Modal */}
+      {showIncidentsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-lg shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#09090B] rounded-t-3xl">
+              <h3 className="font-black text-white text-lg flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-500" /> Active Incidents (3)
+              </h3>
+              <button onClick={() => setShowIncidentsModal(false)} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6 space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
+              {topRisks.filter(r => r.score > 70).map((r, i) => (
+                <div key={i} className="bg-black/40 border border-red-500/20 rounded-xl p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <div className="font-bold text-white text-sm">{r.entity}</div>
+                      <div className="text-xs text-red-400 font-medium">{r.type}</div>
+                    </div>
+                    <span className="font-black text-red-500 text-lg">{r.score}</span>
+                  </div>
+                  <button onClick={() => setShowIncidentsModal(false)} className="w-full mt-2 text-xs font-bold text-white bg-red-600/20 hover:bg-red-600/30 py-2 rounded-lg transition-colors border border-red-500/20">Review Case</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

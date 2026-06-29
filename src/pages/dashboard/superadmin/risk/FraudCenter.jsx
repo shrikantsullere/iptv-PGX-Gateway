@@ -35,6 +35,7 @@ export default function FraudCenter() {
   const [selected, setSelected] = useState(null);
   const [blocking, setBlocking] = useState(false);
   const [blocked, setBlocked] = useState(false);
+  const [showBlockModal, setShowBlockModal] = useState(false);
 
   const filtered = fraudAlerts.filter(a =>
     a.entity.toLowerCase().includes(search.toLowerCase()) || a.id.includes(search)
@@ -55,7 +56,7 @@ export default function FraudCenter() {
           <p className="text-gray-400 mt-1">Real-time fraud detection, AI-flagged transactions, and manual review queue.</p>
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
-          <button className="flex-1 sm:flex-none bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(249,115,22,0.3)] flex items-center justify-center gap-2">
+          <button onClick={() => setShowBlockModal(true)} className="flex-1 sm:flex-none bg-orange-600 hover:bg-orange-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(249,115,22,0.3)] flex items-center justify-center gap-2">
             <ShieldAlert className="w-4 h-4" /> Block Entity
           </button>
         </div>
@@ -189,6 +190,54 @@ export default function FraudCenter() {
                   <button onClick={() => setSelected(null)} className="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl border border-white/10 transition-colors text-sm">Mark Safe</button>
                   <button onClick={handleBlock} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition-all h-12 flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.3)]">
                     {blocking ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Ban className="w-4 h-4 mr-1.5" /> Block Entity</>}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Manual Block Entity Modal */}
+      {showBlockModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-md shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#09090B] rounded-t-3xl">
+              <h3 className="font-black text-white text-lg flex items-center gap-2">
+                <Ban className="w-5 h-5 text-red-500" /> Manual Block Entity
+              </h3>
+              {!blocking && !blocked && <button onClick={() => setShowBlockModal(false)} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full"><X className="w-5 h-5" /></button>}
+            </div>
+            {blocked ? (
+              <div className="p-10 flex flex-col items-center text-center animate-in zoom-in duration-300">
+                <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mb-4 border border-green-500/30 shadow-[0_0_20px_rgba(34,197,94,0.3)]">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <h4 className="text-xl font-bold text-white mb-2">Entity Blocked!</h4>
+                <p className="text-gray-400 text-sm">The entity has been successfully added to the blocklist.</p>
+              </div>
+            ) : (
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Entity ID / Email / IP</label>
+                  <input type="text" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors text-sm" placeholder="e.g. user@example.com" />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Reason for Blocking</label>
+                  <select className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors text-sm mb-3">
+                    <option>Known Fraudster</option>
+                    <option>Chargeback Abuse</option>
+                    <option>Suspicious Activity</option>
+                  </select>
+                  <textarea rows={3} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-red-500 transition-colors text-sm resize-none" placeholder="Additional details..." />
+                </div>
+                <div className="flex gap-3">
+                  <button onClick={() => setShowBlockModal(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl border border-white/10 transition-colors text-sm">Cancel</button>
+                  <button onClick={() => {
+                      setBlocking(true);
+                      setTimeout(() => { setBlocking(false); setBlocked(true); setTimeout(() => { setBlocked(false); setShowBlockModal(false); }, 1500); }, 1200);
+                  }} className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition-all h-12 flex items-center justify-center shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+                    {blocking ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Ban className="w-4 h-4 mr-1.5" /> Confirm Block</>}
                   </button>
                 </div>
               </div>

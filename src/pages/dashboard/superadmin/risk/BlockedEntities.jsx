@@ -32,6 +32,7 @@ export default function BlockedEntities() {
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const [entities, setEntities] = useState(blockedEntities);
+  const [selectedEntity, setSelectedEntity] = useState(null);
 
   const filtered = entities.filter(e =>
     e.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -122,7 +123,7 @@ export default function BlockedEntities() {
                     <td className="p-5"><span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${statusStyle(e.status)}`}>{e.status}</span></td>
                     <td className="p-5 text-right">
                       <div className="flex justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                        <button className="text-gray-400 hover:text-[#7C3AED] p-1.5 rounded-lg hover:bg-[#7C3AED]/10 transition-colors"><Eye className="w-4 h-4" /></button>
+                        <button onClick={() => setSelectedEntity(e)} className="text-gray-400 hover:text-[#7C3AED] p-1.5 rounded-lg hover:bg-[#7C3AED]/10 transition-colors"><Eye className="w-4 h-4" /></button>
                         <button onClick={() => handleDelete(e.id)} className="text-gray-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-500/10 transition-colors"><Trash2 className="w-4 h-4" /></button>
                       </div>
                     </td>
@@ -191,6 +192,60 @@ export default function BlockedEntities() {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* View Entity Modal */}
+      {selectedEntity && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-lg shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#09090B] rounded-t-3xl">
+              <h3 className="font-black text-white text-lg flex items-center gap-2">
+                <ShieldAlert className="w-5 h-5 text-[#7C3AED]" /> Entity Details
+              </h3>
+              <button onClick={() => setSelectedEntity(null)} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="flex items-center gap-4 bg-black/40 border border-white/5 p-4 rounded-2xl">
+                <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                  {(() => {
+                    const Icon = typeIcon(selectedEntity.type);
+                    return <Icon className="w-6 h-6 text-red-500" />;
+                  })()}
+                </div>
+                <div>
+                  <div className="font-black text-white text-lg">{selectedEntity.name}</div>
+                  <div className="text-xs text-gray-500 font-medium">Blocked on {selectedEntity.blockedAt}</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Entity Type</div>
+                  <div className="font-bold text-white text-sm">{selectedEntity.type}</div>
+                </div>
+                <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Value</div>
+                  <div className="font-mono text-gray-300 text-sm truncate" title={selectedEntity.value}>{selectedEntity.value}</div>
+                </div>
+                <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Reason</div>
+                  <div className="font-bold text-white text-sm">{selectedEntity.reason}</div>
+                </div>
+                <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Severity</div>
+                  <span className={`px-2 py-1 rounded text-xs font-bold border ${severityStyle(selectedEntity.severity)}`}>{selectedEntity.severity}</span>
+                </div>
+              </div>
+              <div className="bg-white/5 rounded-xl p-3 border border-white/5">
+                <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Status</div>
+                <span className={`px-2 py-1 rounded text-xs font-bold border ${statusStyle(selectedEntity.status)}`}>{selectedEntity.status}</span>
+              </div>
+              <div className="pt-2 flex gap-3">
+                <button onClick={() => setSelectedEntity(null)} className="flex-1 bg-white/5 hover:bg-white/10 text-white font-bold py-3 rounded-xl border border-white/10 transition-colors text-sm">Close</button>
+                <button onClick={() => setSelectedEntity(null)} className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(124,58,237,0.3)]">Edit Policy</button>
+              </div>
+            </div>
           </div>
         </div>
       )}

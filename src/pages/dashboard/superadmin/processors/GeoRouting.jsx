@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Globe, Plus, Trash2, Edit, ChevronRight, Flag, Shield, ArrowRight } from 'lucide-react';
+import { Globe, Plus, Trash2, Edit, ChevronRight, Flag, Shield, ArrowRight, X } from 'lucide-react';
 
 const routingRules = [
   { id: 1, region: 'North America', countries: 'US, CA, MX', processor: 'Stripe Gateway US', priority: 1, status: 'Active', color: 'bg-[#7C3AED]' },
@@ -18,6 +18,36 @@ export default function GeoRouting() {
   const [editRule, setEditRule] = useState(null);
 
   const deleteRule = (id) => setRules(r => r.filter(x => x.id !== id));
+
+  const handleAddRule = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const newRule = {
+      id: Date.now(),
+      region: formData.get('region'),
+      countries: formData.get('countries'),
+      processor: formData.get('processor'),
+      priority: parseInt(formData.get('priority')),
+      status: 'Active',
+      color: 'bg-blue-600'
+    };
+    setRules([...rules, newRule]);
+    setShowAddModal(false);
+  };
+  
+  const handleEditRule = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const updated = {
+      ...editRule,
+      region: formData.get('region'),
+      countries: formData.get('countries'),
+      processor: formData.get('processor'),
+      priority: parseInt(formData.get('priority')),
+    };
+    setRules(rules.map(r => r.id === editRule.id ? updated : r));
+    setEditRule(null);
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500 w-full pb-8">
@@ -82,7 +112,7 @@ export default function GeoRouting() {
                   Priority {rule.priority}
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="text-gray-400 hover:text-[#7C3AED] transition-colors p-1.5 rounded-lg hover:bg-[#7C3AED]/10">
+                  <button onClick={() => setEditRule(rule)} className="text-gray-400 hover:text-[#7C3AED] transition-colors p-1.5 rounded-lg hover:bg-[#7C3AED]/10">
                     <Edit className="w-4 h-4" />
                   </button>
                   <button onClick={() => deleteRule(rule.id)} className="text-gray-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-500/10">
@@ -103,38 +133,76 @@ export default function GeoRouting() {
               <h3 className="font-black text-white text-xl flex items-center gap-2">
                 <Globe className="w-5 h-5 text-blue-500" /> New Routing Rule
               </h3>
-              <button onClick={() => setShowAddModal(false)} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full transition-colors">✕</button>
+              <button onClick={() => setShowAddModal(false)} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full transition-colors"><X className="w-4 h-4" /></button>
             </div>
-            <div className="p-6 space-y-4">
+            <form onSubmit={handleAddRule} className="p-6 space-y-4">
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Region Name</label>
-                <input className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm" placeholder="e.g. Southeast Asia" />
+                <input name="region" required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm" placeholder="e.g. Southeast Asia" />
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Countries (ISO codes)</label>
-                <input className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm font-mono" placeholder="e.g. TH, MY, ID, VN" />
+                <input name="countries" required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm font-mono" placeholder="e.g. TH, MY, ID, VN" />
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Processor</label>
-                <select className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm appearance-none">
-                  {processorOptions.map(p => <option key={p}>{p}</option>)}
+                <select name="processor" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm appearance-none">
+                  {processorOptions.map(p => <option key={p} value={p}>{p}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Priority</label>
-                <select className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm">
-                  <option>1 — Primary</option>
-                  <option>2 — Secondary</option>
-                  <option>3 — Fallback</option>
+                <select name="priority" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm">
+                  <option value="1">1 — Primary</option>
+                  <option value="2">2 — Secondary</option>
+                  <option value="3">3 — Fallback</option>
                 </select>
               </div>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl mt-2 transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]"
-              >
+              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl mt-2 transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]">
                 Add Rule
               </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Rule Modal */}
+      {editRule && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-md shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#09090B] rounded-t-3xl">
+              <h3 className="font-black text-white text-xl flex items-center gap-2">
+                <Edit className="w-5 h-5 text-blue-500" /> Edit Routing Rule
+              </h3>
+              <button onClick={() => setEditRule(null)} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full transition-colors"><X className="w-4 h-4" /></button>
             </div>
+            <form onSubmit={handleEditRule} className="p-6 space-y-4">
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Region Name</label>
+                <input name="region" defaultValue={editRule.region} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm" placeholder="e.g. Southeast Asia" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Countries (ISO codes)</label>
+                <input name="countries" defaultValue={editRule.countries} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm font-mono" placeholder="e.g. TH, MY, ID, VN" />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Processor</label>
+                <select name="processor" defaultValue={editRule.processor} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm appearance-none">
+                  {processorOptions.map(p => <option key={p} value={p}>{p}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Priority</label>
+                <select name="priority" defaultValue={editRule.priority} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors text-sm">
+                  <option value="1">1 — Primary</option>
+                  <option value="2">2 — Secondary</option>
+                  <option value="3">3 — Fallback</option>
+                </select>
+              </div>
+              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl mt-2 transition-all shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                Save Changes
+              </button>
+            </form>
           </div>
         </div>
       )}

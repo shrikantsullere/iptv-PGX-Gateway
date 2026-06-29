@@ -1,7 +1,18 @@
 import { useState } from 'react';
-import { Settings as SettingsIcon, Save, Server, Shield, Globe, Mail } from 'lucide-react';
+import { Settings as SettingsIcon, Save, Server, Shield, Globe, Mail, Check } from 'lucide-react';
 
 export default function Settings() {
+  const [isSaved, setIsSaved] = useState(false);
+  const [maintenance, setMaintenance] = useState(false);
+  const [sandbox, setSandbox] = useState(true);
+  const [twoFa, setTwoFa] = useState(true);
+  const [ipWhite, setIpWhite] = useState(false);
+
+  const handleSave = () => {
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 2000);
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
       <div className="flex justify-between items-center">
@@ -11,8 +22,8 @@ export default function Settings() {
           </h1>
           <p className="text-gray-400 mt-1">Core platform configurations and maintenance toggles.</p>
         </div>
-        <button className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(20,184,166,0.3)] flex items-center gap-2 transition-all">
-          <Save className="w-4 h-4" /> Save Configuration
+        <button onClick={handleSave} className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(20,184,166,0.3)] flex items-center gap-2 transition-all">
+          {isSaved ? <><Check className="w-4 h-4" /> Saved Successfully!</> : <><Save className="w-4 h-4" /> Save Configuration</>}
         </button>
       </div>
 
@@ -30,8 +41,8 @@ export default function Settings() {
                 <h4 className="text-white font-bold">Maintenance Mode</h4>
                 <p className="text-sm text-gray-500">Take the gateway offline for updates. Returns 503 to API requests.</p>
               </div>
-              <div className="w-12 h-6 bg-white/10 rounded-full relative cursor-pointer">
-                <div className="w-4 h-4 bg-gray-400 rounded-full absolute left-1 top-1"></div>
+              <div onClick={() => setMaintenance(!maintenance)} className={`w-12 h-6 rounded-full relative cursor-pointer transition-colors ${maintenance ? 'bg-[#7C3AED]/20 border border-[#7C3AED]/30' : 'bg-white/10'}`}>
+                <div className={`w-4 h-4 rounded-full absolute top-1 transition-all ${maintenance ? 'right-1 bg-[#7C3AED] shadow-[0_0_10px_rgba(124,58,237,0.8)]' : 'left-1 bg-gray-400'}`}></div>
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -39,8 +50,8 @@ export default function Settings() {
                 <h4 className="text-white font-bold">Sandbox Environment</h4>
                 <p className="text-sm text-gray-500">Allow merchants to create sandbox API keys.</p>
               </div>
-              <div className="w-12 h-6 bg-[#7C3AED]/20 rounded-full relative cursor-pointer border border-[#7C3AED]/30">
-                <div className="w-4 h-4 bg-[#7C3AED] rounded-full absolute right-1 top-1 shadow-[0_0_10px_rgba(124,58,237,0.8)]"></div>
+              <div onClick={() => setSandbox(!sandbox)} className={`w-12 h-6 rounded-full relative cursor-pointer transition-colors ${sandbox ? 'bg-[#7C3AED]/20 border border-[#7C3AED]/30' : 'bg-white/10'}`}>
+                <div className={`w-4 h-4 rounded-full absolute top-1 transition-all ${sandbox ? 'right-1 bg-[#7C3AED] shadow-[0_0_10px_rgba(124,58,237,0.8)]' : 'left-1 bg-gray-400'}`}></div>
               </div>
             </div>
           </div>
@@ -58,8 +69,8 @@ export default function Settings() {
                 <h4 className="text-white font-bold">Force 2FA for Admins</h4>
                 <p className="text-sm text-gray-500">Require 2FA setup on next login for all staff.</p>
               </div>
-              <div className="w-12 h-6 bg-[#7C3AED]/20 rounded-full relative cursor-pointer border border-[#7C3AED]/30">
-                <div className="w-4 h-4 bg-[#7C3AED] rounded-full absolute right-1 top-1 shadow-[0_0_10px_rgba(124,58,237,0.8)]"></div>
+              <div onClick={() => setTwoFa(!twoFa)} className={`w-12 h-6 rounded-full relative cursor-pointer transition-colors ${twoFa ? 'bg-[#7C3AED]/20 border border-[#7C3AED]/30' : 'bg-white/10'}`}>
+                <div className={`w-4 h-4 rounded-full absolute top-1 transition-all ${twoFa ? 'right-1 bg-[#7C3AED] shadow-[0_0_10px_rgba(124,58,237,0.8)]' : 'left-1 bg-gray-400'}`}></div>
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -67,8 +78,8 @@ export default function Settings() {
                 <h4 className="text-white font-bold">Strict IP Whitelisting</h4>
                 <p className="text-sm text-gray-500">Only allow admin logins from office IPs.</p>
               </div>
-              <div className="w-12 h-6 bg-white/10 rounded-full relative cursor-pointer">
-                <div className="w-4 h-4 bg-gray-400 rounded-full absolute left-1 top-1"></div>
+              <div onClick={() => setIpWhite(!ipWhite)} className={`w-12 h-6 rounded-full relative cursor-pointer transition-colors ${ipWhite ? 'bg-[#7C3AED]/20 border border-[#7C3AED]/30' : 'bg-white/10'}`}>
+                <div className={`w-4 h-4 rounded-full absolute top-1 transition-all ${ipWhite ? 'right-1 bg-[#7C3AED] shadow-[0_0_10px_rgba(124,58,237,0.8)]' : 'left-1 bg-gray-400'}`}></div>
               </div>
             </div>
           </div>

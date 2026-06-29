@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShieldCheck, Search, CheckCircle2, Clock, XCircle, AlertTriangle, Eye, ArrowUpRight, Filter, UserCheck } from 'lucide-react';
+import { ShieldCheck, Search, CheckCircle2, Clock, XCircle, AlertTriangle, Eye, ArrowUpRight, Filter, UserCheck, X } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const kycData = [
@@ -40,6 +40,8 @@ const riskStyle = (r) => ({
 
 export default function KYCDashboard() {
   const [search, setSearch] = useState('');
+  const [showQueueModal, setShowQueueModal] = useState(false);
+  const [reviewItem, setReviewItem] = useState(null);
 
   const filtered = recentKYC.filter(k =>
     k.name.toLowerCase().includes(search.toLowerCase()) || k.id.toLowerCase().includes(search.toLowerCase())
@@ -54,7 +56,7 @@ export default function KYCDashboard() {
           </h1>
           <p className="text-gray-400 mt-1">Master view of onboarding funnel and verification rates.</p>
         </div>
-        <button className="w-full sm:w-auto bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(124,58,237,0.3)] flex items-center justify-center gap-2">
+        <button onClick={() => setShowQueueModal(true)} className="w-full sm:w-auto bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(124,58,237,0.3)] flex items-center justify-center gap-2">
           <UserCheck className="w-4 h-4" /> Review Queue
         </button>
       </div>
@@ -165,7 +167,7 @@ export default function KYCDashboard() {
                     <span className={`px-3 py-1 rounded-full text-xs font-bold border ${statusStyle(k.status)}`}>{k.status}</span>
                   </td>
                   <td className="p-5 text-right">
-                    <button className="text-xs font-bold text-[#7C3AED] hover:text-[#6D28D9] bg-[#7C3AED]/10 hover:bg-[#7C3AED]/20 px-3 py-1.5 rounded-lg border border-[#7C3AED]/20 transition-colors inline-flex items-center gap-1">
+                    <button onClick={() => setReviewItem(k)} className="text-xs font-bold text-[#7C3AED] hover:text-[#6D28D9] bg-[#7C3AED]/10 hover:bg-[#7C3AED]/20 px-3 py-1.5 rounded-lg border border-[#7C3AED]/20 transition-colors inline-flex items-center gap-1">
                       <Eye className="w-3 h-3" /> Review
                     </button>
                   </td>
@@ -175,6 +177,70 @@ export default function KYCDashboard() {
           </table>
         </div>
       </div>
+
+      {/* Review Queue Modal */}
+      {showQueueModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-md shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#09090B] rounded-t-3xl">
+              <h3 className="font-black text-white text-lg flex items-center gap-2">
+                <UserCheck className="w-5 h-5 text-[#7C3AED]" /> KYC Review Queue
+              </h3>
+              <button onClick={() => setShowQueueModal(false)} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6 space-y-4 max-h-[400px] overflow-y-auto custom-scrollbar">
+              {recentKYC.filter(k => k.status === 'Pending' || k.status === 'Review').map((item, idx) => (
+                <div key={idx} className="bg-black/40 border border-white/5 rounded-xl p-4 flex justify-between items-center">
+                  <div>
+                    <div className="font-bold text-white text-sm">{item.name}</div>
+                    <div className="text-xs text-gray-500">{item.submitted} • {item.type}</div>
+                  </div>
+                  <button onClick={() => { setShowQueueModal(false); setReviewItem(item); }} className="text-xs font-bold text-[#7C3AED] hover:text-white bg-[#7C3AED]/20 px-3 py-1.5 rounded-lg transition-colors">Review</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Review Specific Item Modal */}
+      {reviewItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-lg shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#09090B] rounded-t-3xl">
+              <h3 className="font-black text-white text-lg flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-[#7C3AED]" /> Review: {reviewItem.name}
+              </h3>
+              <button onClick={() => setReviewItem(null)} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full"><X className="w-5 h-5" /></button>
+            </div>
+            <div className="p-6 space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-black/40 border border-white/5 rounded-xl p-3">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Entity Type</div>
+                  <div className="font-bold text-white text-sm">{reviewItem.type}</div>
+                </div>
+                <div className="bg-black/40 border border-white/5 rounded-xl p-3">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-wider mb-1">Risk Level</div>
+                  <div className={`font-bold text-sm ${riskStyle(reviewItem.risk)}`}>{reviewItem.risk}</div>
+                </div>
+              </div>
+              <div className="bg-black/40 border border-white/5 rounded-xl p-4">
+                <h4 className="text-sm font-bold text-white mb-2">Documents</h4>
+                <div className="flex items-center gap-2 text-xs text-blue-400 cursor-pointer hover:underline mb-1">
+                  1. Certificate_of_Incorporation.pdf
+                </div>
+                <div className="flex items-center gap-2 text-xs text-blue-400 cursor-pointer hover:underline">
+                  2. Director_ID_Passport.jpg
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => setReviewItem(null)} className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-500 font-bold py-3 rounded-xl border border-red-500/20 transition-colors text-sm">Reject</button>
+                <button onClick={() => setReviewItem(null)} className="flex-1 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)]">Approve</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

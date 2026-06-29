@@ -2,12 +2,28 @@ import { useState } from 'react';
 import { UserCog, Plus, Shield, Check, X } from 'lucide-react';
 
 export default function Roles() {
-  const [roles] = useState([
+  const [roles, setRoles] = useState([
     { name: 'Super Administrator', users: 2, access: 'Full System Access', risk: 'Critical' },
     { name: 'Financial Controller', users: 5, access: 'Read-only + Settlements + Reports', risk: 'High' },
     { name: 'Support Agent', users: 14, access: 'Tickets + Basic Merchant Data', risk: 'Low' },
     { name: 'Compliance Officer', users: 3, access: 'KYC/AML Modules Only', risk: 'Medium' },
   ]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleCreateRole = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    
+    const newRole = {
+      name: formData.get('name'),
+      access: formData.get('access'),
+      risk: formData.get('risk'),
+      users: 0
+    };
+    
+    setRoles([...roles, newRole]);
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -18,7 +34,7 @@ export default function Roles() {
           </h1>
           <p className="text-gray-400 mt-1">Manage RBAC (Role-Based Access Control) for internal PGX staff.</p>
         </div>
-        <button className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-4 py-2 rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] flex items-center gap-2 transition-all">
+        <button onClick={() => setIsModalOpen(true)} className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-4 py-2 rounded-xl text-sm font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] flex items-center gap-2 transition-all">
           <Plus className="w-4 h-4" /> Create Role
         </button>
       </div>
@@ -44,6 +60,47 @@ export default function Roles() {
           </div>
         ))}
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-white/5">
+              <h2 className="text-xl font-bold text-white">Create Admin Role</h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleCreateRole} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-400 mb-1">Role Name</label>
+                <input name="name" type="text" required placeholder="e.g. Risk Analyst" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-400 mb-1">Access Level Description</label>
+                <input name="access" type="text" required placeholder="e.g. Fraud + Disputes Only" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-400 mb-1">Risk Profile</label>
+                <select name="risk" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none appearance-none">
+                  <option value="Low">Low Risk</option>
+                  <option value="Medium">Medium Risk</option>
+                  <option value="High">High Risk</option>
+                  <option value="Critical">Critical Risk</option>
+                </select>
+              </div>
+              
+              <div className="pt-4 flex gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg font-bold transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors">
+                  Create Role
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

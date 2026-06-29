@@ -7,6 +7,12 @@ export default function WhiteLabel() {
     { merchant: 'Global Tech', domain: 'checkout.globaltech.io', ssl: 'Provisioning', status: 'Pending Review' },
     { merchant: 'Scam Casino', domain: 'pay.fakesite.net', ssl: 'Failed', status: 'Rejected' },
   ]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredRequests = requests.filter(r => 
+    r.merchant.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.domain.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -23,7 +29,13 @@ export default function WhiteLabel() {
         <div className="p-4 border-b border-white/5 flex gap-4">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-            <input type="text" placeholder="Search domains..." className="w-full bg-[#09090B] border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-[#7C3AED]" />
+            <input 
+              type="text" 
+              placeholder="Search by merchant or domain..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#09090B] border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-[#7C3AED]" 
+            />
           </div>
         </div>
         <table className="w-full text-left border-collapse">
@@ -37,7 +49,7 @@ export default function WhiteLabel() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5 text-sm">
-            {requests.map((r, i) => (
+            {filteredRequests.map((r, i) => (
               <tr key={i} className="hover:bg-white/[0.02]">
                 <td className="p-4 font-bold text-white">{r.merchant}</td>
                 <td className="p-4 text-cyan-500 font-mono flex items-center gap-2">

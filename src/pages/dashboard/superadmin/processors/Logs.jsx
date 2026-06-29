@@ -33,6 +33,29 @@ export default function Logs() {
   const [processorFilter, setProcessorFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [expandedLog, setExpandedLog] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setTimeout(() => setIsRefreshing(false), 1500);
+  };
+
+  const handleExport = () => {
+    const csvContent = [
+      ['Log ID', 'Time', 'Processor', 'TX ID', 'Endpoint', 'Status', 'Latency'],
+      ...allLogs.map(l => [l.id, l.time, l.processor, l.txId, l.endpoint, l.status, l.latency])
+    ].map(e => e.join(",")).join("\n");
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "processor_logs.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   const filtered = allLogs.filter(l => {
     const matchSearch = l.txId.includes(search) || l.id.includes(search) || l.processor.toLowerCase().includes(search.toLowerCase());
@@ -51,10 +74,10 @@ export default function Logs() {
           <p className="text-gray-400 mt-1">Raw API transaction logs, status codes, and webhook responses.</p>
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
-          <button className="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 text-white px-4 py-2.5 rounded-xl text-sm font-bold border border-white/10 transition-colors flex items-center justify-center gap-2">
-            <RefreshCw className="w-4 h-4" /> Refresh
+          <button onClick={handleRefresh} disabled={isRefreshing} className="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 text-white px-4 py-2.5 rounded-xl text-sm font-bold border border-white/10 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} /> Refresh
           </button>
-          <button className="flex-1 sm:flex-none bg-pink-600 hover:bg-pink-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(236,72,153,0.3)] flex items-center justify-center gap-2">
+          <button onClick={handleExport} className="flex-1 sm:flex-none bg-pink-600 hover:bg-pink-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(236,72,153,0.3)] flex items-center justify-center gap-2">
             <Download className="w-4 h-4" /> Export
           </button>
         </div>

@@ -19,6 +19,8 @@ export default function SettlementEngine() {
   const [showSettleModal, setShowSettleModal] = useState(false);
   const [settling, setSettling] = useState(false);
   const [settled, setSettled] = useState(false);
+  const [isAutoSettleEnabled, setIsAutoSettleEnabled] = useState(true);
+  const [showModifyModal, setShowModifyModal] = useState(false);
 
   const handleSettle = () => {
     setSettling(true);
@@ -39,7 +41,7 @@ export default function SettlementEngine() {
           <p className="text-gray-400 mt-1">Manage balances across processors and trigger settlement batches.</p>
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
-          <button className="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 text-white px-4 py-2.5 rounded-xl text-sm font-bold border border-white/10 transition-colors flex items-center justify-center gap-2">
+          <button onClick={() => setShowModifyModal(true)} className="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 text-white px-4 py-2.5 rounded-xl text-sm font-bold border border-white/10 transition-colors flex items-center justify-center gap-2">
             <Settings className="w-4 h-4" /> Auto-Settle Rules
           </button>
           <button
@@ -63,8 +65,13 @@ export default function SettlementEngine() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs bg-green-500/10 text-green-500 border border-green-500/20 px-3 py-1 rounded-full font-bold">Enabled</span>
-          <button className="text-xs text-gray-400 hover:text-white border border-white/10 px-3 py-1 rounded-lg transition-colors">Modify</button>
+          <button 
+            onClick={() => setIsAutoSettleEnabled(!isAutoSettleEnabled)}
+            className={`text-xs px-3 py-1 rounded-full font-bold border transition-colors ${isAutoSettleEnabled ? 'bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20'}`}
+          >
+            {isAutoSettleEnabled ? 'Enabled' : 'Disabled'}
+          </button>
+          <button onClick={() => setShowModifyModal(true)} className="text-xs text-gray-400 hover:text-white border border-white/10 px-3 py-1 rounded-lg transition-colors bg-white/5 hover:bg-white/10">Modify</button>
         </div>
       </div>
 
@@ -191,6 +198,51 @@ export default function SettlementEngine() {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modify Auto-Settle Modal */}
+      {showModifyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-md shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-[#09090B] rounded-t-3xl">
+              <h3 className="font-black text-white text-xl flex items-center gap-2">
+                <Settings className="w-5 h-5 text-cyan-500" /> Auto-Settle Rules
+              </h3>
+              <button onClick={() => setShowModifyModal(false)} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full transition-colors"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Schedule Frequency</label>
+                <select className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm appearance-none">
+                  <option>Daily at 00:00 UTC</option>
+                  <option>Weekly (Mondays)</option>
+                  <option>Monthly (1st of Month)</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Minimum Threshold</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-3 text-gray-400 font-bold">$</span>
+                  <input type="number" defaultValue="5000" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 pl-8 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm font-mono" />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Include Processors</label>
+                <select className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm appearance-none">
+                  <option>All Active Processors</option>
+                  <option>Stripe US & EU Only</option>
+                  <option>Crypto Only</option>
+                </select>
+              </div>
+              <div className="pt-4 flex gap-3">
+                <button onClick={() => setShowModifyModal(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg font-bold transition-colors">Cancel</button>
+                <button onClick={() => setShowModifyModal(false)} className="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                  Save Rules
+                </button>
+              </div>
             </div>
           </div>
         </div>

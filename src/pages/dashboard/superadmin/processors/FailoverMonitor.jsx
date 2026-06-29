@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AlertTriangle, Activity, Server, Zap, Settings2, RefreshCw, CheckCircle2, ArrowUpRight } from 'lucide-react';
+import { AlertTriangle, Activity, Server, Zap, Settings2, RefreshCw, CheckCircle2, ArrowUpRight, X } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const initialLatencyData = Array.from({ length: 20 }).map((_, i) => ({
@@ -23,6 +23,8 @@ const activeNodes = [
 
 export default function FailoverMonitor() {
   const [latencyData, setLatencyData] = useState(initialLatencyData);
+  const [isLogsModalOpen, setIsLogsModalOpen] = useState(false);
+  const [isRoutingModalOpen, setIsRoutingModalOpen] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -50,10 +52,10 @@ export default function FailoverMonitor() {
           <p className="text-gray-400 mt-1">Live ping times, node health, and automatic failover engine.</p>
         </div>
         <div className="flex gap-3 w-full sm:w-auto">
-          <button className="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 text-white px-4 py-2.5 rounded-xl text-sm font-bold border border-white/10 transition-colors">
+          <button onClick={() => setIsLogsModalOpen(true)} className="flex-1 sm:flex-none bg-white/5 hover:bg-white/10 text-white px-4 py-2.5 rounded-xl text-sm font-bold border border-white/10 transition-colors">
             View Logs
           </button>
-          <button className="flex-1 sm:flex-none bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2">
+          <button onClick={() => setIsRoutingModalOpen(true)} className="flex-1 sm:flex-none bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition-colors shadow-[0_0_15px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2">
             <Settings2 className="w-4 h-4" /> Routing Rules
           </button>
         </div>
@@ -191,6 +193,55 @@ export default function FailoverMonitor() {
           </div>
         </div>
       </div>
+
+      {/* Logs Modal */}
+      {isLogsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl shadow-2xl w-full max-w-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-white/5">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">System Logs</h2>
+              <button onClick={() => setIsLogsModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 font-mono text-sm space-y-2 h-[400px] overflow-y-auto">
+              <div className="text-gray-400">[12:43:02] <span className="text-green-500">INFO</span> - Health check passed for Stripe EU. Latency: 32ms.</div>
+              <div className="text-gray-400">[12:44:10] <span className="text-orange-500">WARN</span> - Coinbase latency spiked to 450ms.</div>
+              <div className="text-gray-400">[12:44:15] <span className="text-red-500">ERROR</span> - MoonPay connection timeout.</div>
+              <div className="text-gray-400">[12:45:00] <span className="text-cyan-500">SYSTEM</span> - Initiated failover FO-9922. Fallback: Stripe US.</div>
+              <div className="text-gray-400">[12:46:12] <span className="text-green-500">INFO</span> - Failover completed successfully.</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Routing Rules Modal */}
+      {isRoutingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-white/5">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">Failover Routing Rules</h2>
+              <button onClick={() => setIsRoutingModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-bold text-gray-400 mb-1">Max Retries Before Failover</label>
+                <input type="number" defaultValue={3} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-400 mb-1">Latency Threshold (ms)</label>
+                <input type="number" defaultValue={500} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-cyan-500 outline-none" />
+              </div>
+              <div className="pt-4 flex gap-3">
+                <button onClick={() => setIsRoutingModalOpen(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg font-bold transition-colors">Cancel</button>
+                <button onClick={() => setIsRoutingModalOpen(false)} className="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-colors">Save Rules</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

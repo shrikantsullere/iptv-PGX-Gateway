@@ -8,6 +8,12 @@ export default function Support() {
     { id: 'TKT-8919', merchant: 'Web3 Gaming', subject: 'Custom Domain SSL Pending', status: 'Resolved', priority: 'Medium', time: '5 hours ago' },
     { id: 'TKT-8918', merchant: 'SaaS Connect', subject: 'Change Billing Email', status: 'Resolved', priority: 'Low', time: '1 day ago' },
   ]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredTickets = tickets.filter(t => 
+    t.merchant.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    t.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -39,7 +45,13 @@ export default function Support() {
         <div className="p-4 border-b border-white/5 flex gap-4">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-            <input type="text" placeholder="Search tickets..." className="w-full bg-[#09090B] border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-[#7C3AED]" />
+            <input 
+              type="text" 
+              placeholder="Search tickets by merchant or ID..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#09090B] border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-[#7C3AED]" 
+            />
           </div>
         </div>
         <table className="w-full text-left border-collapse">
@@ -54,7 +66,7 @@ export default function Support() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5 text-sm">
-            {tickets.map((t, i) => (
+            {filteredTickets.map((t, i) => (
               <tr key={i} className="hover:bg-white/[0.02] cursor-pointer">
                 <td className="p-4 font-mono font-bold text-gray-400">{t.id}</td>
                 <td className="p-4 font-bold text-white">{t.merchant}</td>
