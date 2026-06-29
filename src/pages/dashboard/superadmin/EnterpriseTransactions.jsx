@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { 
   Search, Download, Filter, Calendar, MapPin, Building,
-  Server, Coins, Link as LinkIcon, ExternalLink, MoreHorizontal, ArrowRightLeft
+  Server, Coins, Link as LinkIcon, ExternalLink, MoreHorizontal, ArrowRightLeft,
+  Edit, Trash, X
 } from 'lucide-react';
 
 const mockEnterpriseTransactions = Array(25).fill(null).map((_, i) => ({
@@ -20,6 +21,56 @@ const mockEnterpriseTransactions = Array(25).fill(null).map((_, i) => ({
 
 const EnterpriseTransactions = () => {
   const [showFilters, setShowFilters] = useState(false);
+  const [transactions, setTransactions] = useState(mockEnterpriseTransactions);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [txToUpdate, setTxToUpdate] = useState(null);
+
+  const filteredTransactions = transactions.filter(tx => 
+    tx.merchant.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    tx.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tx.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentTransactions = filteredTransactions.slice(startIndex, startIndex + itemsPerPage);
+
+  const handleExport = () => {
+    const headers = ['Transaction ID', 'Timestamp', 'Merchant', 'Customer', 'Amount', 'Currency', 'Processor', 'Gateway Fee', 'Status'];
+    const csvRows = filteredTransactions.map(tx => 
+      [tx.id, `"${tx.date}"`, `"${tx.merchant}"`, `"${tx.customer}"`, tx.amount, tx.currency, tx.processor, tx.fee, tx.status].join(',')
+    );
+    const csvContent = [headers.join(','), ...csvRows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'transactions_report.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const openUpdateModal = (tx) => {
+    setTxToUpdate(tx);
+    setIsUpdateModalOpen(true);
+  };
+
+  const handleUpdate = (e) => {
+    e.preventDefault();
+    if (!txToUpdate) return;
+    setTransactions(transactions.map(t => t.id === txToUpdate.id ? txToUpdate : t));
+    setIsUpdateModalOpen(false);
+    setTxToUpdate(null);
+  };
+
+  const handleDelete = (id) => {
+    setTransactions(transactions.filter(t => t.id !== id));
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -41,7 +92,7 @@ const EnterpriseTransactions = () => {
           >
             <Filter className="w-4 h-4" /> Advanced Filters
           </button>
-          <button className="flex items-center gap-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-4 py-2 rounded-xl transition-all font-bold text-sm shadow-[0_0_15px_rgba(124,58,237,0.3)]">
+          <button onClick={handleExport} className="flex items-center gap-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-4 py-2 rounded-xl transition-all font-bold text-sm shadow-[0_0_15px_rgba(124,58,237,0.3)]">
             <Download className="w-4 h-4" /> Export CSV
           </button>
         </div>
@@ -83,6 +134,8 @@ const EnterpriseTransactions = () => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
             <input 
               type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Global Search (TxID, Merchant, Hash, Customer, Wallet)..." 
               className="w-full bg-[#09090B] border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#7C3AED] transition-colors"
             />
@@ -105,7 +158,7 @@ const EnterpriseTransactions = () => {
               </tr>
             </thead>
             <tbody className="text-sm divide-y divide-white/5">
-              {mockEnterpriseTransactions.map((tx, i) => (
+              {currentTransactions.map((tx, i) => (
                 <tr key={i} className="hover:bg-white/[0.02] transition-colors group cursor-pointer">
                   <td className="p-4 text-[#7C3AED] font-bold">{tx.id}</td>
                   <td className="p-4 text-gray-500 text-xs">{tx.date}</td>
@@ -127,9 +180,14 @@ const EnterpriseTransactions = () => {
                     </span>
                   </td>
                   <td className="p-4 text-center">
-                    <button className="p-1.5 text-gray-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-colors">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </button>
+                    <div className="flex justify-center gap-2">
+                      <button onClick={(e) => { e.stopPropagation(); openUpdateModal(tx); }} className="p-2 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-lg transition-colors tooltip" title="Update">
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button onClick={(e) => { e.stopPropagation(); handleDelete(tx.id); }} className="p-2 bg-red-500/10 text-red-500 hover:bg-red-500/20 rounded-lg transition-colors tooltip" title="Delete">
+                        <Trash className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -139,20 +197,77 @@ const EnterpriseTransactions = () => {
         
         {/* Pagination */}
         <div className="p-4 border-t border-white/5 flex items-center justify-between text-xs text-gray-400 font-bold">
-          <span>Showing 1 to 25 of 14,290 entries</span>
+          <span>Showing {filteredTransactions.length === 0 ? 0 : startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredTransactions.length)} of {filteredTransactions.length} entries</span>
           <div className="flex items-center gap-2">
-            <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors disabled:opacity-50 text-white font-bold border border-white/10">Prev</button>
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold border border-white/10"
+            >
+              Prev
+            </button>
             <div className="flex items-center gap-1">
-              <button className="w-7 h-7 rounded-lg bg-[#7C3AED] text-white font-bold flex items-center justify-center shadow-[0_0_10px_rgba(124,58,237,0.5)]">1</button>
-              <button className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 font-bold flex items-center justify-center transition-colors">2</button>
-              <button className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 font-bold flex items-center justify-center transition-colors">3</button>
-              <span className="px-1">...</span>
-              <button className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 font-bold flex items-center justify-center transition-colors">572</button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                <button 
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`w-7 h-7 rounded-lg font-bold flex items-center justify-center transition-colors ${
+                    currentPage === pageNum 
+                      ? 'bg-[#7C3AED] text-white shadow-[0_0_10px_rgba(124,58,237,0.5)]' 
+                      : 'bg-white/5 hover:bg-white/10 text-gray-300'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
             </div>
-            <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-white font-bold border border-white/10">Next</button>
+            <button 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages || totalPages === 0}
+              className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold border border-white/10"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Update Transaction Modal */}
+      {isUpdateModalOpen && txToUpdate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-white/5">
+              <h2 className="text-xl font-bold text-white">Update Transaction</h2>
+              <button onClick={() => setIsUpdateModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleUpdate} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Status</label>
+                <select 
+                  value={txToUpdate.status}
+                  onChange={(e) => setTxToUpdate({...txToUpdate, status: e.target.value})}
+                  className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none appearance-none"
+                >
+                  <option value="Completed">Completed</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Failed">Failed</option>
+                  <option value="Refunded">Refunded</option>
+                </select>
+              </div>
+              <div className="pt-4 flex gap-3">
+                <button type="button" onClick={() => setIsUpdateModalOpen(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg font-bold transition-colors">
+                  Cancel
+                </button>
+                <button type="submit" className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-colors">
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );

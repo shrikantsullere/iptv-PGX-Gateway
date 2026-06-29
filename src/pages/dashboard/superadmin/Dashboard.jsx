@@ -30,7 +30,7 @@ const Dashboard = () => {
           <h1 className="text-3xl font-black text-white tracking-tight">Command Center</h1>
           <p className="text-gray-400 text-sm mt-1">Platform overview and live metrics.</p>
         </div>
-        <button className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-4 py-2 rounded-lg text-sm font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors flex items-center gap-2">
+        <button onClick={() => window.location.reload()} className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-4 py-2 rounded-lg text-sm font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors flex items-center gap-2">
           <RefreshCcw className="w-4 h-4" /> Refresh Data
         </button>
       </div>

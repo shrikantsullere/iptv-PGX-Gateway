@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, Users, CreditCard, DollarSign, Landmark, Wallet, 
-  Network, Receipt, Package, Fingerprint, ShieldAlert, Globe2, 
-  Coins, Code, Webhook, BarChart3, Palette, Bell, Ticket, 
+import {
+  LayoutDashboard, Users, CreditCard, DollarSign, Landmark, Wallet,
+  Network, Receipt, Package, Fingerprint, ShieldAlert, Globe2,
+  Coins, Code, Webhook, BarChart3, Palette, Bell, Ticket,
   ClipboardList, UserCog, Settings, Search, Sun, Moon, LogOut, ChevronLeft, ChevronRight, CheckCircle2,
   ChevronDown, Activity, Map, Percent, FileText, Database, Shield, FileCheck, Eye, SearchSlash, AlertTriangle, UserX, Gavel, CalendarClock
 } from 'lucide-react';
@@ -16,6 +16,7 @@ const SuperAdminLayout = () => {
   const [isProcessorsOpen, setIsProcessorsOpen] = useState(false);
   const [isComplianceOpen, setIsComplianceOpen] = useState(false);
   const [isRiskOpen, setIsRiskOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   // Check routes to keep submenus open
   const isProcessorRoute = location.pathname.includes('/super-admin/processors');
@@ -82,9 +83,9 @@ const SuperAdminLayout = () => {
 
   return (
     <div className={`h-screen overflow-hidden flex ${isDarkMode ? 'bg-[#050508] text-white' : 'bg-gray-50 text-gray-900'} font-sans`}>
-      
+
       {/* Sidebar */}
-      <aside 
+      <aside
         className={`${isSidebarOpen ? 'w-64' : 'w-20'} flex-shrink-0 border-r ${isDarkMode ? 'border-white/5 bg-[#09090B]' : 'border-gray-200 bg-white'} flex flex-col transition-all duration-300 relative z-20`}
       >
         {/* Logo */}
@@ -102,7 +103,7 @@ const SuperAdminLayout = () => {
         {/* Menu Items */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 custom-scrollbar">
           <nav className="space-y-1 px-3">
-            
+
             {/* Top Menu */}
             {topMenuItems.map((item, i) => (
               <NavLink
@@ -111,8 +112,8 @@ const SuperAdminLayout = () => {
                 end={item.path === '/super-admin'}
                 className={({ isActive }) => `
                   flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200
-                  ${isActive 
-                    ? `bg-[#7C3AED] text-white shadow-[0_0_15px_rgba(124,58,237,0.3)]` 
+                  ${isActive
+                    ? `bg-[#7C3AED] text-white shadow-[0_0_15px_rgba(124,58,237,0.3)]`
                     : `${isDarkMode ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`
                   }
                 `}
@@ -125,11 +126,11 @@ const SuperAdminLayout = () => {
 
             {/* Payment Processors Submenu */}
             <div className="pt-2 pb-1">
-              <button 
+              <button
                 onClick={() => setIsProcessorsOpen(!isProcessorsOpen)}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 group
-                  ${isProcessorRoute 
-                    ? `bg-[#7C3AED]/10 text-[#7C3AED] border border-[#7C3AED]/20` 
+                  ${isProcessorRoute
+                    ? `bg-[#7C3AED]/10 text-[#7C3AED] border border-[#7C3AED]/20`
                     : `${isDarkMode ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`
                   }
                 `}
@@ -143,7 +144,7 @@ const SuperAdminLayout = () => {
                   <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isProcessorsOpen ? 'rotate-180' : ''}`} />
                 )}
               </button>
-              
+
               {isSidebarOpen && isProcessorsOpen && (
                 <div className="mt-1 ml-4 pl-4 border-l border-white/10 space-y-1 animate-in slide-in-from-top-2 duration-200">
                   {processorSubItems.map((sub, i) => (
@@ -157,11 +158,11 @@ const SuperAdminLayout = () => {
 
             {/* KYC & Compliance Submenu */}
             <div className="pb-1">
-              <button 
+              <button
                 onClick={() => setIsComplianceOpen(!isComplianceOpen)}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 group
-                  ${isComplianceRoute 
-                    ? `bg-[#7C3AED]/10 text-[#7C3AED] border border-[#7C3AED]/20` 
+                  ${isComplianceRoute
+                    ? `bg-[#7C3AED]/10 text-[#7C3AED] border border-[#7C3AED]/20`
                     : `${isDarkMode ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`
                   }
                 `}
@@ -175,7 +176,7 @@ const SuperAdminLayout = () => {
                   <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isComplianceOpen ? 'rotate-180' : ''}`} />
                 )}
               </button>
-              
+
               {isSidebarOpen && isComplianceOpen && (
                 <div className="mt-1 ml-4 pl-4 border-l border-white/10 space-y-1 animate-in slide-in-from-top-2 duration-200">
                   {complianceSubItems.map((sub, i) => (
@@ -189,11 +190,11 @@ const SuperAdminLayout = () => {
 
             {/* Fraud & Risk Submenu */}
             <div className="pb-1">
-              <button 
+              <button
                 onClick={() => setIsRiskOpen(!isRiskOpen)}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 group
-                  ${isRiskRoute 
-                    ? `bg-red-500/10 text-red-500 border border-red-500/20` 
+                  ${isRiskRoute
+                    ? `bg-red-500/10 text-red-500 border border-red-500/20`
                     : `${isDarkMode ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`
                   }
                 `}
@@ -207,7 +208,7 @@ const SuperAdminLayout = () => {
                   <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isRiskOpen ? 'rotate-180' : ''}`} />
                 )}
               </button>
-              
+
               {isSidebarOpen && isRiskOpen && (
                 <div className="mt-1 ml-4 pl-4 border-l border-white/10 space-y-1 animate-in slide-in-from-top-2 duration-200">
                   {riskSubItems.map((sub, i) => (
@@ -226,8 +227,8 @@ const SuperAdminLayout = () => {
                 to={item.path}
                 className={({ isActive }) => `
                   flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200
-                  ${isActive 
-                    ? `bg-[#7C3AED] text-white shadow-[0_0_15px_rgba(124,58,237,0.3)]` 
+                  ${isActive
+                    ? `bg-[#7C3AED] text-white shadow-[0_0_15px_rgba(124,58,237,0.3)]`
                     : `${isDarkMode ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`
                   }
                 `}
@@ -242,7 +243,7 @@ const SuperAdminLayout = () => {
         </div>
 
         {/* Sidebar Toggle */}
-        <button 
+        <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           className={`absolute -right-3 top-20 w-6 h-6 rounded-full flex items-center justify-center shadow-lg ${isDarkMode ? 'bg-[#13131A] border border-white/10 text-gray-400' : 'bg-white border border-gray-200 text-gray-600'}`}
         >
@@ -252,16 +253,16 @@ const SuperAdminLayout = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        
+
         {/* Top Header */}
         <header className={`h-16 flex-shrink-0 flex items-center justify-between px-6 border-b ${isDarkMode ? 'border-white/5 bg-[#09090B]' : 'border-gray-200 bg-white'}`}>
-          
+
           <div className="flex items-center gap-6">
             <div className={`relative flex items-center w-64 ${isDarkMode ? 'bg-white/5 border border-white/5' : 'bg-gray-100 border border-gray-200'} rounded-lg px-3 py-1.5 focus-within:ring-1 focus-within:ring-[#7C3AED] transition-all`}>
               <Search className={`w-4 h-4 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'} mr-2`} />
-              <input 
-                type="text" 
-                placeholder="Search anything..." 
+              <input
+                type="text"
+                placeholder="Search anything..."
                 className={`w-full bg-transparent outline-none text-sm ${isDarkMode ? 'text-white placeholder-gray-500' : 'text-gray-900 placeholder-gray-400'}`}
               />
             </div>
@@ -270,7 +271,7 @@ const SuperAdminLayout = () => {
           <div className="flex items-center gap-4">
             {/* Processor Status Chip */}
             <div className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold ${isDarkMode ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-green-100 text-green-700 border border-green-200'}`}>
-               <CheckCircle2 className="w-3 h-3" /> All Systems Operational
+              <CheckCircle2 className="w-3 h-3" /> All Systems Operational
             </div>
 
             <div className={`w-px h-6 ${isDarkMode ? 'bg-white/10' : 'bg-gray-200'} mx-2`}></div>
@@ -278,11 +279,45 @@ const SuperAdminLayout = () => {
             <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'text-gray-400 hover:bg-white/10 hover:text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}>
               {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
-            
-            <button className={`p-2 rounded-lg transition-colors relative ${isDarkMode ? 'text-gray-400 hover:bg-white/10 hover:text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}>
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500"></span>
-            </button>
+
+            <div className="relative">
+              <button 
+                onClick={() => setShowNotifications(!showNotifications)} 
+                className={`p-2 rounded-lg transition-colors relative ${isDarkMode ? 'text-gray-400 hover:bg-white/10 hover:text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}
+              >
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500"></span>
+              </button>
+
+              {showNotifications && (
+                <div className={`absolute right-0 mt-2 w-80 rounded-xl shadow-2xl border ${isDarkMode ? 'bg-[#13131A] border-white/10' : 'bg-white border-gray-200'} z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200`}>
+                  <div className={`p-4 border-b ${isDarkMode ? 'border-white/5' : 'border-gray-100'} flex justify-between items-center`}>
+                    <h3 className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Notifications</h3>
+                    <span className="text-xs bg-[#7C3AED] text-white px-2 py-0.5 rounded-full font-bold">1 New</span>
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                    <div className={`p-4 border-b ${isDarkMode ? 'border-white/5 hover:bg-white/[0.02]' : 'border-gray-50 hover:bg-gray-50'} cursor-pointer transition-colors`} onClick={() => { setShowNotifications(false); navigate('/super-admin/notifications'); }}>
+                      <div className="flex gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#7C3AED]/20 flex items-center justify-center shrink-0">
+                          <Bell className="w-4 h-4 text-[#7C3AED]" />
+                        </div>
+                        <div>
+                          <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>System Update</p>
+                          <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Platform maintenance scheduled for tonight at 2 AM EST.</p>
+                          <p className={`text-[10px] mt-2 font-medium text-[#7C3AED]`}>2 hours ago</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div 
+                    className={`p-3 text-center ${isDarkMode ? 'bg-black/20 hover:bg-black/40' : 'bg-gray-50 hover:bg-gray-100'} cursor-pointer transition-colors`} 
+                    onClick={() => { setShowNotifications(false); navigate('/super-admin/notifications'); }}
+                  >
+                    <span className="text-sm font-bold text-[#7C3AED]">View All Notifications</span>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div className={`w-px h-6 ${isDarkMode ? 'bg-white/10' : 'bg-gray-200'} mx-2`}></div>
 
@@ -296,7 +331,7 @@ const SuperAdminLayout = () => {
                 <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>Owner</div>
               </div>
             </div>
-            
+
             <button onClick={() => navigate('/login')} className={`ml-2 p-2 rounded-lg transition-colors ${isDarkMode ? 'text-red-400 hover:bg-red-500/10' : 'text-red-600 hover:bg-red-50'}`}>
               <LogOut className="w-5 h-5" />
             </button>
@@ -310,7 +345,7 @@ const SuperAdminLayout = () => {
         </main>
 
       </div>
-      
+
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
