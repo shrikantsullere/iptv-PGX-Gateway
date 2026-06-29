@@ -1,4 +1,5 @@
-import { ArrowUpFromLine, Search, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowUpFromLine, Search, Clock, CheckCircle2, XCircle, X, Wallet, ArrowRight } from 'lucide-react';
 
 const mockWithdrawals = Array(10).fill(null).map((_, i) => ({
   id: `WD-${7821 + i}`,
@@ -10,6 +11,18 @@ const mockWithdrawals = Array(10).fill(null).map((_, i) => ({
 }));
 
 const Withdrawals = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [payoutMethod, setPayoutMethod] = useState('crypto');
+  const [amount, setAmount] = useState('');
+  const [destination, setDestination] = useState('');
+
+  const filteredWithdrawals = mockWithdrawals.filter(wd => 
+    wd.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    wd.destination.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    wd.method.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="w-full animate-in fade-in zoom-in-95 duration-500">
       <div className="w-full flex flex-col">
@@ -23,20 +36,25 @@ const Withdrawals = () => {
               <p className="text-gray-400">Manage all your outgoing payouts and settlements.</p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-xl transition-all font-bold">
+              <button 
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-2.5 rounded-xl transition-all font-bold shadow-[0_0_20px_rgba(37,99,235,0.3)] hover:shadow-[0_0_30px_rgba(37,99,235,0.5)] hover:-translate-y-0.5"
+              >
                 Request Payout
               </button>
             </div>
           </div>
 
-          <div className="bg-[#13131A] border border-white/5 rounded-2xl overflow-hidden flex flex-col">
+          <div className="bg-[#13131A] border border-white/5 rounded-2xl overflow-hidden flex flex-col shadow-2xl">
             <div className="p-4 border-b border-white/5 flex gap-4">
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                 <input 
                   type="text" 
-                  placeholder="Search by ID or destination..." 
-                  className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
+                  placeholder="Search by ID, destination, or method..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 transition-colors"
                 />
               </div>
             </div>
@@ -53,24 +71,28 @@ const Withdrawals = () => {
                   </tr>
                 </thead>
                 <tbody className="text-sm divide-y divide-white/5">
-                  {mockWithdrawals.map((wd, i) => (
+                  {filteredWithdrawals.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="p-8 text-center text-gray-500">No withdrawals found matching your criteria.</td>
+                    </tr>
+                  ) : filteredWithdrawals.map((wd, i) => (
                     <tr key={i} className="hover:bg-white/[0.02] transition-colors group cursor-pointer">
                       <td className="p-4 text-gray-300 font-mono text-xs">{wd.id}</td>
                       <td className="p-4 text-gray-400 text-xs">{wd.date}</td>
                       <td className="p-4 text-gray-200">{wd.destination}</td>
                       <td className="p-4">
-                        <span className="bg-white/5 text-gray-300 px-2 py-1 rounded text-xs">{wd.method}</span>
+                        <span className="bg-white/5 text-gray-300 px-2.5 py-1 rounded-md text-xs font-medium border border-white/5">{wd.method}</span>
                       </td>
                       <td className="p-4 text-white font-bold text-right">- ${wd.amount}</td>
                       <td className="p-4 text-right">
-                        <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full ${
-                          wd.status === 'Completed' ? 'bg-green-500/10 text-green-500' :
-                          wd.status === 'Processing' ? 'bg-blue-500/10 text-blue-500' : 
-                          'bg-red-500/10 text-red-500'
+                        <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full ${
+                          wd.status === 'Completed' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
+                          wd.status === 'Processing' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' : 
+                          'bg-red-500/10 text-red-500 border border-red-500/20'
                         }`}>
-                          {wd.status === 'Completed' && <CheckCircle2 className="w-3 h-3" />}
-                          {wd.status === 'Processing' && <Clock className="w-3 h-3 animate-pulse" />}
-                          {wd.status === 'Failed' && <XCircle className="w-3 h-3" />}
+                          {wd.status === 'Completed' && <CheckCircle2 className="w-3.5 h-3.5" />}
+                          {wd.status === 'Processing' && <Clock className="w-3.5 h-3.5 animate-spin-slow" />}
+                          {wd.status === 'Failed' && <XCircle className="w-3.5 h-3.5" />}
                           {wd.status}
                         </span>
                       </td>
@@ -82,6 +104,140 @@ const Withdrawals = () => {
           </div>
         </div>
       </div>
+
+      {/* Request Payout Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden animate-in zoom-in-95 duration-200">
+            
+            <div className="p-6 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-blue-500/10 to-transparent shrink-0">
+              <h2 className="text-xl font-black text-white flex items-center gap-2">
+                <Wallet className="w-5 h-5 text-blue-500" /> Request Payout
+              </h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-500 hover:text-white transition-colors bg-white/5 hover:bg-white/10 p-1.5 rounded-full">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+              
+              {/* Method Selection */}
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 block">Select Payout Method</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button 
+                    onClick={() => setPayoutMethod('crypto')}
+                    className={`p-3 rounded-xl border text-sm font-bold transition-all flex flex-col items-center justify-center gap-2 ${
+                      payoutMethod === 'crypto' 
+                        ? 'bg-blue-500/10 border-blue-500/50 text-blue-400' 
+                        : 'bg-[#09090B] border-white/5 text-gray-400 hover:bg-white/5 hover:border-white/10'
+                    }`}
+                  >
+                    Crypto Transfer
+                  </button>
+                  <button 
+                    onClick={() => setPayoutMethod('fiat')}
+                    className={`p-3 rounded-xl border text-sm font-bold transition-all flex flex-col items-center justify-center gap-2 ${
+                      payoutMethod === 'fiat' 
+                        ? 'bg-blue-500/10 border-blue-500/50 text-blue-400' 
+                        : 'bg-[#09090B] border-white/5 text-gray-400 hover:bg-white/5 hover:border-white/10'
+                    }`}
+                  >
+                    Fiat Bank Wire
+                  </button>
+                </div>
+              </div>
+
+              {/* Dynamic Fields based on Method */}
+              {payoutMethod === 'crypto' ? (
+                <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Asset</label>
+                    <select className="w-full bg-[#09090B] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors appearance-none font-bold">
+                      <option>USDT (Tether)</option>
+                      <option>USDC (USD Coin)</option>
+                      <option>BTC (Bitcoin)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Network</label>
+                    <select className="w-full bg-[#09090B] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors appearance-none font-bold">
+                      <option>TRC-20</option>
+                      <option>ERC-20</option>
+                      <option>Polygon</option>
+                    </select>
+                  </div>
+                </div>
+              ) : (
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Saved Bank Account</label>
+                  <select className="w-full bg-[#09090B] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors appearance-none font-bold">
+                    <option>Chase Bank ending in 4921</option>
+                    <option>Bank of America ending in 1102</option>
+                    <option>+ Add New Bank Account</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Destination Address (Only for Crypto) */}
+              {payoutMethod === 'crypto' && (
+                <div className="animate-in fade-in duration-300">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Destination Wallet Address</label>
+                  <input 
+                    type="text" 
+                    value={destination}
+                    onChange={(e) => setDestination(e.target.value)}
+                    placeholder="Enter recipient address..." 
+                    className="w-full bg-[#09090B] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-mono text-sm"
+                  />
+                </div>
+              )}
+
+              {/* Amount */}
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex justify-between">
+                  <span>Amount to Withdraw</span>
+                  <span className="text-blue-500 cursor-pointer hover:underline">Max: $124,500.00</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                  <input 
+                    type="number" 
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="0.00" 
+                    className="w-full bg-[#09090B] border border-white/10 rounded-xl pl-8 pr-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-bold text-lg"
+                  />
+                </div>
+                <p className="text-[10px] text-gray-500 mt-2 flex justify-between">
+                  <span>Network Fee: $2.50</span>
+                  <span>Estimated Arrival: 5-10 Mins</span>
+                </p>
+              </div>
+
+            </div>
+
+            <div className="p-6 border-t border-white/5 bg-[#09090B] flex gap-3 shrink-0">
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="flex-1 py-3 rounded-xl font-bold text-gray-400 bg-white/5 hover:bg-white/10 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => {
+                  /* Dummy submit logic */
+                  setIsModalOpen(false);
+                }}
+                className="flex-1 py-3 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 group"
+              >
+                Confirm Payout <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

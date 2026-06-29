@@ -10,6 +10,7 @@ import {
 const MerchantLayout = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   const menuItems = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/merchant-dashboard' },
@@ -42,12 +43,12 @@ const MerchantLayout = () => {
         {/* Logo */}
         <div className={`h-16 flex items-center ${isSidebarOpen ? 'justify-between px-6' : 'justify-center'} border-b border-white/5`}>
           {isSidebarOpen ? (
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-cyan-600 flex items-center justify-center font-black text-white text-lg">M</div>
-              <span className="font-bold text-lg tracking-tight">Acme Corp</span>
+            <div className="flex items-center gap-2 group cursor-pointer" onClick={() => navigate('/merchant-dashboard')}>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-blue-600 flex items-center justify-center font-black text-white text-lg shadow-[0_0_15px_rgba(124,58,237,0.5)] group-hover:shadow-[0_0_20px_rgba(124,58,237,0.8)] transition-all">P</div>
+              <span className="font-bold text-lg tracking-tight text-white">PGX Gateway</span>
             </div>
           ) : (
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-cyan-600 flex items-center justify-center font-black text-white text-lg">M</div>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-blue-600 flex items-center justify-center font-black text-white text-lg shadow-[0_0_15px_rgba(124,58,237,0.5)] cursor-pointer" onClick={() => navigate('/merchant-dashboard')}>P</div>
           )}
         </div>
 
@@ -75,6 +76,18 @@ const MerchantLayout = () => {
           </nav>
         </div>
 
+        {/* Fixed Logout Button */}
+        <div className="p-4 border-t border-white/5 mt-auto">
+          <button 
+            onClick={() => navigate('/login')}
+            className={`w-full flex items-center ${isSidebarOpen ? 'justify-start px-3' : 'justify-center'} py-2.5 rounded-xl transition-all duration-200 text-red-500 hover:bg-red-500/10 hover:text-red-400 group`}
+            title={!isSidebarOpen ? 'Logout' : ''}
+          >
+            <LogOut className={`w-5 h-5 shrink-0 ${isSidebarOpen ? 'mr-3' : ''} group-hover:-translate-x-1 transition-transform`} />
+            {isSidebarOpen && <span className="font-bold text-sm whitespace-nowrap">Logout</span>}
+          </button>
+        </div>
+
         {/* Sidebar Toggle */}
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -91,14 +104,7 @@ const MerchantLayout = () => {
         <header className="h-16 flex-shrink-0 flex items-center justify-between px-6 border-b border-white/5 bg-[#09090B] sticky top-0 z-10">
           
           <div className="flex items-center gap-6">
-            <div className="relative flex items-center w-64 bg-white/5 border border-white/5 rounded-lg px-3 py-1.5 focus-within:ring-1 focus-within:ring-[#7C3AED] transition-all">
-              <Search className="w-4 h-4 text-gray-500 mr-2" />
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                className="w-full bg-transparent outline-none text-sm text-white placeholder-gray-500"
-              />
-            </div>
+             {/* Left side empty since search is removed */}
           </div>
 
           <div className="flex items-center gap-4">
@@ -115,10 +121,37 @@ const MerchantLayout = () => {
 
             <div className="w-px h-6 bg-white/10 mx-2"></div>
             
-            <button className="p-2 rounded-lg transition-colors relative text-gray-400 hover:bg-white/10 hover:text-white">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#7C3AED] shadow-[0_0_10px_rgba(124,58,237,0.8)]"></span>
-            </button>
+            {/* Notifications Dropdown */}
+            <div className="relative">
+              <button onClick={() => setIsNotificationOpen(!isNotificationOpen)} className="p-2 rounded-lg transition-colors relative text-gray-400 hover:bg-white/10 hover:text-white">
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#7C3AED] shadow-[0_0_10px_rgba(124,58,237,0.8)]"></span>
+              </button>
+              
+              {isNotificationOpen && (
+                <div className="absolute top-12 right-0 w-80 bg-[#13131A] border border-white/10 rounded-2xl shadow-2xl z-50 animate-in slide-in-from-top-2 duration-200">
+                  <div className="p-4 border-b border-white/5 flex justify-between items-center">
+                    <h3 className="font-bold text-white">Notifications</h3>
+                    <button className="text-xs text-[#7C3AED] hover:text-[#6D28D9] font-bold transition-colors">Mark all as read</button>
+                  </div>
+                  <div className="max-h-64 overflow-y-auto custom-scrollbar">
+                     <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                        <div className="text-sm font-bold text-white mb-1">Settlement Completed</div>
+                        <div className="text-xs text-gray-400">$45,200.00 has been successfully settled to your bank account.</div>
+                        <div className="text-[10px] text-gray-500 mt-2">2 hours ago</div>
+                     </div>
+                     <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                        <div className="text-sm font-bold text-white mb-1">New Chargeback</div>
+                        <div className="text-xs text-gray-400">A chargeback of $150.00 has been filed for txn #TX-9021.</div>
+                        <div className="text-[10px] text-gray-500 mt-2">5 hours ago</div>
+                     </div>
+                  </div>
+                  <div className="p-3 text-center border-t border-white/5 hover:bg-white/5 transition-colors cursor-pointer rounded-b-2xl">
+                     <span className="text-xs font-bold text-gray-400">View all notifications</span>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <div className="w-px h-6 bg-white/10 mx-2"></div>
 
@@ -134,11 +167,6 @@ const MerchantLayout = () => {
                 </div>
               </div>
             </div>
-            
-            <button onClick={() => navigate('/login')} className="ml-2 p-2 rounded-lg transition-colors text-red-400 hover:bg-red-500/10">
-              <LogOut className="w-5 h-5" />
-            </button>
-
           </div>
         </header>
 
