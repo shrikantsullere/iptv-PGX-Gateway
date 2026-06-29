@@ -2,10 +2,21 @@ import { useState } from 'react';
 import { CreditCard, Plus, MoreVertical, Edit2, Copy, Archive, Trash2, CheckCircle2, DollarSign, Percent, List } from 'lucide-react';
 
 const initialPlans = [
-  { id: '1', name: 'Starter', price: '0', billing: 'forever', fee: '2.9', features: ['Up to 500 tx/month', 'Standard Support', 'Basic Analytics', 'Email Receipts'], status: 'Active', color: 'from-blue-500/20 to-blue-900/20', border: 'border-blue-500/30' },
-  { id: '2', name: 'Business', price: '99', billing: 'month', fee: '1.9', features: ['Up to 5,000 tx/month', 'Priority Support', 'Advanced Analytics', 'Custom Branding', 'API Access'], status: 'Active', color: 'from-purple-500/20 to-purple-900/20', border: 'border-purple-500/50' },
-  { id: '3', name: 'Enterprise', price: '499', billing: 'month', fee: '0.9', features: ['Up to 50,000 tx/month', 'Dedicated Manager', 'Custom Reports', 'White-label Checkout', 'SLA Guarantee'], status: 'Active', color: 'from-orange-500/20 to-orange-900/20', border: 'border-orange-500/30' },
-  { id: '4', name: 'Unlimited', price: 'Custom', billing: 'year', fee: 'Custom', features: ['Unlimited Transactions', '24/7 Phone Support', 'On-premise Options', 'Dedicated Infrastructure', 'Custom SLA'], status: 'Active', color: 'from-green-500/20 to-green-900/20', border: 'border-green-500/30' }
+  {
+    id: '1', name: 'Starter', price: '299', billing: 'month', fee: '9',
+    features: ['Dashboard Access', 'Wallet Management', 'Reporting & Analytics', 'API Access', 'Standard Support'],
+    status: 'Active', color: 'from-blue-500/20 to-blue-900/20', border: 'border-blue-500/30'
+  },
+  {
+    id: '2', name: 'Business', price: '999', billing: 'month', fee: '7',
+    features: ['Everything in Starter', 'Advanced Reporting', 'Webhooks', 'Priority Support', 'Enhanced Settlement Controls'],
+    status: 'Active', color: 'from-purple-500/20 to-purple-900/20', border: 'border-purple-500/50'
+  },
+  {
+    id: '3', name: 'Enterprise', price: '2500', billing: 'month', fee: '5',
+    features: ['Everything in Business', 'White Label Gateway', 'Custom Domain Support', 'Dedicated Account Manager', 'Enterprise Reporting', 'Custom Integrations', 'Priority Settlement'],
+    status: 'Active', color: 'from-orange-500/20 to-orange-900/20', border: 'border-orange-500/30'
+  },
 ];
 
 const Subscriptions = () => {

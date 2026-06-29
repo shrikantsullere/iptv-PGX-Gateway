@@ -115,7 +115,7 @@ const PlayGroundXLayout = () => {
 
           <div className="flex items-center gap-4">
             {/* Wallet Balance Pill */}
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:border-[#7C3AED]/50 transition-colors cursor-pointer">
+            <div onClick={() => navigate('/playgroundx/wallet')} className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:border-[#7C3AED]/50 transition-colors cursor-pointer hover:scale-105 active:scale-95">
                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#7C3AED] to-cyan-400 flex items-center justify-center shadow-[0_0_10px_rgba(124,58,237,0.5)]">
                  <Wallet className="w-3 h-3 text-white" />
                </div>
@@ -133,30 +133,30 @@ const PlayGroundXLayout = () => {
                 <div className="absolute top-12 right-0 w-80 bg-[#13131A] border border-white/10 rounded-2xl shadow-2xl z-50 animate-in slide-in-from-top-2 duration-200">
                   <div className="p-4 border-b border-white/5 flex justify-between items-center">
                     <h3 className="font-bold text-white">Notifications</h3>
-                    <button className="text-xs text-[#7C3AED] hover:text-white font-bold transition-colors">Mark all as read</button>
+                    <button onClick={() => setIsNotificationOpen(false)} className="text-xs text-[#7C3AED] hover:text-white font-bold transition-colors">Mark all as read</button>
                   </div>
                   <div className="max-h-64 overflow-y-auto custom-scrollbar">
-                     <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                     <div onClick={() => { setIsNotificationOpen(false); navigate('/playgroundx/lobbies'); }} className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
                         <div className="text-sm font-bold text-white mb-1">AlexTheGreat invited you</div>
                         <div className="text-xs text-gray-400">Join the UFC 300 Private Watch Party!</div>
                         <div className="text-[10px] text-gray-500 mt-2">2 mins ago</div>
                      </div>
-                     <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                     <div onClick={() => { setIsNotificationOpen(false); navigate('/playgroundx/wallet'); }} className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
                         <div className="text-sm font-bold text-white mb-1">Deposit Successful</div>
                         <div className="text-xs text-gray-400">150.00 PGX has been added to your wallet.</div>
                         <div className="text-[10px] text-gray-500 mt-2">1 hour ago</div>
                      </div>
                   </div>
-                  <div className="p-3 text-center border-t border-white/5 hover:bg-white/5 transition-colors cursor-pointer rounded-b-2xl">
-                     <span className="text-xs font-bold text-gray-400">View all notifications</span>
+                  <div onClick={() => { setIsNotificationOpen(false); navigate('/playgroundx/notifications'); }} className="p-3 text-center border-t border-white/5 hover:bg-white/5 transition-colors cursor-pointer rounded-b-2xl">
+                     <span className="text-xs font-bold text-[#7C3AED]">View all notifications →</span>
                   </div>
                 </div>
               )}
             </div>
 
             {/* Profile */}
-            <div className="flex items-center gap-2 cursor-pointer group">
-              <img src="https://i.pravatar.cc/150?u=9" className="w-9 h-9 rounded-full border-2 border-transparent group-hover:border-[#7C3AED] transition-colors" alt="Profile" />
+            <div onClick={() => navigate('/playgroundx/profile')} className="flex items-center gap-2 cursor-pointer group" title="My Profile">
+              <img src="https://i.pravatar.cc/150?u=9" className="w-9 h-9 rounded-full border-2 border-transparent group-hover:border-[#7C3AED] transition-colors hover:scale-110 active:scale-95" alt="Profile" />
             </div>
           </div>
         </header>
@@ -175,7 +175,7 @@ const PlayGroundXLayout = () => {
       <aside className="hidden xl:flex w-72 flex-shrink-0 bg-[#09090B] border-l border-white/5 flex-col shadow-[-4px_0_24px_rgba(0,0,0,0.5)] z-20">
          <div className="h-16 flex items-center justify-between px-6 border-b border-white/5">
            <h3 className="font-bold text-white tracking-tight">Active Friends</h3>
-           <button className="text-gray-400 hover:text-[#7C3AED] transition-colors"><UserPlus className="w-4 h-4" /></button>
+           <button onClick={() => navigate('/playgroundx/friends')} className="text-gray-400 hover:text-[#7C3AED] transition-colors" title="Add Friend"><UserPlus className="w-4 h-4" /></button>
          </div>
          <div className="p-4 border-b border-white/5">
            <div className="relative">
@@ -198,7 +198,7 @@ const PlayGroundXLayout = () => {
                     {friend.game}
                   </div>
                 </div>
-                <button className="opacity-0 group-hover:opacity-100 p-1.5 bg-[#7C3AED]/20 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white rounded-lg transition-all" title="Invite to Lobby">
+                <button onClick={() => navigate('/playgroundx/lobbies')} className="opacity-0 group-hover:opacity-100 p-1.5 bg-[#7C3AED]/20 text-[#7C3AED] hover:bg-[#7C3AED] hover:text-white rounded-lg transition-all" title="Invite to Lobby">
                   <UserPlus className="w-4 h-4" />
                 </button>
               </div>
