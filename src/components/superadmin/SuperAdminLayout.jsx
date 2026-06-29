@@ -4,8 +4,8 @@ import {
   LayoutDashboard, Users, CreditCard, DollarSign, Landmark, Wallet,
   Network, Receipt, Package, Fingerprint, ShieldAlert, Globe2,
   Coins, Code, Webhook, BarChart3, Palette, Bell, Ticket,
-  ClipboardList, UserCog, Settings, Search, Sun, Moon, LogOut, ChevronLeft, ChevronRight, CheckCircle2,
-  ChevronDown, Activity, Map, Percent, FileText, Database, Shield, FileCheck, Eye, SearchSlash, AlertTriangle, UserX, Gavel, CalendarClock
+  ClipboardList, UserCog, Settings, Sun, Moon, LogOut, ChevronLeft, ChevronRight, CheckCircle2,
+  ChevronDown, Activity, Map, Percent, FileText, Database, Shield, FileCheck, Eye, AlertTriangle, UserX, Gavel, CalendarClock
 } from 'lucide-react';
 
 const SuperAdminLayout = () => {
@@ -16,11 +16,7 @@ const SuperAdminLayout = () => {
   const [isProcessorsOpen, setIsProcessorsOpen] = useState(false);
   const [isComplianceOpen, setIsComplianceOpen] = useState(false);
   const [isRiskOpen, setIsRiskOpen] = useState(false);
-<<<<<<< HEAD
-=======
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
->>>>>>> 44dc3059f6c1825eb590bedbfe84ee7af57a9abd
-  const [showNotifications, setShowNotifications] = useState(false);
 
   // Check routes to keep submenus open
   const isProcessorRoute = location.pathname.includes('/super-admin/processors');
@@ -274,11 +270,7 @@ const SuperAdminLayout = () => {
         <header className={`h-16 flex-shrink-0 flex items-center justify-between px-6 border-b ${isDarkMode ? 'border-white/5 bg-[#09090B]' : 'border-gray-200 bg-white'}`}>
 
           <div className="flex items-center gap-6">
-<<<<<<< HEAD
-             {/* Left side empty since search is removed */}
-=======
-
->>>>>>> 44dc3059f6c1825eb590bedbfe84ee7af57a9abd
+            {/* Left side - empty */}
           </div>
 
           <div className="flex items-center gap-4">
@@ -293,24 +285,24 @@ const SuperAdminLayout = () => {
               {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-<<<<<<< HEAD
+            {/* Notifications Dropdown */}
             <div className="relative">
-              <button 
-                onClick={() => setShowNotifications(!showNotifications)} 
+              <button
+                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
                 className={`p-2 rounded-lg transition-colors relative ${isDarkMode ? 'text-gray-400 hover:bg-white/10 hover:text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}
               >
                 <Bell className="w-5 h-5" />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500"></span>
               </button>
 
-              {showNotifications && (
+              {isNotificationOpen && (
                 <div className={`absolute right-0 mt-2 w-80 rounded-xl shadow-2xl border ${isDarkMode ? 'bg-[#13131A] border-white/10' : 'bg-white border-gray-200'} z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200`}>
                   <div className={`p-4 border-b ${isDarkMode ? 'border-white/5' : 'border-gray-100'} flex justify-between items-center`}>
                     <h3 className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Notifications</h3>
                     <span className="text-xs bg-[#7C3AED] text-white px-2 py-0.5 rounded-full font-bold">1 New</span>
                   </div>
                   <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
-                    <div className={`p-4 border-b ${isDarkMode ? 'border-white/5 hover:bg-white/[0.02]' : 'border-gray-50 hover:bg-gray-50'} cursor-pointer transition-colors`} onClick={() => { setShowNotifications(false); navigate('/super-admin/notifications'); }}>
+                    <div className={`p-4 border-b ${isDarkMode ? 'border-white/5 hover:bg-white/[0.02]' : 'border-gray-50 hover:bg-gray-50'} cursor-pointer transition-colors`} onClick={() => { setIsNotificationOpen(false); navigate('/super-admin/notifications'); }}>
                       <div className="flex gap-3">
                         <div className="w-8 h-8 rounded-full bg-[#7C3AED]/20 flex items-center justify-center shrink-0">
                           <Bell className="w-4 h-4 text-[#7C3AED]" />
@@ -318,45 +310,28 @@ const SuperAdminLayout = () => {
                         <div>
                           <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>System Update</p>
                           <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Platform maintenance scheduled for tonight at 2 AM EST.</p>
-                          <p className={`text-[10px] mt-2 font-medium text-[#7C3AED]`}>2 hours ago</p>
+                          <p className="text-[10px] mt-2 font-medium text-[#7C3AED]">2 hours ago</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className={`p-4 border-b ${isDarkMode ? 'border-white/5 hover:bg-white/[0.02]' : 'border-gray-50 hover:bg-gray-50'} cursor-pointer transition-colors`}>
+                      <div className="flex gap-3">
+                        <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center shrink-0">
+                          <AlertTriangle className="w-4 h-4 text-orange-500" />
+                        </div>
+                        <div>
+                          <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>New Merchant KYC</p>
+                          <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Global Trade Inc submitted KYC docs for review.</p>
+                          <p className="text-[10px] mt-2 font-medium text-orange-500">10 mins ago</p>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div 
-                    className={`p-3 text-center ${isDarkMode ? 'bg-black/20 hover:bg-black/40' : 'bg-gray-50 hover:bg-gray-100'} cursor-pointer transition-colors`} 
-                    onClick={() => { setShowNotifications(false); navigate('/super-admin/notifications'); }}
+                  <div
+                    className={`p-3 text-center ${isDarkMode ? 'bg-black/20 hover:bg-black/40' : 'bg-gray-50 hover:bg-gray-100'} cursor-pointer transition-colors`}
+                    onClick={() => { setIsNotificationOpen(false); navigate('/super-admin/notifications'); }}
                   >
                     <span className="text-sm font-bold text-[#7C3AED]">View All Notifications</span>
-=======
-            {/* Notifications Dropdown */}
-            <div className="relative">
-              <button onClick={() => setIsNotificationOpen(!isNotificationOpen)} className={`p-2 rounded-lg transition-colors relative ${isDarkMode ? 'text-gray-400 hover:bg-white/10 hover:text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}>
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500"></span>
-              </button>
-              
-              {isNotificationOpen && (
-                <div className={`absolute top-12 right-0 w-80 ${isDarkMode ? 'bg-[#13131A] border-white/10' : 'bg-white border-gray-200'} border rounded-2xl shadow-2xl z-50 animate-in slide-in-from-top-2 duration-200`}>
-                  <div className={`p-4 border-b ${isDarkMode ? 'border-white/5' : 'border-gray-100'} flex justify-between items-center`}>
-                    <h3 className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Notifications</h3>
-                    <button className="text-xs text-[#7C3AED] hover:text-[#6D28D9] font-bold transition-colors">Mark all as read</button>
-                  </div>
-                  <div className="max-h-64 overflow-y-auto custom-scrollbar">
-                     <div className={`p-4 border-b ${isDarkMode ? 'border-white/5 hover:bg-white/5' : 'border-gray-100 hover:bg-gray-50'} transition-colors cursor-pointer`}>
-                        <div className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'} mb-1`}>New Merchant KYC Pending</div>
-                        <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Global Trade Inc has submitted KYC documents for review.</div>
-                        <div className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'} mt-2`}>10 mins ago</div>
-                     </div>
-                     <div className={`p-4 border-b ${isDarkMode ? 'border-white/5 hover:bg-white/5' : 'border-gray-100 hover:bg-gray-50'} transition-colors cursor-pointer`}>
-                        <div className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'} mb-1`}>Fraud Alert triggered</div>
-                        <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>High risk transaction flagged on MoonPay routing.</div>
-                        <div className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'} mt-2`}>1 hour ago</div>
-                     </div>
-                  </div>
-                  <div className={`p-3 text-center border-t ${isDarkMode ? 'border-white/5 hover:bg-white/5' : 'border-gray-100 hover:bg-gray-50'} transition-colors cursor-pointer rounded-b-2xl`}>
-                     <span className={`text-xs font-bold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>View all alerts</span>
->>>>>>> 44dc3059f6c1825eb590bedbfe84ee7af57a9abd
                   </div>
                 </div>
               )}
@@ -374,13 +349,8 @@ const SuperAdminLayout = () => {
                 <div className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>Owner</div>
               </div>
             </div>
-<<<<<<< HEAD
 
-=======
-            <button onClick={() => navigate('/login')} className={`ml-2 p-2 rounded-lg transition-colors ${isDarkMode ? 'text-red-400 hover:bg-red-500/10' : 'text-red-600 hover:bg-red-50'}`}>
-              <LogOut className="w-5 h-5" />
-            </button>
->>>>>>> 44dc3059f6c1825eb590bedbfe84ee7af57a9abd
+
           </div>
         </header>
 
