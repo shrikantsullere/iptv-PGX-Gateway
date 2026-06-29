@@ -11,7 +11,7 @@ const MultiProcessor = () => {
   ];
 
   return (
-    <section className="py-24 bg-[#09090B]">
+    <section id="developers" className="py-24 bg-[#09090B]">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
           <div className="max-w-2xl">

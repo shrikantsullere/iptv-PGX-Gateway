@@ -1,6 +1,6 @@
 const DashboardPreviews = () => {
   return (
-    <section className="py-24 bg-[#050508] border-b border-white/5 relative overflow-hidden">
+    <section id="solutions" className="py-24 bg-[#050508] border-b border-white/5 relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[600px] bg-[#7C3AED]/5 rounded-full blur-[150px] pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">

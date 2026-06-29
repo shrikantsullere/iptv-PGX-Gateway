@@ -19,10 +19,21 @@ const Navbar = () => {
     { name: 'Solutions', href: '#solutions' },
     { name: 'Developers', href: '#developers' },
     { name: 'Pricing', href: '#pricing' },
-    { name: 'Documentation', href: '#documentation' },
-    { name: 'Enterprise', href: '#enterprise' },
-    { name: 'Contact', href: '#contact' }
+    { name: 'Documentation', href: '#faq' }, // Updated to point to FAQ
+    { name: 'Enterprise', href: '#security' }, // Updated to point to security
+    { name: 'Contact', href: '#cta' } // Updated to point to CTA section
   ];
+
+  const handleScrollToSection = (e, href) => {
+    e.preventDefault();
+    if (href.startsWith('#')) {
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+        setMobileMenuOpen(false);
+      }
+    }
+  };
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#09090B]/80 backdrop-blur-xl border-b border-white/5 py-4' : 'bg-transparent py-6'}`}>
@@ -39,7 +50,12 @@ const Navbar = () => {
         {/* Desktop Menu */}
         <div className="hidden lg:flex items-center gap-8">
           {navLinks.map((link) => (
-            <a key={link.name} href={link.href} className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
+            <a 
+              key={link.name} 
+              href={link.href} 
+              onClick={(e) => handleScrollToSection(e, link.href)}
+              className="text-sm font-medium text-gray-300 hover:text-white transition-colors cursor-pointer"
+            >
               {link.name}
             </a>
           ))}
@@ -50,9 +66,6 @@ const Navbar = () => {
           <Link to="/login" className="text-sm font-medium text-gray-300 hover:text-white transition-colors">
             Login
           </Link>
-          <button className="text-sm font-medium text-white hover:text-[#7C3AED] transition-colors">
-            Book Demo
-          </button>
           <Link to="/register" className="bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-sm font-bold px-5 py-2.5 rounded-full transition-all shadow-[0_0_20px_rgba(124,58,237,0.3)] hover:shadow-[0_0_30px_rgba(124,58,237,0.5)] hover:-translate-y-0.5">
             Get Started
           </Link>
@@ -68,13 +81,17 @@ const Navbar = () => {
       {mobileMenuOpen && (
         <div className="lg:hidden absolute top-full left-0 right-0 bg-[#09090B] border-b border-white/10 px-6 py-6 flex flex-col gap-4 animate-in slide-in-from-top-4">
           {navLinks.map((link) => (
-            <a key={link.name} href={link.href} className="text-lg font-medium text-gray-300 hover:text-white" onClick={() => setMobileMenuOpen(false)}>
+            <a 
+              key={link.name} 
+              href={link.href} 
+              onClick={(e) => handleScrollToSection(e, link.href)}
+              className="text-lg font-medium text-gray-300 hover:text-white cursor-pointer"
+            >
               {link.name}
             </a>
           ))}
           <div className="h-px bg-white/10 my-2"></div>
           <Link to="/login" className="text-lg font-medium text-gray-300 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Login</Link>
-          <button className="text-lg font-medium text-left text-white" onClick={() => setMobileMenuOpen(false)}>Book Demo</button>
           <Link to="/register" className="bg-[#7C3AED] text-white text-center font-bold px-5 py-3 rounded-xl mt-2" onClick={() => setMobileMenuOpen(false)}>
             Get Started
           </Link>

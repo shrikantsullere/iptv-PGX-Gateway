@@ -19,6 +19,12 @@ import LiveMatch from './pages/playgroundx/LiveMatch';
 import Lobbies from './pages/playgroundx/Lobbies';
 import Friends from './pages/playgroundx/Friends';
 import Chat from './pages/playgroundx/Chat';
+import Wallet from './pages/playgroundx/Wallet';
+import Transactions from './pages/playgroundx/Transactions';
+import Notifications from './pages/playgroundx/Notifications';
+import Profile from './pages/playgroundx/Profile';
+import Settings from './pages/playgroundx/Settings';
+import Support from './pages/playgroundx/Support';
 import PGXComingSoon from './pages/playgroundx/PGXComingSoon';
 
 // Merchant Layout & Pages
@@ -110,12 +116,12 @@ function App() {
           <Route path="/playgroundx/lobbies" element={<Lobbies />} />
           <Route path="/playgroundx/friends" element={<Friends />} />
           <Route path="/playgroundx/chat" element={<Chat />} />
-          <Route path="/playgroundx/wallet" element={<PGXComingSoon title="Wallet & Crypto" />} />
-          <Route path="/playgroundx/transactions" element={<PGXComingSoon title="Transactions" />} />
-          <Route path="/playgroundx/notifications" element={<PGXComingSoon title="Notifications" />} />
-          <Route path="/playgroundx/profile" element={<PGXComingSoon title="User Profile" />} />
-          <Route path="/playgroundx/settings" element={<PGXComingSoon title="Settings" />} />
-          <Route path="/playgroundx/support" element={<PGXComingSoon title="Support Center" />} />
+          <Route path="/playgroundx/wallet" element={<Wallet />} />
+          <Route path="/playgroundx/transactions" element={<Transactions />} />
+          <Route path="/playgroundx/notifications" element={<Notifications />} />
+          <Route path="/playgroundx/profile" element={<Profile />} />
+          <Route path="/playgroundx/settings" element={<Settings />} />
+          <Route path="/playgroundx/support" element={<Support />} />
         </Route>
 
         {/* Super Admin Routes */}

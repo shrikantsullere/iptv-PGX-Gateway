@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AlertTriangle, Activity, Server, Zap, Settings2, RefreshCw, CheckCircle2, ArrowUpRight, X } from 'lucide-react';
+import { AlertTriangle, Activity, Server, Zap, Settings2, RefreshCw, CheckCircle2, ArrowUpRight, X, Mail, Bell, BellOff, Loader2, Save } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const initialLatencyData = Array.from({ length: 20 }).map((_, i) => ({
@@ -25,6 +25,29 @@ export default function FailoverMonitor() {
   const [latencyData, setLatencyData] = useState(initialLatencyData);
   const [isLogsModalOpen, setIsLogsModalOpen] = useState(false);
   const [isRoutingModalOpen, setIsRoutingModalOpen] = useState(false);
+
+  // Email notification state
+  const [alertEmail, setAlertEmail] = useState('admin@pgxgateway.com');
+  const [notifSaving, setNotifSaving] = useState(false);
+  const [notifSaved, setNotifSaved] = useState(false);
+  const [notifToggles, setNotifToggles] = useState({
+    failover: true,
+    degraded: true,
+    recovered: false,
+    dailyDigest: true,
+  });
+
+  const handleSaveNotif = () => {
+    setNotifSaving(true);
+    setTimeout(() => {
+      setNotifSaving(false);
+      setNotifSaved(true);
+      setTimeout(() => setNotifSaved(false), 2500);
+    }, 1200);
+  };
+
+  const toggleNotif = (key) => setNotifToggles(prev => ({ ...prev, [key]: !prev[key] }));
+
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -242,6 +265,102 @@ export default function FailoverMonitor() {
           </div>
         </div>
       )}
+
+      {/* Email Notification Settings */}
+      <div className="bg-[#13131A] border border-white/5 rounded-3xl p-6 shadow-xl">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div>
+            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+              <Mail className="w-5 h-5 text-cyan-500" /> Email Alert Notifications
+            </h3>
+            <p className="text-xs text-gray-500 mt-1">Get notified by email when a processor fails or degrades.</p>
+          </div>
+          <button
+            onClick={handleSaveNotif}
+            className={`shrink-0 px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
+              notifSaved
+                ? 'bg-green-600 text-white shadow-[0_0_15px_rgba(34,197,94,0.3)]'
+                : 'bg-cyan-600 hover:bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]'
+            }`}
+          >
+            {notifSaving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : notifSaved ? (
+              <><CheckCircle2 className="w-4 h-4" /> Saved!</>
+            ) : (
+              <><Save className="w-4 h-4" /> Save Settings</>
+            )}
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Alert Email Input */}
+          <div className="space-y-4">
+            <div>
+              <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Alert Recipient Email</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                <input
+                  value={alertEmail}
+                  onChange={e => setAlertEmail(e.target.value)}
+                  type="email"
+                  placeholder="you@example.com"
+                  className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm"
+                />
+              </div>
+              <p className="text-[11px] text-gray-600 mt-1.5">Alerts will be sent to this address instantly when a processor fails.</p>
+            </div>
+
+            <div className="bg-black/30 border border-white/5 rounded-2xl p-4">
+              <div className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Latest Alert Sent</div>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <AlertTriangle className="w-4 h-4 text-orange-500" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-white">Coinbase Commerce Failed</div>
+                  <div className="text-xs text-gray-400 mt-0.5">Routed to MoonPay · 10 mins ago</div>
+                  <div className="text-[11px] text-gray-600 mt-1">Sent to: {alertEmail}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Toggle Options */}
+          <div>
+            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 block">Notify Me When</label>
+            <div className="space-y-3">
+              {[
+                { key: 'failover', label: 'Processor Failover Occurs', desc: 'Instant alert when traffic is rerouted to backup', color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
+                { key: 'degraded', label: 'Processor Degrades', desc: 'Alert when latency or error rate spikes', color: 'text-orange-400', bg: 'bg-orange-500/10 border-orange-500/20' },
+                { key: 'recovered', label: 'Processor Recovers', desc: 'Notify when a failed processor comes back online', color: 'text-green-400', bg: 'bg-green-500/10 border-green-500/20' },
+                { key: 'dailyDigest', label: 'Daily Health Digest', desc: 'Summary email every morning at 8 AM UTC', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/20' },
+              ].map((item) => (
+                <div
+                  key={item.key}
+                  onClick={() => toggleNotif(item.key)}
+                  className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
+                    notifToggles[item.key] ? item.bg : 'bg-white/[0.02] border-white/5 hover:border-white/10'
+                  }`}
+                >
+                  <div className="flex-1 min-w-0 pr-3">
+                    <div className={`text-sm font-bold ${notifToggles[item.key] ? item.color : 'text-gray-300'}`}>{item.label}</div>
+                    <div className="text-xs text-gray-500 mt-0.5 truncate">{item.desc}</div>
+                  </div>
+                  <div className={`w-10 h-6 rounded-full transition-all duration-300 relative shrink-0 ${
+                    notifToggles[item.key] ? 'bg-cyan-500' : 'bg-white/10'
+                  }`}>
+                    <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all duration-300 ${
+                      notifToggles[item.key] ? 'left-5' : 'left-1'
+                    }`} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
