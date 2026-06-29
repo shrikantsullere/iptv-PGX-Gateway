@@ -57,8 +57,6 @@ const Subscriptions = () => {
                   {activeMenu === plan.id && (
                     <div className="absolute top-10 right-0 w-48 bg-[#1A1A24] border border-white/10 rounded-xl shadow-2xl py-2 z-10 animate-in fade-in zoom-in-95">
                       <button onClick={() => openEditor(plan)} className="w-full px-4 py-2 text-sm text-left flex items-center gap-2 hover:bg-white/5 text-gray-300 hover:text-white transition-colors"><Edit2 className="w-4 h-4"/> Edit Plan</button>
-                      <button className="w-full px-4 py-2 text-sm text-left flex items-center gap-2 hover:bg-white/5 text-gray-300 hover:text-white transition-colors"><Copy className="w-4 h-4"/> Duplicate</button>
-                      <button className="w-full px-4 py-2 text-sm text-left flex items-center gap-2 hover:bg-white/5 text-gray-300 hover:text-white transition-colors"><Archive className="w-4 h-4"/> Archive</button>
                       <div className="h-px bg-white/10 my-1"></div>
                       <button className="w-full px-4 py-2 text-sm text-left flex items-center gap-2 hover:bg-red-500/10 text-red-500 transition-colors"><Trash2 className="w-4 h-4"/> Delete</button>
                     </div>
