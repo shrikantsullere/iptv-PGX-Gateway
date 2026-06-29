@@ -9,6 +9,7 @@ import {
 const PlayGroundXLayout = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   const menuItems = [
     { name: 'Dashboard', icon: Home, path: '/playgroundx' },
@@ -43,16 +44,12 @@ const PlayGroundXLayout = () => {
         {/* Logo */}
         <div className={`h-16 flex items-center ${isSidebarOpen ? 'justify-between px-6' : 'justify-center'} border-b border-white/5`}>
           {isSidebarOpen ? (
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-[#7C3AED] flex items-center justify-center font-black text-white text-lg shadow-[0_0_15px_rgba(124,58,237,0.5)]">
-                <Gamepad2 className="w-5 h-5" />
-              </div>
-              <span className="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">PlayGroundX</span>
+            <div className="flex items-center gap-2 group cursor-pointer" onClick={() => navigate('/playgroundx')}>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-blue-600 flex items-center justify-center font-black text-white text-lg shadow-[0_0_15px_rgba(124,58,237,0.5)] group-hover:shadow-[0_0_20px_rgba(124,58,237,0.8)] transition-all">P</div>
+              <span className="font-bold text-lg tracking-tight text-white">PGX Gateway</span>
             </div>
           ) : (
-            <div className="w-8 h-8 rounded-xl bg-[#7C3AED] flex items-center justify-center font-black text-white text-lg shadow-[0_0_15px_rgba(124,58,237,0.5)]">
-              <Gamepad2 className="w-5 h-5" />
-            </div>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-blue-600 flex items-center justify-center font-black text-white text-lg shadow-[0_0_15px_rgba(124,58,237,0.5)] cursor-pointer" onClick={() => navigate('/playgroundx')}>P</div>
           )}
         </div>
 
@@ -85,6 +82,18 @@ const PlayGroundXLayout = () => {
           </nav>
         </div>
 
+        {/* Fixed Logout Button */}
+        <div className="p-4 border-t border-white/5 mt-auto">
+          <button 
+            onClick={() => navigate('/login')}
+            className={`w-full flex items-center ${isSidebarOpen ? 'justify-start px-3' : 'justify-center'} py-2.5 rounded-xl transition-all duration-200 text-red-500 hover:bg-red-500/10 hover:text-red-400 group`}
+            title={!isSidebarOpen ? 'Logout' : ''}
+          >
+            <LogOut className={`w-5 h-5 shrink-0 ${isSidebarOpen ? 'mr-3' : ''} group-hover:-translate-x-1 transition-transform`} />
+            {isSidebarOpen && <span className="font-bold text-sm whitespace-nowrap">Logout</span>}
+          </button>
+        </div>
+
         {/* Sidebar Toggle */}
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -101,14 +110,7 @@ const PlayGroundXLayout = () => {
         <header className="h-16 flex-shrink-0 flex items-center justify-between px-6 bg-gradient-to-b from-[#09090B] to-transparent sticky top-0 z-10">
           
           <div className="flex items-center gap-6 w-full max-w-xl">
-            <div className="relative flex items-center w-full bg-white/5 hover:bg-white/10 border border-white/5 rounded-full px-4 py-2 transition-all group backdrop-blur-md">
-              <Search className="w-4 h-4 text-gray-500 mr-2 group-focus-within:text-[#7C3AED] transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search games, streams, friends..." 
-                className="w-full bg-transparent outline-none text-sm text-white placeholder-gray-500"
-              />
-            </div>
+             {/* Left side empty since search is removed */}
           </div>
 
           <div className="flex items-center gap-4">
@@ -120,19 +122,42 @@ const PlayGroundXLayout = () => {
                <span className="text-sm font-black text-white px-1">452.00 PGX</span>
             </div>
             
-            <button className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors relative border border-white/5 text-gray-400 hover:text-white">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-[#09090B]"></span>
-            </button>
+            {/* Notifications Dropdown */}
+            <div className="relative">
+              <button onClick={() => setIsNotificationOpen(!isNotificationOpen)} className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors relative border border-white/5 text-gray-400 hover:text-white">
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-[#09090B]"></span>
+              </button>
+              
+              {isNotificationOpen && (
+                <div className="absolute top-12 right-0 w-80 bg-[#13131A] border border-white/10 rounded-2xl shadow-2xl z-50 animate-in slide-in-from-top-2 duration-200">
+                  <div className="p-4 border-b border-white/5 flex justify-between items-center">
+                    <h3 className="font-bold text-white">Notifications</h3>
+                    <button className="text-xs text-[#7C3AED] hover:text-white font-bold transition-colors">Mark all as read</button>
+                  </div>
+                  <div className="max-h-64 overflow-y-auto custom-scrollbar">
+                     <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                        <div className="text-sm font-bold text-white mb-1">AlexTheGreat invited you</div>
+                        <div className="text-xs text-gray-400">Join the UFC 300 Private Watch Party!</div>
+                        <div className="text-[10px] text-gray-500 mt-2">2 mins ago</div>
+                     </div>
+                     <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                        <div className="text-sm font-bold text-white mb-1">Deposit Successful</div>
+                        <div className="text-xs text-gray-400">150.00 PGX has been added to your wallet.</div>
+                        <div className="text-[10px] text-gray-500 mt-2">1 hour ago</div>
+                     </div>
+                  </div>
+                  <div className="p-3 text-center border-t border-white/5 hover:bg-white/5 transition-colors cursor-pointer rounded-b-2xl">
+                     <span className="text-xs font-bold text-gray-400">View all notifications</span>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Profile */}
             <div className="flex items-center gap-2 cursor-pointer group">
               <img src="https://i.pravatar.cc/150?u=9" className="w-9 h-9 rounded-full border-2 border-transparent group-hover:border-[#7C3AED] transition-colors" alt="Profile" />
             </div>
-            
-            <button onClick={() => navigate('/login')} className="ml-2 p-2 rounded-full hover:bg-red-500/10 transition-colors text-red-500">
-              <LogOut className="w-5 h-5" />
-            </button>
           </div>
         </header>
 

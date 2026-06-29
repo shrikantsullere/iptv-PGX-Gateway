@@ -5,7 +5,7 @@ import {
   Clock, XCircle, ArrowRightCircle, Plus
 } from 'lucide-react';
 
-const assets = [
+const initialAssets = [
   { id: 'USDC', name: 'USD Coin', balance: '124,500.50', fiat: '$124,500.50', color: 'bg-blue-500', trend: '+2.4%', network: 'ERC-20' },
   { id: 'USDT', name: 'Tether', balance: '45,200.00', fiat: '$45,200.00', color: 'bg-teal-500', trend: '+1.1%', network: 'TRC-20' },
   { id: 'BTC', name: 'Bitcoin', balance: '2.45600', fiat: '$158,400.20', color: 'bg-orange-500', trend: '-0.5%', network: 'Bitcoin' },
@@ -21,9 +21,36 @@ const mockTransactions = [
 ];
 
 const Wallets = () => {
+  const [assetsList, setAssetsList] = useState(initialAssets);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [modalType, setModalType] = useState(null); // 'deposit' or 'withdraw'
   const [copied, setCopied] = useState(false);
+
+  const handleAddAsset = (coinString) => {
+    const parts = coinString.split(' ');
+    const id = parts[0];
+    const name = parts.slice(1).join(' ').replace(/[()]/g, '');
+    
+    if (assetsList.some(a => a.id === id)) {
+      setModalType(null);
+      return;
+    }
+
+    const colors = ['bg-blue-500', 'bg-teal-500', 'bg-orange-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-green-500'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+    const newAsset = {
+      id,
+      name,
+      balance: '0.00',
+      fiat: '$0.00',
+      color: randomColor,
+      trend: '+0.0%',
+      network: 'Mainnet'
+    };
+    setAssetsList([...assetsList, newAsset]);
+    setModalType(null);
+  };
 
   const handleCopy = () => {
     setCopied(true);
@@ -45,7 +72,10 @@ const Wallets = () => {
             </div>
           </div>
           <div className="flex items-center gap-3 w-full md:w-auto">
-            <button className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(124,58,237,0.3)]">
+            <button 
+              onClick={() => setModalType('add_asset')}
+              className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(124,58,237,0.3)] hover:-translate-y-0.5"
+            >
               <Plus className="w-5 h-5" /> Add New Asset
             </button>
           </div>
@@ -55,7 +85,7 @@ const Wallets = () => {
       {/* Asset Cards */}
       <h3 className="text-xl font-bold text-white mb-6">Your Assets</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        {assets.map((asset) => (
+        {assetsList.map((asset) => (
           <div 
             key={asset.id}
             onClick={() => setSelectedAsset(asset)}
@@ -202,13 +232,15 @@ const Wallets = () => {
       </div>
 
       {/* Modals */}
-      {modalType && selectedAsset && (
+      {modalType && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
             {/* Modal Header */}
-            <div className="flex justify-between items-center p-6 border-b border-white/5">
+            <div className="flex justify-between items-center p-6 border-b border-white/5 shrink-0 bg-[#09090B]">
               <h3 className="text-xl font-bold flex items-center gap-2">
-                {modalType === 'deposit' ? 'Receive' : 'Withdraw'} {selectedAsset.id}
+                {modalType === 'deposit' ? `Receive ${selectedAsset?.id}` : 
+                 modalType === 'withdraw' ? `Withdraw ${selectedAsset?.id}` : 
+                 'Add New Asset'}
               </h3>
               <button 
                 onClick={() => setModalType(null)}
@@ -219,8 +251,8 @@ const Wallets = () => {
             </div>
 
             {/* Deposit Content */}
-            {modalType === 'deposit' && (
-              <div className="p-6">
+            {modalType === 'deposit' && selectedAsset && (
+              <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
                 <div className="flex justify-center mb-6">
                   {/* Mock QR Code */}
                   <div className="w-48 h-48 bg-white rounded-2xl p-3 flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.1)]">
@@ -259,8 +291,8 @@ const Wallets = () => {
             )}
 
             {/* Withdraw Content */}
-            {modalType === 'withdraw' && (
-              <div className="p-6">
+            {modalType === 'withdraw' && selectedAsset && (
+              <div className="p-6 overflow-y-auto custom-scrollbar flex-1">
                 <div className="bg-white/5 border border-white/10 rounded-xl p-4 mb-6 flex justify-between items-center">
                    <span className="text-gray-400 text-sm">Available Balance</span>
                    <span className="text-white font-bold">{selectedAsset.balance} {selectedAsset.id}</span>
@@ -302,6 +334,37 @@ const Wallets = () => {
                 </div>
               </div>
             )}
+            {/* Add Asset Content */}
+            {modalType === 'add_asset' && (
+              <div className="p-6 overflow-y-auto custom-scrollbar flex-1 flex flex-col">
+                <p className="text-gray-400 text-sm mb-6">Select a new asset to add to your PGX Merchant Wallet portfolio.</p>
+                <div className="space-y-4 mb-6">
+                  {['BNB (Binance Coin)', 'SOL (Solana)', 'ADA (Cardano)', 'XRP (Ripple)'].map((coin, i) => (
+                    <div key={i} className="flex items-center justify-between p-4 rounded-xl border border-white/5 hover:border-primary/50 hover:bg-white/[0.02] transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-xs font-bold text-white shadow-sm border border-white/10">{coin.split(' ')[0]}</div>
+                        <span className="font-bold text-gray-200">{coin}</span>
+                      </div>
+                      <button 
+                        onClick={() => handleAddAsset(coin)}
+                        className="text-primary font-bold text-sm bg-primary/10 px-5 py-2 rounded-lg hover:bg-primary/20 transition-all shadow-sm hover:shadow-[0_0_15px_rgba(124,58,237,0.3)] hover:-translate-y-0.5"
+                      >
+                        Add
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-auto pt-4 shrink-0">
+                  <button 
+                    onClick={() => setModalType(null)}
+                    className="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-4 rounded-xl transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       )}

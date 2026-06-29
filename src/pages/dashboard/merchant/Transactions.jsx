@@ -11,6 +11,39 @@ const mockTransactions = Array(15).fill(null).map((_, i) => ({
 }));
 
 const Transactions = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All Statuses');
+
+  const filteredTransactions = mockTransactions.filter(tx => {
+    const matchesSearch = 
+      tx.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tx.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      tx.amount.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'All Statuses' || tx.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
+
+  const handleExportCSV = () => {
+    const headers = ['TxID', 'Date & Time', 'Customer', 'Type', 'Amount', 'Status'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredTransactions.map(tx => 
+        `"${tx.id}","${tx.date}","${tx.customer}","${tx.type}","${tx.amount}","${tx.status}"`
+      )
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'transactions_export.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="w-full animate-in fade-in zoom-in-95 duration-500">
       <div className="w-full flex flex-col">
@@ -25,7 +58,7 @@ const Transactions = () => {
               <button className="flex items-center gap-2 bg-[#13131A] border border-white/10 hover:bg-white/5 text-white px-4 py-2 rounded-xl transition-all">
                 <Filter className="w-4 h-4" /> Filter
               </button>
-              <button className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-xl transition-all font-medium">
+              <button onClick={handleExportCSV} className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-xl transition-all font-medium">
                 <Download className="w-4 h-4" /> Export CSV
               </button>
             </div>
@@ -38,10 +71,16 @@ const Transactions = () => {
                 <input 
                   type="text" 
                   placeholder="Search by TxID, customer, or amount..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
                 />
               </div>
-              <select className="bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary appearance-none">
+              <select 
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary appearance-none cursor-pointer"
+              >
                 <option>All Statuses</option>
                 <option>Completed</option>
                 <option>Pending</option>
@@ -61,7 +100,11 @@ const Transactions = () => {
                   </tr>
                 </thead>
                 <tbody className="text-sm divide-y divide-white/5">
-                  {mockTransactions.map((tx, i) => (
+                  {filteredTransactions.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="p-8 text-center text-gray-500">No transactions found matching your criteria.</td>
+                    </tr>
+                  ) : filteredTransactions.map((tx, i) => (
                     <tr key={i} className="hover:bg-white/[0.02] transition-colors group cursor-pointer">
                       <td className="p-4 text-primary font-mono text-xs font-medium">{tx.id}</td>
                       <td className="p-4 text-gray-400 text-xs">{tx.date}</td>
