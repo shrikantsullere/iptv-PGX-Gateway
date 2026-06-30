@@ -49,6 +49,11 @@ export default function Chat() {
   const [headphonesOn, setHeadphonesOn] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [channels, setChannels] = useState(CHANNELS);
+  
+  // Add Channel Modal State
+  const [showAddChannel, setShowAddChannel] = useState(false);
+  const [newChannelName, setNewChannelName] = useState('');
+
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -66,6 +71,16 @@ export default function Chat() {
     }));
     setInput('');
     setShowEmoji(false);
+  };
+
+  const handleCreateChannel = () => {
+    if (newChannelName.trim()) {
+      const id = newChannelName.trim();
+      setChannels(prev => [...prev, { id, name: id, type: 'text', unread: 0 }]);
+      setMessages(prev => ({ ...prev, [id]: [] }));
+      setShowAddChannel(false);
+      setNewChannelName('');
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -103,14 +118,7 @@ export default function Chat() {
         <div>
           <div className="text-xs font-bold text-gray-500 uppercase flex items-center justify-between mb-1 px-1">
             Text Channels
-            <button onClick={() => {
-              const name = prompt('Channel name:');
-              if (name?.trim()) {
-                const id = name.trim().toLowerCase().replace(/\s+/g, '-');
-                setChannels(prev => [...prev, { id, name: id, type: 'text', unread: 0 }]);
-                setMessages(prev => ({ ...prev, [id]: [] }));
-              }
-            }} className="hover:text-white transition-colors cursor-pointer">
+            <button onClick={() => setShowAddChannel(true)} className="hover:text-white transition-colors cursor-pointer">
               <Plus className="w-3 h-3" />
             </button>
           </div>
@@ -317,6 +325,49 @@ export default function Chat() {
           <p className="text-[10px] text-gray-600 mt-1 px-1">Press Enter to send · Shift+Enter for new line</p>
         </div>
       </div>
+      
+      {/* Create Channel Modal */}
+      {showAddChannel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-sm shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="p-5 border-b border-white/5 flex justify-between items-center bg-[#09090B] rounded-t-3xl">
+              <h3 className="font-black text-white text-lg flex items-center gap-2">
+                <Hash className="w-5 h-5 text-[#7C3AED]" /> Create Channel
+              </h3>
+              <button onClick={() => { setShowAddChannel(false); setNewChannelName(''); }} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Channel Name</label>
+                <div className="relative">
+                  <Hash className="w-4 h-4 text-gray-500 absolute left-4 top-1/2 -translate-y-1/2" />
+                  <input
+                    value={newChannelName}
+                    onChange={e => setNewChannelName(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
+                    placeholder="e.g. highlights"
+                    className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-white focus:outline-none focus:border-[#7C3AED] transition-colors text-sm"
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && newChannelName.trim()) {
+                         handleCreateChannel();
+                      }
+                    }}
+                  />
+                </div>
+                <p className="text-[10px] text-gray-600 mt-2">Spaces will automatically be converted to hyphens.</p>
+              </div>
+              <button
+                onClick={handleCreateChannel}
+                disabled={!newChannelName.trim()}
+                className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(124,58,237,0.3)]"
+              >
+                Create Channel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
