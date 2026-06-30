@@ -1,4 +1,5 @@
-import { Webhook, Plus, CheckCircle2, XCircle } from 'lucide-react';
+import { Webhook, Plus, CheckCircle2, XCircle, X } from 'lucide-react';
+import { useState } from 'react';
 
 const mockLogs = Array(5).fill(null).map((_, i) => ({
   id: `evt_${83726 + i}`,
@@ -9,8 +10,12 @@ const mockLogs = Array(5).fill(null).map((_, i) => ({
 }));
 
 const Webhooks = () => {
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [endpointUrl, setEndpointUrl] = useState('');
+  
   return (
-    <div className="w-full animate-in fade-in zoom-in-95 duration-500">
+    <div className="w-full animate-in fade-in zoom-in-95 duration-500 relative">
       <div className="w-full flex flex-col">
         <div className="w-full">
           
@@ -21,7 +26,10 @@ const Webhooks = () => {
               </h1>
               <p className="text-gray-400">Receive real-time HTTP notifications for events.</p>
             </div>
-            <button className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-xl transition-all font-bold">
+            <button 
+              onClick={() => setIsAddModalOpen(true)}
+              className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-xl transition-all font-bold"
+            >
               <Plus className="w-4 h-4" /> Add Endpoint
             </button>
           </div>
@@ -38,7 +46,12 @@ const Webhooks = () => {
                 </div>
                 <p className="text-xs text-gray-500">Listening to: payment.*, payout.*</p>
               </div>
-              <button className="text-sm bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg transition-colors">Edit</button>
+              <button 
+                onClick={() => setIsEditModalOpen(true)}
+                className="text-sm bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg transition-colors"
+              >
+                Edit
+              </button>
             </div>
           </div>
 
@@ -80,6 +93,123 @@ const Webhooks = () => {
           </div>
         </div>
       </div>
+
+      {/* Add Endpoint Modal */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/5 shrink-0">
+              <h3 className="text-xl font-bold">Add Webhook Endpoint</h3>
+              <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-white transition-colors p-1">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto custom-scrollbar">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1.5">Endpoint URL</label>
+                <input 
+                  type="url" 
+                  placeholder="https://your-domain.com/webhooks"
+                  value={endpointUrl}
+                  onChange={(e) => setEndpointUrl(e.target.value)}
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors text-sm sm:text-base"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1.5">Events to send</label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-3 cursor-pointer p-3 border border-white/5 rounded-xl hover:bg-white/5 transition-colors">
+                    <input type="checkbox" defaultChecked className="w-4 h-4 text-pink-500 rounded border-white/10 bg-black/50 focus:ring-pink-500 focus:ring-offset-gray-900" />
+                    <div>
+                      <div className="text-sm font-medium text-white">payment.*</div>
+                      <div className="text-xs text-gray-500">All payment related events</div>
+                    </div>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer p-3 border border-white/5 rounded-xl hover:bg-white/5 transition-colors">
+                    <input type="checkbox" defaultChecked className="w-4 h-4 text-pink-500 rounded border-white/10 bg-black/50 focus:ring-pink-500 focus:ring-offset-gray-900" />
+                    <div>
+                      <div className="text-sm font-medium text-white">payout.*</div>
+                      <div className="text-xs text-gray-500">All payout related events</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 sm:p-6 border-t border-white/5 flex flex-col-reverse sm:flex-row justify-end gap-3 bg-black/20 shrink-0">
+              <button onClick={() => setIsAddModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors font-medium">
+                Cancel
+              </button>
+              <button onClick={() => setIsAddModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white transition-colors font-medium">
+                Add Endpoint
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Endpoint Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/5 shrink-0">
+              <h3 className="text-xl font-bold">Edit Webhook Endpoint</h3>
+              <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-white transition-colors p-1">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto custom-scrollbar">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1.5">Endpoint URL</label>
+                <input 
+                  type="url" 
+                  defaultValue="https://api.acme.com/webhooks/pgx"
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors text-sm sm:text-base"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1.5">Events to send</label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-3 cursor-pointer p-3 border border-white/5 rounded-xl hover:bg-white/5 transition-colors">
+                    <input type="checkbox" defaultChecked className="w-4 h-4 text-pink-500 rounded border-white/10 bg-black/50 focus:ring-pink-500 focus:ring-offset-gray-900" />
+                    <div>
+                      <div className="text-sm font-medium text-white">payment.*</div>
+                      <div className="text-xs text-gray-500">All payment related events</div>
+                    </div>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer p-3 border border-white/5 rounded-xl hover:bg-white/5 transition-colors">
+                    <input type="checkbox" defaultChecked className="w-4 h-4 text-pink-500 rounded border-white/10 bg-black/50 focus:ring-pink-500 focus:ring-offset-gray-900" />
+                    <div>
+                      <div className="text-sm font-medium text-white">payout.*</div>
+                      <div className="text-xs text-gray-500">All payout related events</div>
+                    </div>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer p-3 border border-white/5 rounded-xl hover:bg-white/5 transition-colors">
+                    <input type="checkbox" className="w-4 h-4 text-pink-500 rounded border-white/10 bg-black/50 focus:ring-pink-500 focus:ring-offset-gray-900" />
+                    <div>
+                      <div className="text-sm font-medium text-white">dispute.*</div>
+                      <div className="text-xs text-gray-500">All dispute related events</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 sm:p-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 bg-black/20 shrink-0">
+              <button onClick={() => setIsEditModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors font-medium text-sm sm:text-base order-last sm:order-first">
+                Delete Endpoint
+              </button>
+              <div className="flex flex-col-reverse sm:flex-row w-full sm:w-auto gap-3">
+                <button onClick={() => setIsEditModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors font-medium">
+                  Cancel
+                </button>
+                <button onClick={() => setIsEditModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white transition-colors font-medium">
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
