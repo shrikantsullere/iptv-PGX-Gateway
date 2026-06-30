@@ -4762,3 +4762,1980 @@ Provide users with self-service support tools and direct communication channels 
 - Chat Satisfaction Score
 - FAQ Search Success Rate
 - Documentation Usage
+
+
+
+
+# Product Requirement Document
+
+Module:
+PlayGroundX Dashboard
+
+
+Version: 1.0
+
+
+Status:
+Ready For Development
+
+
+---
+
+# Objective
+
+
+Create a centralized dashboard where users can discover live sports, IPTV channels, watch parties, and friend activities.
+
+
+---
+
+# Target Users
+
+
+## Player/User
+
+
+Can:
+
+- Watch Streams
+- Join Lobbies
+- View Friends
+- Explore Content
+
+
+---
+
+# Core Features
+
+
+## Live Now
+
+
+Display:
+
+- Current Events
+- Viewer Count
+- Watch Option
+
+
+---
+
+## Trending Content
+
+
+Display:
+
+- Popular Matches
+- High Engagement Content
+
+
+---
+
+## IPTV
+
+
+Users can:
+
+- Browse Channels
+- Watch Streams
+
+
+---
+
+## Lobbies
+
+
+Users can:
+
+- Create Room
+- Join Room
+- Invite Friends
+
+
+---
+
+## Friends Activity
+
+
+Show:
+
+- Online Friends
+- Current Activity
+
+
+---
+
+# Functional Requirements
+
+
+Dashboard should load:
+
+- Live Content
+- Trending Items
+- Channels
+- Lobby Data
+- Friend Status
+
+
+---
+
+# User Actions
+
+
+User can:
+
+
+Watch Stream
+
+↓
+
+Open Player
+
+
+Join Lobby
+
+↓
+
+Enter Room
+
+
+Click Friend
+
+↓
+
+View Profile
+
+
+---
+
+# Non Functional Requirements
+
+
+Performance:
+
+- Fast Loading
+- Cached Data
+
+
+Security:
+
+- Protected Streams
+- User Validation
+
+
+Availability:
+
+- Real Time Updates
+
+
+---
+
+# Permissions
+
+
+| Feature | User |
+|---|---|
+| Watch Live | ✅ |
+| Join Lobby | ✅ |
+| Create Lobby | ✅ |
+| View Friends | ✅ |
+
+
+---
+
+# Dependencies
+
+
+- Authentication System
+- Streaming Service
+- IPTV Provider
+- Lobby Service
+- Notification Service
+
+
+---
+
+# Success Metrics
+
+
+- Daily Active Users
+- Watch Time
+- Lobby Participation
+- User Engagement
+
+
+---
+
+# Future Enhancements
+
+
+- AI Feed
+- Voice Chat
+- Tournament System
+- Premium Channels
+
+
+---
+
+# Development Checklist
+
+
+✅ UI Components
+
+✅ API Development
+
+✅ Database Setup
+
+✅ Real-Time Updates
+
+✅ Testing
+
+
+---
+
+Status:
+
+Ready For Backend Development
+
+
+End of PRD
+# Product Requirement Document
+
+Module:
+
+PlayGroundX Sports Lounge
+
+
+Version: 1.0
+
+
+Status:
+
+Ready For Development
+
+
+---
+
+# Objective
+
+
+Create a sports entertainment platform where users can watch live events and enjoy matches with friends.
+
+
+---
+
+# Target Users
+
+
+## Sports Users
+
+
+Can:
+
+
+- Watch Matches
+- Join Parties
+- Follow Events
+
+
+---
+
+# Core Features
+
+
+## Live Sports Feed
+
+
+Displays:
+
+
+- Current Matches
+- Categories
+- Viewers
+
+
+---
+
+## Football Section
+
+
+Includes:
+
+
+- Premier League
+- Champions League
+- Serie A
+
+
+---
+
+## UFC & Boxing
+
+
+Includes:
+
+
+- Fight Events
+- Main Cards
+- Upcoming Matches
+
+
+---
+
+## NBA
+
+
+Includes:
+
+
+- Live Games
+- Scores
+- Quarter Updates
+
+
+---
+
+## Watch Party
+
+
+Users can:
+
+
+- Create Room
+- Invite Friends
+- Watch Together
+
+
+---
+
+# Functional Requirements
+
+
+System should provide:
+
+
+- Live Match Data
+- Streaming Access
+- Lobby Creation
+- Friend Activity
+
+
+---
+
+# User Actions
+
+
+Watch
+
+
+↓
+
+Open Stream
+
+
+
+Create Party
+
+
+↓
+
+Invite Users
+
+
+
+Join Party
+
+
+↓
+
+Start Watching
+
+
+---
+
+# Non Functional Requirements
+
+
+Performance:
+
+
+- Fast Match Loading
+- Real Time Updates
+
+
+Security:
+
+
+- Protected Streaming
+- User Authentication
+
+
+Availability:
+
+
+- High Traffic Support
+
+
+---
+
+# Permissions
+
+
+| Feature | User |
+|---|---|
+| Watch Match | ✅ |
+| Join Party | ✅ |
+| Create Party | ✅ |
+| Invite Friend | ✅ |
+
+
+---
+
+# Dependencies
+
+
+- Authentication
+- Streaming Provider
+- Sports API
+- Lobby System
+- Chat System
+
+
+---
+
+# Success Metrics
+
+
+- Daily Watch Time
+- Active Users
+- Party Creation
+- Engagement
+
+
+---
+
+# Future Enhancements
+
+
+- AI Recommendations
+- Voice Chat
+- Tournaments
+- Premium Sports Channels
+
+
+---
+
+# Development Checklist
+
+
+✅ UI
+
+✅ APIs
+
+✅ Database
+
+✅ Real Time System
+
+✅ Testing
+
+
+---
+
+Status:
+
+Ready For Backend Development
+
+
+End of PRD
+# Product Requirement Document
+
+Module:
+
+PlayGroundX IPTV Network
+
+
+Version: 1.0
+
+
+Status:
+
+Ready For Development
+
+
+---
+
+# Objective
+
+
+Create a flexible IPTV management system where users can organize screens, create lobbies, and watch channels together.
+
+
+---
+
+# Target Users
+
+
+## Viewer
+
+
+Can:
+
+
+- Watch Channels
+- Join Lobby
+- Manage Screens
+
+
+---
+
+# Core Features
+
+
+## Screen Management
+
+
+Users can:
+
+
+- Add Screen
+- Rearrange Screen
+- Customize Layout
+
+
+---
+
+## Lobby System
+
+
+Users can:
+
+
+- Create Lobby
+- Select Privacy
+- Invite Friends
+
+
+---
+
+## Channel Management
+
+
+Users can:
+
+
+- Browse Channels
+- Add Channel
+- Watch Stream
+
+
+---
+
+# Categories
+
+
+Supported:
+
+
+- Sports
+- Racing
+- Basketball
+- Cricket
+- Football
+- Wrestling
+
+
+---
+
+# Functional Requirements
+
+
+System must provide:
+
+
+- Channel Listing
+- Stream Playback
+- Lobby Management
+- Real Time Updates
+
+
+---
+
+# User Flow
+
+
+Open IPTV
+
+
+↓
+
+Select Lobby
+
+
+↓
+
+Choose Channel
+
+
+↓
+
+Start Watching
+
+
+---
+
+# Watch Party Flow
+
+
+Create Lobby
+
+
+↓
+
+Add Channels
+
+
+↓
+
+Invite Friends
+
+
+↓
+
+Watch Together
+
+
+---
+
+# Non Functional Requirements
+
+
+Performance:
+
+
+- Fast Loading
+- Low Latency Streaming
+
+
+Security:
+
+
+- Protected Streams
+- User Validation
+
+
+Availability:
+
+
+- 24/7 Streaming Support
+
+
+---
+
+# Permissions
+
+
+| Feature | User |
+|---|---|
+| View Channels | ✅ |
+| Add Screen | ✅ |
+| Create Lobby | ✅ |
+| Invite Users | ✅ |
+
+
+---
+
+# Dependencies
+
+
+- Authentication
+- Streaming Provider
+- Lobby System
+- Notification Service
+
+
+---
+
+# Success Metrics
+
+
+- Watch Time
+- Active Viewers
+- Lobby Usage
+- Channel Engagement
+
+
+---
+
+# Future Enhancements
+
+
+- Premium IPTV Plans
+- AI Recommendations
+- Multi Screen Sync
+- Offline Recording
+
+
+---
+
+# Development Checklist
+
+
+✅ UI
+
+✅ APIs
+
+✅ Database
+
+✅ Streaming
+
+✅ Testing
+
+
+---
+
+Status:
+
+Ready For Backend Development
+
+
+End of PRD
+# Product Requirement Document
+
+Module:
+
+PlayGroundX Live Match
+
+
+Version:
+
+1.0
+
+
+Status:
+
+Ready For Development
+
+
+---
+
+# Objective
+
+
+Build a real-time sports viewing experience where users can stream matches, chat, and watch together.
+
+
+---
+
+# Target Users
+
+
+## Sports Fans
+
+
+Users can:
+
+
+- Watch Live Matches
+- Follow Scores
+- Join Parties
+
+
+---
+
+# Core Features
+
+
+## Live Streaming
+
+
+Provides:
+
+
+- HD Stream
+- 4K Stream
+- Match Timer
+
+
+---
+
+## Score System
+
+
+Displays:
+
+
+- Team Score
+- Match Minute
+- Match Events
+
+
+Example:
+
+
+Manchester City
+
+2 - 1
+
+Arsenal
+
+
+---
+
+## Match Statistics
+
+
+Shows:
+
+
+- Possession
+- Shots
+- Passes
+- Corners
+- Fouls
+
+
+---
+
+## Live Chat
+
+
+Users can:
+
+
+- Send Messages
+- React
+- Discuss Match
+
+
+---
+
+## Watch Party
+
+
+Users can:
+
+
+- Create Room
+- Join Room
+- Invite Friends
+
+
+---
+
+# Functional Requirements
+
+
+System must:
+
+
+- Provide live streaming
+- Update scores instantly
+- Support chat
+- Manage parties
+
+
+---
+
+# User Flow
+
+
+Open Match
+
+
+↓
+
+Watch Stream
+
+
+↓
+
+Chat With Users
+
+
+↓
+
+Join Party
+
+
+↓
+
+Continue Watching
+
+
+---
+
+# Non Functional Requirements
+
+
+Performance:
+
+
+- Low Latency
+- Fast Loading
+
+
+Security:
+
+
+- Protected Stream
+- Secure Chat
+
+
+Availability:
+
+
+- 24/7 Support
+
+
+---
+
+# Permissions
+
+
+| Feature | User |
+|---|---|
+| Watch Match | ✅ |
+| Send Chat | ✅ |
+| Join Party | ✅ |
+| Share Match | ✅ |
+
+
+---
+
+# Dependencies
+
+
+- Sports Lounge
+- IPTV
+- Chat System
+- Notification System
+
+
+---
+
+# Success Metrics
+
+
+- Watch Time
+- Active Viewers
+- Chat Messages
+- Party Creation
+
+
+---
+
+# Future Enhancements
+
+
+- AI Highlights
+- Replay System
+- Multiple Camera Angles
+- Voice Commentary
+
+
+---
+
+# Development Checklist
+
+
+✅ UI
+
+✅ Backend API
+
+✅ Database
+
+✅ WebSocket
+
+✅ Testing
+
+
+---
+
+Status:
+
+Ready For Backend Development
+
+
+End PRD
+# Product Requirement Document
+
+Module:
+
+PlayGroundX Watch Party
+
+
+Version:
+
+1.0
+
+
+Status:
+
+Ready For Development
+
+
+---
+
+# Objective
+
+
+Create a social watching experience where users can watch IPTV and live matches together.
+
+
+---
+
+# Target Users
+
+
+## Viewers
+
+
+Users can:
+
+
+- Join Parties
+- Watch Screens
+- Chat
+
+
+---
+
+# Core Features
+
+
+## Lobby Creation
+
+
+User can:
+
+
+- Create Lobby
+- Select Type
+- Add Screens
+
+
+---
+
+## Screen Selection
+
+
+Maximum:
+
+
+4 Screens Per Lobby
+
+
+Users can:
+
+
+- Select Screens
+- Rearrange Order
+
+
+---
+
+## Private Rooms
+
+
+Users can create private rooms with friends.
+
+
+Features:
+
+
+- Invite
+- Accept
+- Remove Member
+
+
+---
+
+## Public Rooms
+
+
+Anyone can join and watch.
+
+
+---
+
+# Functional Requirements
+
+
+System must provide:
+
+
+- Lobby Management
+- Screen Sync
+- User Access
+- Real Time Updates
+
+
+---
+
+# User Flow
+
+
+Create Lobby
+
+
+↓
+
+Select Screens
+
+
+↓
+
+Invite Friends
+
+
+↓
+
+Start Watching
+
+
+---
+
+# Permission System
+
+
+| Action | Owner | Member |
+|---|---|---|
+| Edit Lobby | ✅ | ❌ |
+| Add Screen | ✅ | ❌ |
+| Watch | ✅ | ✅ |
+| Leave | ❌ | ✅ |
+
+
+---
+
+# Non Functional Requirements
+
+
+Performance:
+
+
+- Instant Updates
+- Low Latency
+
+
+Security:
+
+
+- Private Access
+- Permission Check
+
+
+Availability:
+
+
+- High User Support
+
+
+---
+
+# Dependencies
+
+
+- IPTV Module
+- Live Match Module
+- Chat
+- Friends
+- Notification
+
+
+---
+
+# Success Metrics
+
+
+- Active Lobbies
+- Watch Time
+- User Engagement
+- Party Creation
+
+
+---
+
+# Future Enhancements
+
+
+- Voice Rooms
+- Reactions
+- Virtual Stadium
+- Premium Events
+
+
+---
+
+# Development Checklist
+
+
+✅ UI
+
+✅ Backend API
+
+✅ Database
+
+✅ WebSocket
+
+✅ Testing
+
+
+---
+
+Status:
+
+Ready For Backend Development
+
+
+End PRD
+# Product Requirement Document
+
+Module:
+
+PlayGroundX Friends
+
+
+Version:
+
+1.0
+
+
+Status:
+
+Ready For Development
+
+
+---
+
+# Objective
+
+
+Create a social network layer where users can connect, communicate and invite each other.
+
+
+---
+
+# Target Users
+
+
+Gaming / Sports Users
+
+
+Users can:
+
+
+- Find Friends
+- Connect
+- Watch Together
+
+
+---
+
+# Core Features
+
+
+## Friend List
+
+
+Displays:
+
+
+- Online Friends
+- Offline Friends
+- User Activity
+
+
+---
+
+## Friend Request
+
+
+Users can:
+
+
+- Search User
+- Send Request
+- Accept
+- Reject
+
+
+---
+
+## Presence System
+
+
+Shows:
+
+
+Online
+
+Offline
+
+Current Activity
+
+
+Example:
+
+
+Watching IPTV
+
+
+---
+
+## Lobby Invite
+
+
+Users can invite friends to:
+
+
+- Watch Party
+- Match Lobby
+
+
+---
+
+## Block System
+
+
+Users can:
+
+
+- Block User
+- Remove Interaction
+
+
+---
+
+# Functional Requirements
+
+
+System must:
+
+
+- Manage Friendships
+- Handle Requests
+- Show Presence
+- Send Invites
+
+
+---
+
+# User Flow
+
+
+Search Friend
+
+
+↓
+
+Send Request
+
+
+↓
+
+Accept Request
+
+
+↓
+
+Become Friends
+
+
+↓
+
+Invite To Lobby
+
+
+---
+
+# Permission Matrix
+
+
+| Action | Owner | Friend |
+|---|---|---|
+| Send Message | ❌ | ✅ |
+| Invite Lobby | ❌ | ✅ |
+| Remove Friend | ❌ | ✅ |
+| Block User | ✅ | ✅ |
+
+
+---
+
+# Non Functional Requirements
+
+
+Performance:
+
+
+- Instant Status Update
+- Fast Search
+
+
+Security:
+
+
+- Privacy
+- Spam Protection
+
+
+Availability:
+
+
+- Real Time Support
+
+
+---
+
+# Dependencies
+
+
+- Chat Module
+- Watch Party
+- Notification
+- Profile
+
+
+---
+
+# Success Metrics
+
+
+- Active Friends
+- Requests Sent
+- Lobby Invites
+- User Engagement
+
+
+---
+
+# Future Enhancements
+
+
+- Friend Groups
+- Voice Rooms
+- Activity Feed
+- Social Ranking
+
+
+---
+
+# Development Checklist
+
+
+✅ UI
+
+✅ API
+
+✅ Database
+
+✅ WebSocket
+
+✅ Testing
+
+
+---
+
+Status:
+
+Ready For Development
+
+
+End PRD
+# Product Requirement Document
+
+Module:
+
+PlayGroundX Chat
+
+
+Version:
+
+1.0
+
+
+Status:
+
+Ready For Development
+
+
+---
+
+# Objective
+
+
+Create a real-time communication platform where users can chat and interact with the community.
+
+
+---
+
+# Target Users
+
+
+PlayGroundX Users
+
+
+Users can:
+
+
+- Chat
+- Join Communities
+- Talk During Matches
+
+
+---
+
+# Core Features
+
+
+## Text Channels
+
+
+Users can access:
+
+
+- General
+- Sports
+- Crypto
+- IPTV Channels
+
+
+---
+
+## Messaging
+
+
+Users can:
+
+
+- Send Messages
+- Receive Messages
+- View History
+
+
+---
+
+## Voice Channels
+
+
+Users can:
+
+
+- Join Voice Rooms
+- Talk With Members
+
+
+---
+
+## Online Presence
+
+
+Shows:
+
+
+- Active Users
+- Current Activity
+
+
+---
+
+## Search
+
+
+Users can search:
+
+
+- Messages
+- Channels
+- Users
+
+
+---
+
+# Functional Requirements
+
+
+System must:
+
+
+- Deliver messages instantly
+- Store chat history
+- Manage channels
+- Support voice rooms
+
+
+---
+
+# User Flow
+
+
+Open Chat
+
+
+↓
+
+Select Channel
+
+
+↓
+
+Send Message
+
+
+↓
+
+Receive Reply
+
+
+↓
+
+Continue Conversation
+
+
+---
+
+# Permission Matrix
+
+
+| Action | User | Admin |
+|---|---|---|
+| Send Message | ✅ | ✅ |
+| Delete Message | ❌ | ✅ |
+| Create Channel | ❌ | ✅ |
+| Remove User | ❌ | ✅ |
+
+
+---
+
+# Non Functional Requirements
+
+
+Performance:
+
+
+- Low latency
+- Fast message delivery
+
+
+Security:
+
+
+- User protection
+- Spam prevention
+
+
+Availability:
+
+
+- Real-time uptime
+
+
+---
+
+# Dependencies
+
+
+- Friends
+- Notification
+- Watch Party
+- Profile
+
+
+---
+
+# Success Metrics
+
+
+- Messages Sent
+- Active Users
+- Channel Activity
+- Voice Usage
+
+
+---
+
+# Future Enhancements
+
+
+- AI Moderation
+- Video Rooms
+- Community Servers
+- Reactions
+
+
+---
+
+# Development Checklist
+
+
+✅ UI
+
+✅ Backend API
+
+✅ Database
+
+✅ WebSocket
+
+✅ Testing
+
+
+---
+
+Status:
+
+Ready For Development
+
+
+End PRD
+# Product Requirement Document
+
+Module:
+
+PlayGroundX Wallet
+
+
+Version:
+
+1.0
+
+
+Status:
+
+Ready For Development
+
+
+---
+
+# Objective
+
+
+Create a secure digital wallet where users can manage PGX tokens and crypto assets.
+
+
+---
+
+# Target Users
+
+
+PlayGroundX Users
+
+
+Users can:
+
+
+- Store Assets
+- Send Crypto
+- Receive Crypto
+
+
+---
+
+# Core Features
+
+
+## Asset Management
+
+
+Users can view:
+
+
+- Balance
+- Asset Value
+- Price Change
+
+
+---
+
+## Deposit
+
+
+Users can:
+
+
+- Generate Address
+- Copy Address
+- Scan QR
+
+
+---
+
+## Withdraw
+
+
+Users can:
+
+
+- Enter Amount
+- Add Destination
+- Confirm Transfer
+
+
+---
+
+## Send
+
+
+Users can transfer assets to another wallet.
+
+
+---
+
+## Swap
+
+
+Users can exchange:
+
+
+PGX ↔ USDC
+
+
+---
+
+## Transaction History
+
+
+Shows:
+
+
+- Deposits
+- Withdrawals
+- Swaps
+
+
+---
+
+# Functional Requirements
+
+
+System must:
+
+
+- Maintain Wallet Balance
+- Process Transactions
+- Track History
+- Secure Assets
+
+
+---
+
+# User Flow
+
+
+Open Wallet
+
+
+↓
+
+Select Action
+
+
+↓
+
+Confirm Transaction
+
+
+↓
+
+Blockchain Processing
+
+
+↓
+
+Update Balance
+
+
+---
+
+# Permission Matrix
+
+
+| Action | User | Admin |
+|---|---|---|
+| View Wallet | ✅ | ✅ |
+| Send Crypto | ✅ | ❌ |
+| Manage System | ❌ | ✅ |
+| Block Transaction | ❌ | ✅ |
+
+
+---
+
+# Non Functional Requirements
+
+
+Performance:
+
+
+- Fast Balance Loading
+- Real Time Updates
+
+
+Security:
+
+
+- Secure Transactions
+- Data Encryption
+
+
+Availability:
+
+
+- 24/7 Wallet Access
+
+
+---
+
+# Dependencies
+
+
+- Transaction Module
+- Notification
+- Profile
+- Blockchain Service
+
+
+---
+
+# Success Metrics
+
+
+- Active Wallets
+- Transaction Volume
+- Successful Transfers
+
+
+---
+
+# Future Enhancements
+
+
+- Multi Chain Support
+- Staking
+- Rewards
+- NFT Support
+
+
+---
+
+# Development Checklist
+
+
+✅ UI
+
+✅ API
+
+✅ Database
+
+✅ Blockchain
+
+✅ Testing
+
+
+---
+
+Status:
+
+Ready For Development
+
+
+End PRD
+

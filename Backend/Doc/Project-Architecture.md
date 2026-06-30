@@ -5490,3 +5490,1998 @@ Create Ticket
 Support Team
  ↓
 Resolution
+
+
+
+
+# Dashboard Project Architecture
+
+Version: 1.0
+
+Module: PlayGroundX Dashboard
+
+
+---
+
+# Architecture Overview
+
+
+Dashboard works as the central aggregation layer.
+
+It collects data from:
+
+- Live Streaming
+- IPTV Service
+- Lobby System
+- Friend System
+- Notification System
+
+
+---
+
+# Architecture Flow
+
+
+Frontend Dashboard
+
+↓
+
+Dashboard API Gateway
+
+↓
+
+Authentication Layer
+
+↓
+
+Dashboard Controller
+
+↓
+
+Dashboard Service
+
+↓
+
+Multiple Services
+
+↓
+
+Database
+
+
+---
+
+# Service Architecture
+
+
+## Live Service
+
+
+Responsible for:
+
+- Live Matches
+- Viewer Count
+- Stream Status
+
+
+---
+
+
+## Trending Service
+
+
+Responsible for:
+
+- Popular Content
+- Ranking
+- Recommendations
+
+
+---
+
+
+## IPTV Service
+
+
+Responsible for:
+
+- Channel List
+- Streaming Access
+- Quality
+
+
+---
+
+
+## Lobby Service
+
+
+Responsible for:
+
+- Create Room
+- Join Room
+- Members
+
+
+---
+
+
+## Friend Service
+
+
+Responsible for:
+
+- Online Status
+- Activity Tracking
+
+
+---
+
+# Folder Structure
+
+
+src/
+
+modules/
+
+dashboard/
+
+├── controllers/
+
+├── services/
+
+├── routes/
+
+├── repositories/
+
+├── validators/
+
+├── models/
+
+└── interfaces/
+
+
+---
+
+# Request Flow
+
+
+User
+
+↓
+
+React Dashboard
+
+↓
+
+API Request
+
+↓
+
+Controller
+
+↓
+
+Service Layer
+
+↓
+
+Database
+
+↓
+
+Response
+
+
+---
+
+# Real Time Updates
+
+
+WebSocket
+
+↓
+
+Live Events
+
+↓
+
+Dashboard Update
+
+
+Used for:
+
+- Viewer Count
+- Match Status
+- Friend Online Status
+
+
+---
+
+# Caching
+
+
+Redis Cache
+
+
+Used For:
+
+- Trending Data
+- Live Events
+- Channel Data
+
+
+---
+
+# Background Workers
+
+
+Jobs:
+
+- Update Viewers
+- Refresh Matches
+- Sync IPTV
+- Calculate Trending
+
+
+---
+
+# Security
+
+
+- JWT Authentication
+- Permission Check
+- API Rate Limit
+- Secure Streaming URLs
+
+
+---
+
+# Scalability
+
+
+Supports:
+
+- Multiple Users
+- High Traffic Events
+- Large Watch Parties
+
+
+---
+
+# Future Expansion
+
+
+- AI Recommendation Engine
+- Voice Chat
+- Gaming Stats
+- Personalized Feed
+
+
+---
+
+End of Architecture
+# Sports Lounge Project Architecture
+
+Version: 1.0
+
+Module:
+PlayGroundX → Sports Lounge
+
+
+---
+
+# Architecture Overview
+
+Sports Lounge manages live sports streaming, match discovery, and watch party experience.
+
+
+---
+
+# Architecture Flow
+
+
+React Frontend
+
+↓
+
+Sports API Gateway
+
+↓
+
+Authentication Layer
+
+↓
+
+Sports Controller
+
+↓
+
+Sports Service
+
+↓
+
+External Sports Providers
+
+↓
+
+Database
+
+
+---
+
+# Services
+
+
+## Match Service
+
+
+Handles:
+
+
+- Match Listing
+- Scores
+- Status
+- Viewer Count
+
+
+---
+
+## Streaming Service
+
+
+Handles:
+
+
+- Stream URLs
+- Video Quality
+- Access Tokens
+
+
+---
+
+## Party Service
+
+
+Handles:
+
+
+- Create Party
+- Join Party
+- Members
+
+
+---
+
+## Friend Service
+
+
+Handles:
+
+
+- Online Status
+- Current Activity
+
+
+---
+
+# Folder Structure
+
+
+src/
+
+modules/
+
+sports/
+
+├── controllers/
+
+├── services/
+
+├── routes/
+
+├── models/
+
+├── repositories/
+
+├── validators/
+
+└── websocket/
+
+
+---
+
+# Real Time Architecture
+
+
+WebSocket Server
+
+↓
+
+Live Match Updates
+
+↓
+
+Frontend Update
+
+
+Used For:
+
+
+- Score Change
+- Viewer Count
+- Match Status
+
+
+---
+
+# Cache Layer
+
+
+Redis
+
+
+Used For:
+
+
+- Trending Matches
+- Live Scores
+- Match Data
+
+
+---
+
+# Background Workers
+
+
+Jobs:
+
+
+- Sync Scores
+- Refresh Streams
+- Update Popularity
+
+
+---
+
+# External Integrations
+
+
+- Sports API Provider
+- Video Streaming Provider
+- Notification Service
+
+
+---
+
+# Security
+
+
+- JWT Authentication
+- Stream Token
+- Permission Check
+- Rate Limiting
+
+
+---
+
+# Scalability
+
+
+Supports:
+
+
+- Millions of viewers
+- Large Watch Parties
+- Live Events
+
+
+---
+
+# Future Expansion
+
+
+- Voice Chat
+- Betting Module
+- Tournament System
+- AI Match Recommendation
+
+
+---
+
+End of Architecture
+# IPTV Network Project Architecture
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → IPTV Network
+
+
+---
+
+# Architecture Overview
+
+
+IPTV Network manages streaming channels, screens, and watch lobbies.
+
+
+---
+
+# Architecture Flow
+
+
+Frontend
+
+↓
+
+API Gateway
+
+↓
+
+Authentication
+
+↓
+
+IPTV Controller
+
+↓
+
+IPTV Service
+
+↓
+
+Streaming Provider
+
+↓
+
+Database
+
+
+---
+
+# Services
+
+
+## Screen Service
+
+
+Responsible for:
+
+
+- Create Screen
+- Delete Screen
+- Rearrange Screen
+- Layout Management
+
+
+---
+
+## Lobby Service
+
+
+Handles:
+
+
+- Create Lobby
+- Join Lobby
+- Member Access
+- Privacy
+
+
+---
+
+## Channel Service
+
+
+Handles:
+
+
+- Channel Listing
+- Category
+- Quality
+- Stream Availability
+
+
+---
+
+## Streaming Service
+
+
+Handles:
+
+
+- Playback URL
+- Token Generation
+- Stream Security
+
+
+---
+
+# Folder Structure
+
+
+src/
+
+
+modules/
+
+
+iptv/
+
+
+├── controllers/
+
+├── services/
+
+├── routes/
+
+├── models/
+
+├── repositories/
+
+├── validators/
+
+└── streaming/
+
+
+---
+
+# Real Time Architecture
+
+
+WebSocket Server
+
+↓
+
+Channel Updates
+
+↓
+
+Viewer Count
+
+
+Used For:
+
+
+- Live Viewers
+- Stream Status
+- Lobby Activity
+
+
+---
+
+# Cache Layer
+
+
+Redis
+
+
+Used For:
+
+
+- Channel List
+- Popular Channels
+- Viewer Data
+
+
+---
+
+# Background Workers
+
+
+Jobs:
+
+
+- Sync Channels
+- Check Streams
+- Update Viewers
+- Remove Invalid Streams
+
+
+---
+
+# External Integrations
+
+
+- IPTV Provider
+- Video CDN
+- Notification System
+
+
+---
+
+# Security Architecture
+
+
+- JWT Authentication
+- Stream Token
+- Access Control
+- Rate Limiting
+
+
+---
+
+# Scalability
+
+
+Supports:
+
+
+- Multiple Screens
+- Large Streaming Events
+- Multiple Lobbies
+
+
+---
+
+# Future Expansion
+
+
+- Smart Recommendations
+- Recording System
+- Multi Device Sync
+- Premium Channels
+
+
+---
+
+End Architecture
+# Live Match Project Architecture
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → Live Matches
+
+
+---
+
+# Architecture Overview
+
+
+Live Match system handles streaming, real-time scores, statistics and audience interaction.
+
+
+---
+
+# Architecture Flow
+
+
+React Frontend
+
+↓
+
+API Gateway
+
+↓
+
+Authentication Layer
+
+↓
+
+Live Match Controller
+
+↓
+
+Match Service
+
+↓
+
+Sports Data Provider
+
+↓
+
+Database
+
+
+---
+
+# Core Services
+
+
+## Match Service
+
+
+Handles:
+
+
+- Match Details
+- Teams
+- Scores
+- Status
+- Timeline
+
+
+---
+
+## Streaming Service
+
+
+Handles:
+
+
+- Video Stream
+- Quality
+- Access Token
+- Playback
+
+
+---
+
+## Real Time Service
+
+
+Handles:
+
+
+- Live Score Update
+- Viewer Count
+- Match Events
+
+
+Technology:
+
+
+WebSocket
+
+
+---
+
+## Chat Service
+
+
+Handles:
+
+
+- Messages
+- Moderation
+- Reactions
+
+
+---
+
+## Party Service
+
+
+Handles:
+
+
+- Watch Party
+- Invite Users
+- Party Access
+
+
+---
+
+# Folder Structure
+
+
+src/
+
+
+modules/
+
+
+live/
+
+
+├── controllers/
+
+├── services/
+
+├── websocket/
+
+├── models/
+
+├── routes/
+
+├── validators/
+
+└── providers/
+
+
+---
+
+# Real Time Architecture
+
+
+Sports API
+
+↓
+
+Event Processor
+
+↓
+
+WebSocket Server
+
+↓
+
+Users
+
+
+Used For:
+
+
+- Goal Updates
+- Timer
+- Stats
+- Chat
+
+
+---
+
+# Cache Layer
+
+
+Redis
+
+
+Stores:
+
+
+- Live Score
+- Viewers
+- Match Data
+
+
+---
+
+# Background Workers
+
+
+Jobs:
+
+
+- Sync Matches
+- Update Stats
+- Clean Chat
+- Refresh Stream
+
+
+---
+
+# External Services
+
+
+- Sports API
+- CDN Provider
+- Notification Service
+
+
+---
+
+# Security
+
+
+- JWT Authentication
+- Stream Token
+- Chat Filter
+- Rate Limiting
+
+
+---
+
+# Scalability
+
+
+Supports:
+
+
+- Thousands of viewers
+- Real-time events
+- Large watch parties
+
+
+---
+
+# Future Expansion
+
+
+- Voice Chat
+- AI Commentary
+- Multi Camera Stream
+- VR Stadium
+
+
+---
+
+End Architecture
+# Watch Party Project Architecture
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → Watch Party
+
+
+---
+
+# Architecture Overview
+
+
+Watch Party system provides synchronized viewing rooms with screen management and real-time interaction.
+
+
+---
+
+# Architecture Flow
+
+
+Frontend
+
+↓
+
+API Gateway
+
+↓
+
+Authentication
+
+↓
+
+Party Controller
+
+↓
+
+Party Service
+
+↓
+
+Database
+
+
+---
+
+# Core Services
+
+
+## Lobby Service
+
+
+Handles:
+
+
+- Create Lobby
+- Delete Lobby
+- Lobby Details
+- Lobby Access
+
+
+---
+
+## Member Service
+
+
+Handles:
+
+
+- Join Member
+- Remove Member
+- Roles
+- Permissions
+
+
+---
+
+## Screen Service
+
+
+Handles:
+
+
+- Add Screens
+- Remove Screens
+- Screen Order
+
+
+---
+
+## Invite Service
+
+
+Handles:
+
+
+- Friend Invite
+- Accept Request
+- Reject Request
+
+
+---
+
+## Sync Service
+
+
+Handles:
+
+
+- Real Time Sync
+- Screen Changes
+- User Activity
+
+
+---
+
+# Folder Structure
+
+
+src/
+
+
+modules/
+
+
+watch-party/
+
+
+├── controllers/
+
+├── services/
+
+├── routes/
+
+├── models/
+
+├── websocket/
+
+├── validators/
+
+└── repositories/
+
+
+---
+
+# Real Time Architecture
+
+
+WebSocket Server
+
+↓
+
+Lobby Events
+
+↓
+
+Connected Users
+
+
+Events:
+
+
+- User Joined
+- Screen Updated
+- Chat Message
+
+
+---
+
+# Cache Layer
+
+
+Redis
+
+
+Used For:
+
+
+- Active Lobby
+- Online Members
+- Recent Activity
+
+
+---
+
+# Background Workers
+
+
+Jobs:
+
+
+- Remove Empty Lobby
+- Clean Invitations
+- Update Activity
+
+
+---
+
+# External Integrations
+
+
+- IPTV System
+- Live Match System
+- Friend System
+- Chat System
+
+
+---
+
+# Security
+
+
+- JWT Authentication
+- Role Based Access
+- Private Lobby Protection
+
+
+---
+
+# Scalability
+
+
+Supports:
+
+
+- Multiple Rooms
+- Large Watch Parties
+- Real Time Events
+
+
+---
+
+# Future Expansion
+
+
+- Voice Chat
+- Screen Sharing
+- Premium Rooms
+- Recording
+
+
+---
+
+End Architecture
+# Friends Project Architecture
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → Friends
+
+
+---
+
+# Architecture Overview
+
+
+Friends system manages social connections, online presence and user invitations.
+
+
+---
+
+# Architecture Flow
+
+
+React Frontend
+
+↓
+
+API Gateway
+
+↓
+
+Authentication Layer
+
+↓
+
+Friend Controller
+
+↓
+
+Friend Service
+
+↓
+
+Database
+
+
+---
+
+# Core Services
+
+
+## Friend Service
+
+
+Handles:
+
+
+- Add Friend
+- Remove Friend
+- Friend List
+- Requests
+
+
+---
+
+## Request Service
+
+
+Handles:
+
+
+- Send Request
+- Accept Request
+- Reject Request
+
+
+---
+
+## Presence Service
+
+
+Handles:
+
+
+- Online Status
+- Offline Status
+- Current Activity
+
+
+Technology:
+
+
+WebSocket
+
+
+---
+
+## Invite Service
+
+
+Handles:
+
+
+- Lobby Invite
+- Event Invite
+- Notifications
+
+
+---
+
+# Folder Structure
+
+
+src/
+
+
+modules/
+
+
+friends/
+
+
+├── controllers/
+
+├── services/
+
+├── routes/
+
+├── models/
+
+├── websocket/
+
+├── validators/
+
+└── repositories/
+
+
+---
+
+# Real Time Architecture
+
+
+User Login
+
+↓
+
+Presence Server
+
+↓
+
+WebSocket
+
+↓
+
+Friends
+
+
+Events:
+
+
+- Friend Online
+- Friend Offline
+- Activity Change
+
+
+---
+
+# Cache Layer
+
+
+Redis
+
+
+Stores:
+
+
+- Online Users
+- Active Friends
+- Presence Data
+
+
+---
+
+# Background Workers
+
+
+Jobs:
+
+
+- Cleanup Requests
+- Update Presence
+- Remove Expired Invites
+
+
+---
+
+# Integrations
+
+
+Connected With:
+
+
+- Chat
+- Watch Party
+- Notifications
+- Profile
+
+
+---
+
+# Security
+
+
+- JWT Authentication
+- Privacy Rules
+- Block System
+- Rate Limit
+
+
+---
+
+# Scalability
+
+
+Supports:
+
+
+- Thousands of Users
+- Real Time Status
+- Large Friend Networks
+
+
+---
+
+# Future Expansion
+
+
+- Voice Chat
+- Friend Groups
+- Clan System
+- Leaderboards
+
+
+---
+
+End Architecture
+# Chat Project Architecture
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → Chat
+
+
+---
+
+# Architecture Overview
+
+
+Chat system provides real-time communication using WebSocket architecture with text and voice support.
+
+
+---
+
+# Architecture Flow
+
+
+React Frontend
+
+↓
+
+API Gateway
+
+↓
+
+Authentication
+
+↓
+
+Chat Controller
+
+↓
+
+Chat Service
+
+↓
+
+Database
+
+
+---
+
+# Core Services
+
+
+## Message Service
+
+
+Handles:
+
+
+- Send Message
+- Receive Message
+- Message History
+
+
+---
+
+## Channel Service
+
+
+Handles:
+
+
+- Create Channel
+- Join Channel
+- Channel Permissions
+
+
+---
+
+## Presence Service
+
+
+Handles:
+
+
+- Online Users
+- Active Members
+- Typing Status
+
+
+Technology:
+
+
+WebSocket
+
+
+---
+
+## Voice Service
+
+
+Handles:
+
+
+- Voice Room
+- User Connection
+- Audio Session
+
+
+---
+
+## Moderation Service
+
+
+Handles:
+
+
+- Report
+- Delete Message
+- User Control
+
+
+---
+
+# Folder Structure
+
+
+src/
+
+
+modules/
+
+
+chat/
+
+
+├── controllers/
+
+├── services/
+
+├── websocket/
+
+├── models/
+
+├── routes/
+
+├── validators/
+
+└── repositories/
+
+
+---
+
+# Real Time Architecture
+
+
+User
+
+↓
+
+WebSocket Server
+
+↓
+
+Channel Room
+
+↓
+
+Connected Users
+
+
+Events:
+
+
+message
+
+typing
+
+presence
+
+voice
+
+
+---
+
+# Cache Layer
+
+
+Redis
+
+
+Stores:
+
+
+- Online Users
+- Active Channels
+- Recent Messages
+
+
+---
+
+# Background Workers
+
+
+Jobs:
+
+
+- Cleanup Messages
+- Remove Offline Users
+- Process Reports
+
+
+---
+
+# Integrations
+
+
+Connected With:
+
+
+- Friends
+- Watch Party
+- Notifications
+- Profile
+
+
+---
+
+# Security
+
+
+- JWT Authentication
+- Channel Permission
+- Spam Protection
+- Content Filter
+
+
+---
+
+# Scalability
+
+
+Supports:
+
+
+- Large Communities
+- Thousands Of Messages
+- Real Time Users
+
+
+---
+
+# Future Expansion
+
+
+- Video Chat
+- Screen Share
+- Emoji Reactions
+- Community Roles
+
+
+---
+
+End Architecture
+# Wallet Project Architecture
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → Wallet
+
+
+---
+
+# Architecture Overview
+
+
+Wallet system manages digital assets, transactions and blockchain operations.
+
+
+---
+
+# Architecture Flow
+
+
+React Frontend
+
+↓
+
+API Gateway
+
+↓
+
+Authentication Layer
+
+↓
+
+Wallet Controller
+
+↓
+
+Wallet Service
+
+↓
+
+Blockchain Provider
+
+↓
+
+Database
+
+
+---
+
+# Core Services
+
+
+## Wallet Service
+
+
+Handles:
+
+
+- Balance
+- Assets
+- Wallet Details
+
+
+---
+
+## Transaction Service
+
+
+Handles:
+
+
+- Deposit
+- Withdraw
+- Send
+- History
+
+
+---
+
+## Blockchain Service
+
+
+Handles:
+
+
+- Address Generation
+- Network Confirmation
+- Transfer
+
+
+---
+
+## Swap Service
+
+
+Handles:
+
+
+- Exchange Rate
+- Asset Conversion
+- Swap Execution
+
+
+---
+
+## Price Service
+
+
+Handles:
+
+
+- Crypto Price
+- USD Conversion
+
+
+---
+
+# Folder Structure
+
+
+src/
+
+
+modules/
+
+
+wallet/
+
+
+├── controllers/
+
+├── services/
+
+├── routes/
+
+├── models/
+
+├── providers/
+
+├── validators/
+
+└── repositories/
+
+
+---
+
+# Blockchain Flow
+
+
+Transaction Created
+
+↓
+
+Blockchain Network
+
+↓
+
+Confirmation
+
+↓
+
+Update Wallet
+
+
+---
+
+# Cache Layer
+
+
+Redis
+
+
+Stores:
+
+
+- Balance
+- Crypto Prices
+- Recent Activity
+
+
+---
+
+# Background Workers
+
+
+Jobs:
+
+
+- Sync Transactions
+- Update Prices
+- Confirm Pending Transfers
+
+
+---
+
+# External Integrations
+
+
+- Blockchain Network
+- Price API
+- Notification Service
+
+
+---
+
+# Security
+
+
+- JWT Authentication
+- Address Validation
+- Encryption
+- Transaction Approval
+
+
+---
+
+# Scalability
+
+
+Supports:
+
+
+- Multiple Assets
+- High Transactions
+- Real Time Updates
+
+
+---
+
+# Future Expansion
+
+
+- More Coins
+- NFT Wallet
+- Staking
+- Rewards
+
+
+---
+
+End Architecture
+

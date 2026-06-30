@@ -6084,3 +6084,1388 @@ userId
 status
 category
 createdAt
+
+
+
+
+# Dashboard Database Design
+
+Version: 1.0
+
+Database:
+PostgreSQL / MongoDB
+
+
+---
+
+# Main Tables
+
+
+- live_events
+- trending_content
+- channels
+- lobbies
+- lobby_members
+- user_activity
+
+
+---
+
+# Table: live_events
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| title | VARCHAR |
+| category | VARCHAR |
+| viewers | INT |
+| stream_url | TEXT |
+| status | ENUM |
+| created_at | TIMESTAMP |
+
+
+Status:
+
+- LIVE
+- OFFLINE
+
+
+---
+
+# Table: trending_content
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| content_id | UUID |
+| views | INT |
+| score | FLOAT |
+| rank | INT |
+
+
+---
+
+# Table: channels
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| name | VARCHAR |
+| quality | VARCHAR |
+| stream_url | TEXT |
+| status | BOOLEAN |
+
+
+---
+
+# Table: lobbies
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| owner_id | UUID |
+| name | VARCHAR |
+| type | ENUM |
+| private | BOOLEAN |
+| created_at | TIMESTAMP |
+
+
+Types:
+
+- WATCH_PARTY
+- GAMING
+- SPORTS
+
+
+---
+
+# Table: lobby_members
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| lobby_id | UUID |
+| user_id | UUID |
+| joined_at | TIMESTAMP |
+
+
+---
+
+# Table: user_activity
+
+
+| Field | Type |
+|---|---|
+| user_id | UUID |
+| status | VARCHAR |
+| activity | VARCHAR |
+| updated_at | TIMESTAMP |
+
+
+Example:
+
+
+Online
+
+Watching Manchester Derby
+
+
+---
+
+# Relationships
+
+
+User
+
+↓
+
+Lobbies
+
+↓
+
+Members
+
+
+Events
+
+↓
+
+Trending
+
+
+---
+
+# Indexes
+
+
+- viewers
+- status
+- created_at
+- user_id
+
+
+---
+
+# Security
+
+
+- User Data Isolation
+- Private Lobby Protection
+- Access Validation
+
+
+---
+
+End of Database
+# Sports Lounge Database Design
+
+Version: 1.0
+
+
+Database:
+
+PostgreSQL
+
+
+---
+
+# Main Tables
+
+
+- sports_matches
+- sports_categories
+- watch_parties
+- party_members
+- match_streams
+- user_activity
+
+
+---
+
+# Table: sports_categories
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| name | VARCHAR |
+| description | TEXT |
+
+
+Examples:
+
+
+Football
+
+UFC
+
+NBA
+
+
+---
+
+# Table: sports_matches
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| category_id | UUID |
+| title | VARCHAR |
+| league | VARCHAR |
+| status | ENUM |
+| viewers | INT |
+| start_time | TIMESTAMP |
+
+
+Status:
+
+
+LIVE
+
+UPCOMING
+
+FINISHED
+
+
+---
+
+# Table: match_streams
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| match_id | UUID |
+| stream_url | TEXT |
+| quality | VARCHAR |
+
+
+Quality:
+
+- HD
+- 4K
+
+
+---
+
+# Table: watch_parties
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| match_id | UUID |
+| owner_id | UUID |
+| name | VARCHAR |
+| type | ENUM |
+| created_at | TIMESTAMP |
+
+
+Type:
+
+
+PUBLIC
+
+PRIVATE
+
+
+---
+
+# Table: party_members
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| party_id | UUID |
+| user_id | UUID |
+| joined_at | TIMESTAMP |
+
+
+---
+
+# Table: user_activity
+
+
+| Field | Type |
+|---|---|
+| user_id | UUID |
+| activity | VARCHAR |
+| status | VARCHAR |
+| updated_at | TIMESTAMP |
+
+
+Example:
+
+
+Watching Manchester Derby
+
+
+---
+
+# Relationships
+
+
+Category
+
+↓
+
+Matches
+
+↓
+
+Streams
+
+
+Match
+
+↓
+
+Watch Party
+
+↓
+
+Members
+
+
+---
+
+# Indexes
+
+
+- status
+- viewers
+- category_id
+- created_at
+
+
+---
+
+# Security
+
+
+- Private Party Access
+- User Validation
+- Stream Protection
+
+
+---
+
+End of Database
+# IPTV Network Database Design
+
+Version: 1.0
+
+
+Database:
+
+PostgreSQL
+
+
+---
+
+# Main Tables
+
+
+- iptv_screens
+- iptv_lobbies
+- iptv_channels
+- lobby_channels
+- lobby_members
+- stream_logs
+
+
+---
+
+# Table: iptv_screens
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| user_id | UUID |
+| name | VARCHAR |
+| position | INT |
+| created_at | TIMESTAMP |
+
+
+---
+
+# Table: iptv_lobbies
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| owner_id | UUID |
+| name | VARCHAR |
+| type | ENUM |
+| created_at | TIMESTAMP |
+
+
+Type:
+
+
+PUBLIC
+
+PRIVATE
+
+
+---
+
+# Table: iptv_channels
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| name | VARCHAR |
+| category | VARCHAR |
+| quality | VARCHAR |
+| stream_url | TEXT |
+| viewers | INT |
+| status | BOOLEAN |
+
+
+---
+
+# Table: lobby_channels
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| lobby_id | UUID |
+| channel_id | UUID |
+| added_at | TIMESTAMP |
+
+
+---
+
+# Table: lobby_members
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| lobby_id | UUID |
+| user_id | UUID |
+| joined_at | TIMESTAMP |
+
+
+---
+
+# Table: stream_logs
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| channel_id | UUID |
+| user_id | UUID |
+| started_at | TIMESTAMP |
+| ended_at | TIMESTAMP |
+
+
+---
+
+# Relationships
+
+
+User
+
+↓
+
+Screens
+
+
+User
+
+↓
+
+Lobbies
+
+↓
+
+Channels
+
+
+---
+
+# Indexes
+
+
+- user_id
+- lobby_id
+- category
+- status
+
+
+---
+
+# Security
+
+
+- Private Lobby Validation
+- Stream Protection
+- User Access Check
+
+
+---
+
+End Database
+# Live Match Database Design
+
+Version: 1.0
+
+
+Database:
+
+PostgreSQL
+
+
+---
+
+# Main Tables
+
+
+- live_matches
+- match_stats
+- streams
+- watch_parties
+- chat_messages
+- match_events
+
+
+---
+
+# Table: live_matches
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| team_home | VARCHAR |
+| team_away | VARCHAR |
+| league | VARCHAR |
+| score_home | INT |
+| score_away | INT |
+| minute | INT |
+| status | ENUM |
+
+
+Status:
+
+
+LIVE
+
+FINISHED
+
+UPCOMING
+
+
+---
+
+# Table: streams
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| match_id | UUID |
+| url | TEXT |
+| quality | VARCHAR |
+| token | TEXT |
+
+
+Quality:
+
+
+HD
+
+4K UHD
+
+
+---
+
+# Table: match_stats
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| match_id | UUID |
+| possession_home | INT |
+| possession_away | INT |
+| shots_home | INT |
+| shots_away | INT |
+| passes_home | INT |
+| passes_away | INT |
+
+
+---
+
+# Table: watch_parties
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| match_id | UUID |
+| owner_id | UUID |
+| type | ENUM |
+
+
+Type:
+
+
+PUBLIC
+
+PRIVATE
+
+
+---
+
+# Table: chat_messages
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| match_id | UUID |
+| user_id | UUID |
+| message | TEXT |
+| created_at | TIMESTAMP |
+
+
+---
+
+# Table: match_events
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| match_id | UUID |
+| event_type | VARCHAR |
+| minute | INT |
+| created_at | TIMESTAMP |
+
+
+Examples:
+
+
+Goal
+
+Yellow Card
+
+Corner
+
+
+---
+
+# Relationships
+
+
+Match
+
+↓
+
+Stream
+
+
+Match
+
+↓
+
+Stats
+
+
+Match
+
+↓
+
+Chat
+
+
+Match
+
+↓
+
+Events
+
+
+---
+
+# Indexes
+
+
+- match_id
+- status
+- created_at
+
+
+---
+
+# Security
+
+
+- Chat Validation
+- Stream Protection
+- Access Control
+
+
+---
+
+End Database
+# Watch Party Database Design
+
+Version: 1.0
+
+
+Database:
+
+PostgreSQL
+
+
+---
+
+# Main Tables
+
+
+- watch_lobbies
+- lobby_members
+- lobby_screens
+- lobby_invites
+- lobby_activity
+
+
+---
+
+# Table: watch_lobbies
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| owner_id | UUID |
+| name | VARCHAR |
+| type | ENUM |
+| created_at | TIMESTAMP |
+
+
+Type:
+
+
+PUBLIC
+
+PRIVATE
+
+
+---
+
+# Table: lobby_members
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| lobby_id | UUID |
+| user_id | UUID |
+| role | VARCHAR |
+| joined_at | TIMESTAMP |
+
+
+Roles:
+
+
+OWNER
+
+MEMBER
+
+
+---
+
+# Table: lobby_screens
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| lobby_id | UUID |
+| screen_id | UUID |
+| position | INT |
+
+
+---
+
+# Table: lobby_invites
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| lobby_id | UUID |
+| sender_id | UUID |
+| receiver_id | UUID |
+| status | ENUM |
+
+
+Status:
+
+
+PENDING
+
+ACCEPTED
+
+REJECTED
+
+
+---
+
+# Table: lobby_activity
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| lobby_id | UUID |
+| event | VARCHAR |
+| created_at | TIMESTAMP |
+
+
+Examples:
+
+
+User Joined
+
+Screen Changed
+
+
+---
+
+# Relationships
+
+
+User
+
+↓
+
+Lobby
+
+↓
+
+Members
+
+
+Lobby
+
+↓
+
+Screens
+
+
+---
+
+# Indexes
+
+
+- owner_id
+- lobby_id
+- user_id
+- created_at
+
+
+---
+
+# Security
+
+
+- Access Validation
+- Invite Permission
+- Member Control
+
+
+---
+
+End Database
+# Friends Database Design
+
+Version: 1.0
+
+
+Database:
+
+PostgreSQL
+
+
+---
+
+# Main Tables
+
+
+- users
+- friendships
+- friend_requests
+- blocks
+- user_presence
+
+
+---
+
+# Table: friendships
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| user_id | UUID |
+| friend_id | UUID |
+| created_at | TIMESTAMP |
+
+
+---
+
+# Table: friend_requests
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| sender_id | UUID |
+| receiver_id | UUID |
+| status | ENUM |
+| created_at | TIMESTAMP |
+
+
+Status:
+
+
+PENDING
+
+ACCEPTED
+
+REJECTED
+
+
+---
+
+# Table: blocks
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| blocker_id | UUID |
+| blocked_id | UUID |
+| created_at | TIMESTAMP |
+
+
+---
+
+# Table: user_presence
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| user_id | UUID |
+| status | ENUM |
+| activity | VARCHAR |
+| updated_at | TIMESTAMP |
+
+
+Status:
+
+
+ONLINE
+
+OFFLINE
+
+
+---
+
+# Relationships
+
+
+User
+
+↓
+
+Friends
+
+
+User
+
+↓
+
+Requests
+
+
+User
+
+↓
+
+Blocks
+
+
+---
+
+# Indexes
+
+
+- user_id
+- friend_id
+- status
+- created_at
+
+
+---
+
+# Security
+
+
+- User Permission
+- Privacy Control
+- Block Validation
+
+
+---
+
+End Database
+# Chat Database Design
+
+Version: 1.0
+
+
+Database:
+
+PostgreSQL
+
+
+---
+
+# Main Tables
+
+
+- channels
+- channel_members
+- messages
+- voice_rooms
+- message_reports
+
+
+---
+
+# Table: channels
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| name | VARCHAR |
+| type | ENUM |
+| created_at | TIMESTAMP |
+
+
+Type:
+
+
+TEXT
+
+VOICE
+
+
+---
+
+# Table: channel_members
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| channel_id | UUID |
+| user_id | UUID |
+| joined_at | TIMESTAMP |
+
+
+---
+
+# Table: messages
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| channel_id | UUID |
+| user_id | UUID |
+| message | TEXT |
+| created_at | TIMESTAMP |
+
+
+---
+
+# Table: voice_rooms
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| channel_id | UUID |
+| user_id | UUID |
+| joined_at | TIMESTAMP |
+
+
+---
+
+# Table: message_reports
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| message_id | UUID |
+| reporter_id | UUID |
+| reason | TEXT |
+| status | ENUM |
+
+
+Status:
+
+
+PENDING
+
+REVIEWED
+
+ACTIONED
+
+
+---
+
+# Relationships
+
+
+User
+
+↓
+
+Messages
+
+
+Channel
+
+↓
+
+Members
+
+
+Channel
+
+↓
+
+Messages
+
+
+---
+
+# Indexes
+
+
+- channel_id
+- user_id
+- created_at
+
+
+---
+
+# Security
+
+
+- Permission Check
+- Message Filter
+- Rate Limit
+
+
+---
+
+End Database
+# Wallet Database Design
+
+Version: 1.0
+
+
+Database:
+
+PostgreSQL
+
+
+---
+
+# Main Tables
+
+
+- wallets
+- wallet_assets
+- transactions
+- swap_history
+- wallet_addresses
+
+
+---
+
+# Table: wallets
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| user_id | UUID |
+| total_balance | DECIMAL |
+| created_at | TIMESTAMP |
+
+
+---
+
+# Table: wallet_assets
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| wallet_id | UUID |
+| asset | VARCHAR |
+| amount | DECIMAL |
+| value_usd | DECIMAL |
+
+
+Assets:
+
+
+PGX
+
+USDC
+
+
+---
+
+# Table: transactions
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| wallet_id | UUID |
+| type | ENUM |
+| asset | VARCHAR |
+| amount | DECIMAL |
+| status | ENUM |
+| created_at | TIMESTAMP |
+
+
+Type:
+
+
+DEPOSIT
+
+WITHDRAW
+
+SEND
+
+SWAP
+
+
+Status:
+
+
+PENDING
+
+SUCCESS
+
+FAILED
+
+
+---
+
+# Table: swap_history
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| wallet_id | UUID |
+| from_asset | VARCHAR |
+| to_asset | VARCHAR |
+| amount | DECIMAL |
+| created_at | TIMESTAMP |
+
+
+---
+
+# Table: wallet_addresses
+
+
+| Field | Type |
+|---|---|
+| id | UUID |
+| wallet_id | UUID |
+| address | TEXT |
+| network | VARCHAR |
+
+
+---
+
+# Relationships
+
+
+User
+
+↓
+
+Wallet
+
+
+Wallet
+
+↓
+
+Assets
+
+
+Wallet
+
+↓
+
+Transactions
+
+
+---
+
+# Indexes
+
+
+- user_id
+- wallet_id
+- transaction_id
+- created_at
+
+
+---
+
+# Security
+
+
+- Encrypt Address
+- Transaction Logs
+- Access Control
+
+
+---
+
+End Database
+

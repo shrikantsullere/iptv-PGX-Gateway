@@ -6733,3 +6733,1454 @@ POST /api/support/email
 
 Description:
 Send support email request.
+
+
+
+# Dashboard API Architecture
+
+Version: 1.0
+
+Base URL
+
+/api/v1/dashboard
+
+
+Authentication
+
+Bearer JWT Token
+
+
+---
+
+# API Flow
+
+
+Client
+
+↓
+
+Auth Middleware
+
+↓
+
+Dashboard Controller
+
+↓
+
+Dashboard Service
+
+↓
+
+Database / External Services
+
+↓
+
+Response
+
+
+---
+
+# Get Dashboard Data
+
+
+GET /dashboard
+
+
+Returns:
+
+
+{
+liveNow:[],
+trending:[],
+channels:[],
+lobbies:[],
+friends:[]
+}
+
+
+---
+
+# Live Matches
+
+
+GET /dashboard/live
+
+
+Returns:
+
+- Match
+- Category
+- Viewers
+
+
+---
+
+# Trending Content
+
+
+GET /dashboard/trending
+
+
+Returns:
+
+- Popular Events
+- Ranking
+
+
+---
+
+# IPTV Channels
+
+
+GET /dashboard/channels
+
+
+Returns:
+
+- Channel Name
+- Quality
+- Status
+
+
+---
+
+# User Lobbies
+
+
+GET /dashboard/lobbies
+
+
+Returns:
+
+- Lobby Name
+- Members
+- Status
+
+
+---
+
+# Friend Activity
+
+
+GET /dashboard/friends
+
+
+Returns:
+
+- Username
+- Status
+- Activity
+
+
+---
+
+# Status Codes
+
+
+200 Success
+
+201 Created
+
+400 Validation Error
+
+401 Unauthorized
+
+403 Forbidden
+
+500 Server Error
+
+
+---
+
+# Security
+
+- JWT
+- RBAC
+- User Validation
+- Rate Limiting
+
+
+---
+
+End of API Architecture
+# Sports Lounge API Architecture
+
+Version: 1.0
+
+
+Base URL:
+
+/api/v1/sports
+
+
+Authentication:
+
+Bearer JWT
+
+
+---
+
+# Flow
+
+
+Frontend
+
+↓
+
+API Gateway
+
+↓
+
+Auth Middleware
+
+↓
+
+Sports Controller
+
+↓
+
+Sports Service
+
+↓
+
+Database
+
+
+---
+
+# Get Sports Feed
+
+
+GET /sports
+
+
+Returns:
+
+
+{
+football:[],
+ufc:[],
+nba:[]
+}
+
+
+---
+
+# Live Matches
+
+
+GET /sports/live
+
+
+Response:
+
+
+{
+title:"",
+status:"LIVE",
+viewers:1200000
+}
+
+
+---
+
+# Match Details
+
+
+GET /sports/:id
+
+
+Returns:
+
+- Teams
+- League
+- Score
+- Stream
+
+
+---
+
+# Create Watch Party
+
+
+POST /sports/party
+
+
+Request:
+
+
+{
+matchId:"",
+name:"",
+type:"public"
+}
+
+
+---
+
+# Join Party
+
+
+POST /sports/party/:id/join
+
+
+---
+
+# Add Match Lobby
+
+
+POST /sports/:id/lobby
+
+
+---
+
+# Friend Activity
+
+
+GET /sports/friends
+
+
+Returns:
+
+- Username
+- Status
+- Activity
+
+
+---
+
+# Response Codes
+
+
+200 Success
+
+201 Created
+
+400 Validation Error
+
+401 Unauthorized
+
+403 Forbidden
+
+500 Error
+
+
+---
+
+# Security
+
+
+- JWT
+- RBAC
+- Rate Limit
+- Stream Token
+
+
+---
+
+End API Architecture
+# IPTV API Architecture
+
+Version: 1.0
+
+
+Base URL:
+
+/api/v1/iptv
+
+
+Authentication:
+
+Bearer JWT
+
+
+---
+
+# Flow
+
+
+Frontend
+
+↓
+
+API Gateway
+
+↓
+
+Auth Middleware
+
+↓
+
+IPTV Controller
+
+↓
+
+IPTV Service
+
+↓
+
+Database
+
+
+---
+
+# Get IPTV Network
+
+
+GET /iptv
+
+
+Returns:
+
+
+{
+screens:[],
+lobbies:[],
+channels:[]
+}
+
+
+---
+
+# Create Screen
+
+
+POST /iptv/screens
+
+
+Request:
+
+
+{
+name:"Screen 1"
+}
+
+
+---
+
+# Rearrange Screen
+
+
+PATCH /iptv/screens/order
+
+
+Request:
+
+
+{
+screenId:"",
+position:1
+}
+
+
+---
+
+# Create Lobby
+
+
+POST /iptv/lobbies
+
+
+Request:
+
+
+{
+name:"",
+type:"public"
+}
+
+
+---
+
+# Add Channel
+
+
+POST /iptv/lobbies/:id/channel
+
+
+Request:
+
+
+{
+channelId:""
+}
+
+
+---
+
+# Get Channels
+
+
+GET /iptv/channels
+
+
+Returns:
+
+
+- Name
+- Category
+- Quality
+- Viewers
+
+
+---
+
+# Remove Channel
+
+
+DELETE
+
+/iptv/channel/:id
+
+
+---
+
+# Status Codes
+
+
+200 Success
+
+201 Created
+
+400 Validation Error
+
+401 Unauthorized
+
+403 Forbidden
+
+500 Server Error
+
+
+---
+
+# Security
+
+
+- JWT
+- Permission Check
+- Stream Token
+
+
+---
+
+End API Architecture
+# Live Match API Architecture
+
+Version: 1.0
+
+
+Base URL:
+
+/api/v1/live
+
+
+Authentication:
+
+Bearer JWT
+
+
+---
+
+# Flow
+
+
+Frontend
+
+↓
+
+API Gateway
+
+↓
+
+Auth Middleware
+
+↓
+
+Live Controller
+
+↓
+
+Match Service
+
+↓
+
+Sports Provider
+
+↓
+
+Database
+
+
+---
+
+# Get Live Matches
+
+
+GET /live/matches
+
+
+Returns:
+
+
+{
+matches:[]
+}
+
+
+---
+
+# Match Details
+
+
+GET /live/:id
+
+
+Response:
+
+
+{
+team1:"",
+team2:"",
+score:"",
+minute:""
+}
+
+
+---
+
+# Stream Access
+
+
+POST /live/:id/stream
+
+
+Returns:
+
+
+{
+streamUrl:"",
+token:""
+}
+
+
+---
+
+# Join Watch Party
+
+
+POST /live/:id/party
+
+
+Request:
+
+
+{
+partyId:""
+}
+
+
+---
+
+# Send Chat Message
+
+
+POST /live/chat
+
+
+Request:
+
+
+{
+matchId:"",
+message:""
+}
+
+
+---
+
+# Get Stats
+
+
+GET /live/:id/stats
+
+
+Returns:
+
+
+{
+possession:"",
+shots:"",
+passes:""
+}
+
+
+---
+
+# WebSocket Events
+
+
+live_score_update
+
+chat_message
+
+viewer_update
+
+match_event
+
+
+---
+
+# Response Codes
+
+
+200 Success
+
+201 Created
+
+401 Unauthorized
+
+403 Forbidden
+
+500 Error
+
+
+---
+
+# Security
+
+
+- JWT
+- Stream Token
+- Chat Filter
+- Rate Limit
+
+
+---
+
+End API Architecture
+# Watch Party API Architecture
+
+Version: 1.0
+
+
+Base URL:
+
+/api/v1/party
+
+
+Authentication:
+
+Bearer JWT
+
+
+---
+
+# Flow
+
+
+Frontend
+
+↓
+
+API Gateway
+
+↓
+
+Auth Middleware
+
+↓
+
+Party Controller
+
+↓
+
+Party Service
+
+↓
+
+Database
+
+
+---
+
+# Create Lobby
+
+
+POST /party
+
+
+Request:
+
+
+{
+name:"",
+type:"private",
+screens:[]
+}
+
+
+---
+
+# Get Lobbies
+
+
+GET /party
+
+
+Returns:
+
+
+{
+lobbies:[]
+}
+
+
+---
+
+# Join Lobby
+
+
+POST /party/:id/join
+
+
+---
+
+# Invite User
+
+
+POST /party/:id/invite
+
+
+Request:
+
+
+{
+userId:""
+}
+
+
+---
+
+# Add Screen
+
+
+POST /party/:id/screens
+
+
+Request:
+
+
+{
+screenId:""
+}
+
+
+---
+
+# Remove Screen
+
+
+DELETE
+
+/party/:id/screens/:screenId
+
+
+---
+
+# Rearrange Screens
+
+
+PATCH /party/:id/order
+
+
+Request:
+
+
+{
+screens:[]
+}
+
+
+---
+
+# Leave Lobby
+
+
+POST /party/:id/leave
+
+
+---
+
+# WebSocket Events
+
+
+party_joined
+
+screen_update
+
+chat_message
+
+member_update
+
+
+---
+
+# Response Codes
+
+
+200 Success
+
+201 Created
+
+400 Validation Error
+
+401 Unauthorized
+
+403 Forbidden
+
+
+---
+
+# Security
+
+
+- JWT
+- Lobby Permission
+- Invite Check
+- Rate Limit
+
+
+---
+
+End API Architecture
+# Friends API Architecture
+
+Version: 1.0
+
+
+Base URL:
+
+/api/v1/friends
+
+
+Authentication:
+
+Bearer JWT
+
+
+---
+
+# Flow
+
+
+Frontend
+
+↓
+
+API Gateway
+
+↓
+
+Auth Middleware
+
+↓
+
+Friend Controller
+
+↓
+
+Friend Service
+
+↓
+
+Database
+
+
+---
+
+# Get Friends
+
+
+GET /friends
+
+
+Returns:
+
+
+{
+online:[],
+offline:[]
+}
+
+
+---
+
+# Search User
+
+
+GET /friends/search
+
+
+Query:
+
+
+username/email
+
+
+---
+
+# Send Friend Request
+
+
+POST /friends/request
+
+
+Request:
+
+
+{
+userId:""
+}
+
+
+---
+
+# Accept Request
+
+
+POST /friends/request/:id/accept
+
+
+---
+
+# Reject Request
+
+
+POST /friends/request/:id/reject
+
+
+---
+
+# Remove Friend
+
+
+DELETE
+
+/friends/:id
+
+
+---
+
+# Block User
+
+
+POST /friends/:id/block
+
+
+---
+
+# Lobby Invite
+
+
+POST /friends/:id/invite
+
+
+Request:
+
+
+{
+lobbyId:""
+}
+
+
+---
+
+# WebSocket Events
+
+
+friend_online
+
+friend_offline
+
+request_received
+
+invite_received
+
+
+---
+
+# Response Codes
+
+
+200 Success
+
+201 Created
+
+400 Validation Error
+
+401 Unauthorized
+
+403 Forbidden
+
+
+---
+
+# Security
+
+
+- JWT
+- Privacy Check
+- Rate Limit
+- Block Validation
+
+
+---
+
+End API Architecture
+# Chat API Architecture
+
+Version: 1.0
+
+
+Base URL:
+
+/api/v1/chat
+
+
+Authentication:
+
+Bearer JWT
+
+
+---
+
+# Flow
+
+
+Frontend
+
+↓
+
+API Gateway
+
+↓
+
+Auth Middleware
+
+↓
+
+Chat Controller
+
+↓
+
+Chat Service
+
+↓
+
+Database
+
+
+---
+
+# Get Channels
+
+
+GET /chat/channels
+
+
+---
+
+# Join Channel
+
+
+POST /chat/channel/:id/join
+
+
+---
+
+# Send Message
+
+
+POST /chat/messages
+
+
+Request:
+
+
+{
+channelId:"",
+message:""
+}
+
+
+---
+
+# Get Messages
+
+
+GET /chat/channel/:id/messages
+
+
+---
+
+# Delete Message
+
+
+DELETE
+
+/chat/message/:id
+
+
+---
+
+# Voice Join
+
+
+POST /chat/voice/join
+
+
+Request:
+
+
+{
+roomId:""
+}
+
+
+---
+
+# Voice Leave
+
+
+POST /chat/voice/leave
+
+
+---
+
+# WebSocket Events
+
+
+message_received
+
+user_joined
+
+user_left
+
+typing
+
+voice_update
+
+
+---
+
+# Response Codes
+
+
+200 Success
+
+201 Created
+
+400 Validation Error
+
+401 Unauthorized
+
+403 Forbidden
+
+
+---
+
+# Security
+
+
+- JWT
+- Channel Permission
+- Rate Limit
+- Content Filter
+
+
+---
+
+End API Architecture
+# Wallet API Architecture
+
+Version: 1.0
+
+
+Base URL:
+
+/api/v1/wallet
+
+
+Authentication:
+
+Bearer JWT
+
+
+---
+
+# Flow
+
+
+Frontend
+
+↓
+
+API Gateway
+
+↓
+
+Auth Middleware
+
+↓
+
+Wallet Controller
+
+↓
+
+Wallet Service
+
+↓
+
+Blockchain Service
+
+↓
+
+Database
+
+
+---
+
+# Get Wallet
+
+
+GET /wallet
+
+
+Returns:
+
+
+{
+balance:"",
+assets:[]
+}
+
+
+---
+
+# Deposit Address
+
+
+GET /wallet/address
+
+
+Returns:
+
+
+{
+address:""
+}
+
+
+---
+
+# Send Crypto
+
+
+POST /wallet/send
+
+
+Request:
+
+
+{
+asset:"",
+amount:"",
+address:""
+}
+
+
+---
+
+# Withdraw
+
+
+POST /wallet/withdraw
+
+
+Request:
+
+
+{
+asset:"",
+network:"",
+amount:""
+}
+
+
+---
+
+# Swap
+
+
+POST /wallet/swap
+
+
+Request:
+
+
+{
+from:"",
+to:"",
+amount:""
+}
+
+
+---
+
+# Transaction History
+
+
+GET /wallet/transactions
+
+
+---
+
+# WebSocket Events
+
+
+balance_updated
+
+transaction_created
+
+transaction_completed
+
+
+---
+
+# Response Codes
+
+
+200 Success
+
+201 Created
+
+400 Validation Error
+
+401 Unauthorized
+
+
+---
+
+# Security
+
+
+- JWT
+- Address Validation
+- Transaction Approval
+- Rate Limit
+
+
+---
+
+End API Architecture
+

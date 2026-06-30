@@ -3817,3 +3817,1333 @@ Submit and track support requests.
 - Read Documentation
 - Create Ticket
 - View Ticket Status
+
+
+
+
+
+
+
+# PlayGroundX Dashboard Overview
+
+Version: 1.0
+
+Module: PlayGroundX → Dashboard
+
+---
+
+# Overview
+
+Dashboard is the main landing area for users after login.
+
+It provides real-time gaming, sports streaming, IPTV content, lobby activities, and social updates.
+
+---
+
+# Objective
+
+- Show live content
+- Display trending matches
+- Provide quick access to features
+- Show friend activity
+- Manage user engagement
+
+---
+
+# Dashboard Sections
+
+## Live Now
+
+Displays currently active streams.
+
+Data:
+
+- Match Name
+- Viewers Count
+- Category
+- Stream Status
+
+
+Example:
+
+Champions League Final 2026
+
+2.4M Watching
+
+
+---
+
+## Trending Now
+
+Shows popular events.
+
+Examples:
+
+- Football Matches
+- NBA Games
+- UFC Events
+
+
+Information:
+
+- Title
+- Category
+- Viewers
+- Live Status
+
+
+---
+
+## IPTV Channels
+
+Shows available streaming channels.
+
+Features:
+
+- Channel Listing
+- Quality
+- Watch Option
+
+
+---
+
+## My Lobbies
+
+Shows user's active rooms.
+
+Examples:
+
+- Watch Party
+- Gaming Lobby
+- Private Room
+
+
+---
+
+## Live Sports
+
+Displays sports categories.
+
+Examples:
+
+- Football
+- Basketball
+- MMA
+
+
+---
+
+## Friends Activity
+
+Shows online friends.
+
+Data:
+
+- Username
+- Current Activity
+- Online Status
+
+
+---
+
+# Integrations
+
+Dashboard connects with:
+
+- Live Streaming Service
+- IPTV Service
+- Lobby System
+- Friends Module
+- Notification System
+
+
+---
+
+# Security
+
+- User Authentication
+- Private Lobby Protection
+- Data Access Control
+
+
+---
+
+End of Overview
+# Sports Lounge Overview
+
+Version: 1.0
+
+Module:
+PlayGroundX → Sports Lounge
+
+
+---
+
+# Overview
+
+Sports Lounge is the central sports entertainment module where users can watch live matches, create watch parties, and join community sports rooms.
+
+
+---
+
+# Objective
+
+- Provide live sports experience
+- Enable watch parties
+- Show trending matches
+- Connect sports community
+
+
+---
+
+# Main Features
+
+
+## Create Watch Party
+
+Users can create private/public rooms.
+
+Features:
+
+- Party Name
+- Match Selection
+- Invite Friends
+- Chat
+
+
+---
+
+# Sports Categories
+
+
+Supported:
+
+
+## Football
+
+Examples:
+
+- Premier League
+- Champions League
+- Serie A
+
+
+Data:
+
+- Team Names
+- Match Status
+- Viewers
+
+
+---
+
+## UFC & Boxing
+
+
+Displays:
+
+- Fight Events
+- Main Cards
+- Upcoming Matches
+
+
+---
+
+## NBA
+
+
+Displays:
+
+- Live Games
+- Scores
+- Quarter Status
+
+
+---
+
+# Match Cards
+
+
+Each match contains:
+
+
+- Event Name
+- League
+- Status
+- Viewer Count
+- Watch Button
+
+
+---
+
+# Match Status
+
+
+Statuses:
+
+- LIVE
+- UPCOMING
+- FINISHED
+
+
+---
+
+# Lobby Integration
+
+
+Users can:
+
+
+Match
+
+↓
+
+Create Lobby
+
+↓
+
+Invite Friends
+
+↓
+
+Watch Together
+
+
+---
+
+# Friend Activity
+
+
+Shows:
+
+- Online Friends
+- Current Match
+- Lobby Status
+
+
+---
+
+# Integrations
+
+
+Connects With:
+
+- Streaming Service
+- Lobby System
+- Chat System
+- Notification System
+
+
+---
+
+# Security
+
+
+- Authentication
+- Private Lobby Access
+- Stream Protection
+
+
+---
+
+End of Overview
+# IPTV Network Overview
+
+Version: 1.0
+
+Module:
+PlayGroundX → IPTV Network
+
+
+---
+
+# Overview
+
+IPTV Network allows users to manage streaming screens, channels, and watch lobbies.
+
+Users can organize multiple screens and add channels into different lobbies.
+
+
+---
+
+# Objective
+
+- Manage IPTV screens
+- Create watch lobbies
+- Add streaming channels
+- Organize entertainment content
+
+
+---
+
+# Main Features
+
+
+## Screen Management
+
+
+Users can create multiple screens.
+
+
+Example:
+
+Screen 1
+
+Screen 2
+
+Screen 3
+
+
+Features:
+
+- Add Screen
+- Remove Screen
+- Rearrange Screens
+
+
+---
+
+# Lobby System
+
+
+Users can create watch lobbies.
+
+
+Lobby Types:
+
+- Public
+- Private
+
+
+Features:
+
+- Create Lobby
+- Add Channels
+- Invite Users
+
+
+---
+
+# Channel Management
+
+
+Channels contain:
+
+
+- Channel Name
+- Category
+- Quality
+- Viewers
+
+
+Example:
+
+
+Sky Sports F1
+
+Racing
+
+4K UHD
+
+
+---
+
+# Categories
+
+
+Supported:
+
+
+- Sports
+- Racing
+- Basketball
+- Football
+- Cricket
+- Wrestling
+
+
+---
+
+# Channel Actions
+
+
+User can:
+
+
+- Add Channel
+- Remove Channel
+- Watch Channel
+
+
+---
+
+# Drag & Rearrange
+
+
+Users can:
+
+
+- Rearrange Screens
+- Change Order
+- Customize Layout
+
+
+---
+
+# Integration
+
+
+Connects With:
+
+
+- Streaming Service
+- Lobby System
+- Friends System
+- Chat System
+
+
+---
+
+# Security
+
+
+- User Authentication
+- Private Lobby Protection
+- Stream Access Control
+
+
+---
+
+End Overview
+# Live Match Watch Overview
+
+Version: 1.0
+
+Module:
+PlayGroundX → Live Matches
+
+
+---
+
+# Overview
+
+Live Match module provides real-time sports streaming experience with live score, stats, chat and watch party features.
+
+
+---
+
+# Objective
+
+- Watch live matches
+- View real-time scores
+- Join watch parties
+- Communicate with users
+- Track match statistics
+
+
+---
+
+# Main Features
+
+
+## Live Stream
+
+
+Users can:
+
+
+- Watch 4K UHD Stream
+- View Match Status
+- View Current Score
+
+
+Example:
+
+
+Manchester City vs Arsenal
+
+Score:
+
+2 - 1
+
+Minute:
+
+67'
+
+
+---
+
+# Match Information
+
+
+Displays:
+
+
+- Team Names
+- League
+- Week
+- Status
+- Quality
+
+
+---
+
+# Watch Party
+
+
+Users can:
+
+
+- Join Watch Party
+- Invite Friends
+- Share Match
+
+
+Flow:
+
+
+Match
+
+↓
+
+Party
+
+↓
+
+Friends
+
+↓
+
+Watch Together
+
+
+---
+
+# Live Chat
+
+
+Real-time chat system.
+
+
+Features:
+
+
+- Messages
+- User Profile
+- Premium Badge
+- Reactions
+
+
+---
+
+# Match Stats
+
+
+Displays:
+
+
+- Possession
+- Shots
+- Passes
+- Corners
+- Fouls
+
+
+---
+
+# Real Time Updates
+
+
+Updates:
+
+
+- Score
+- Timer
+- Match Events
+- Viewers
+
+
+---
+
+# Friend Activity
+
+
+Shows:
+
+- Online Users
+- Watching Match
+- Chat Activity
+
+
+---
+
+# Security
+
+
+- User Authentication
+- Chat Moderation
+- Stream Protection
+
+
+---
+
+End Overview
+# Watch Party Lobbies Overview
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → Watch Party
+
+
+---
+
+# Overview
+
+Watch Party module allows users to create shared viewing rooms where friends can watch multiple screens together.
+
+
+---
+
+# Objective
+
+- Create watch rooms
+- Share screens
+- Invite friends
+- Watch content together
+
+
+---
+
+# Main Features
+
+
+## Lobby Management
+
+
+Users can:
+
+
+- Create Lobby
+- Delete Lobby
+- Join Lobby
+- Manage Screens
+
+
+---
+
+# Lobby Types
+
+
+## Public Lobby
+
+
+Anyone can join.
+
+
+---
+
+## Private Lobby
+
+
+Invitation required.
+
+
+---
+
+# Screen Management
+
+
+Each lobby supports:
+
+
+Maximum:
+
+4 Screens
+
+
+Example:
+
+
+Main Event TV
+
+Sky Sports 1
+
+ESPN HD
+
+DAZN Live
+
+
+---
+
+# Create Lobby
+
+
+Required:
+
+
+- Lobby Name
+- Lobby Type
+- Selected Screens
+
+
+---
+
+# Screen Selection
+
+
+User can select:
+
+
+0/4 Screens
+
+
+Validation:
+
+Maximum 4 Screens
+
+
+---
+
+# Invite System
+
+
+Users can:
+
+
+- Invite Friends
+- Share Lobby
+- Join Party
+
+
+---
+
+# Drag & Rearrange
+
+
+Features:
+
+
+- Change Screen Order
+- Customize Layout
+
+
+---
+
+# Integration
+
+
+Connected With:
+
+
+- IPTV
+- Live Matches
+- Friends
+- Chat
+- Notification
+
+
+---
+
+# Security
+
+
+- Private Access
+- User Permission
+- Invite Validation
+
+
+---
+
+End Overview
+# Friends Module Overview
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → Friends
+
+
+---
+
+# Overview
+
+Friends module allows users to connect with other users, manage requests and invite friends into watch lobbies.
+
+
+---
+
+# Objective
+
+- Build social connection
+- Manage friend list
+- Send requests
+- Invite friends to activities
+
+
+---
+
+# Main Features
+
+
+## Friend List
+
+
+Displays:
+
+
+- Online Friends
+- Offline Friends
+- Current Activity
+
+
+Example:
+
+
+AlexTheGreat
+
+Watching Manchester Derby
+
+
+---
+
+# Friend Status
+
+
+Available Status:
+
+
+Online
+
+Offline
+
+Away
+
+
+---
+
+# Friend Search
+
+
+Users can search by:
+
+
+- Username
+- Email
+
+
+---
+
+# Add Friend
+
+
+Flow:
+
+
+Search User
+
+↓
+
+Send Request
+
+↓
+
+User Accept
+
+↓
+
+Friend Added
+
+
+---
+
+# Pending Requests
+
+
+Shows:
+
+
+- Incoming Requests
+- Outgoing Requests
+
+
+Actions:
+
+
+- Accept
+- Reject
+
+
+---
+
+# Lobby Invite
+
+
+Users can invite friends to:
+
+
+- Watch Party
+- Live Match
+- IPTV Lobby
+
+
+---
+
+# Activity Status
+
+
+Shows:
+
+
+- Current Match
+- Current Lobby
+- Watching Activity
+
+
+---
+
+# Integration
+
+
+Connected With:
+
+
+- Watch Party
+- Chat
+- Notifications
+- Live Matches
+
+
+---
+
+# Security
+
+
+- User Privacy
+- Request Validation
+- Block System
+
+
+---
+
+End Overview
+# Chat Module Overview
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → Chat
+
+
+---
+
+# Overview
+
+Chat module provides real-time communication between users through text and voice channels.
+
+
+---
+
+# Objective
+
+- Enable community communication
+- Real-time messaging
+- Voice rooms
+- Channel management
+
+
+---
+
+# Main Features
+
+
+## Text Channels
+
+
+Users can join channels:
+
+
+Examples:
+
+
+general
+
+sports-betting
+
+crypto-talk
+
+iptv-streams
+
+
+---
+
+# Voice Channels
+
+
+Users can join:
+
+
+- Lounge Rooms
+- Match Watch Party Rooms
+
+
+---
+
+# Real Time Messaging
+
+
+Features:
+
+
+- Send Message
+- Receive Message
+- Message Updates
+
+
+---
+
+# Online Members
+
+
+Shows:
+
+
+- Active Users
+- Channel Members
+- Voice Participants
+
+
+---
+
+# Community System
+
+
+Users can:
+
+
+- Discuss Matches
+- Share Updates
+- Join Conversations
+
+
+---
+
+# Search
+
+
+Users can search:
+
+
+- Messages
+- Users
+- Channels
+
+
+---
+
+# Integration
+
+
+Connected With:
+
+
+- Friends
+- Watch Party
+- Notifications
+- Live Matches
+
+
+---
+
+# Security
+
+
+- Message Validation
+- Spam Protection
+- User Permission
+
+
+---
+
+End Overview
+# Wallet Module Overview
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → Wallet
+
+
+---
+
+# Overview
+
+Wallet module manages user digital assets, balances, deposits, withdrawals and crypto transactions.
+
+
+---
+
+# Objective
+
+- Manage PGX balance
+- Store crypto assets
+- Send and receive funds
+- Track wallet activity
+
+
+---
+
+# Main Features
+
+
+## Wallet Balance
+
+
+Shows:
+
+
+- Total Balance
+- Asset Value
+- Daily Change
+
+
+Example:
+
+
+$4,250.00 USD
+
++3.2% Today
+
+
+---
+
+# Supported Assets
+
+
+Current:
+
+
+PGX
+
+USDC
+
+
+Future:
+
+
+BTC
+
+ETH
+
+USDT
+
+
+---
+
+# Deposit
+
+
+Users can:
+
+
+- Receive Crypto
+- Copy Wallet Address
+- Scan QR
+
+
+---
+
+# Withdraw
+
+
+Users can:
+
+
+- Withdraw Assets
+- Select Network
+- Enter Destination
+
+
+---
+
+# Send Crypto
+
+
+Users can:
+
+
+- Transfer Assets
+- Enter Recipient
+- Confirm Transaction
+
+
+---
+
+# Swap
+
+
+Users can exchange:
+
+
+PGX → USDC
+
+
+Features:
+
+
+- Rate Calculation
+- Confirmation
+
+
+---
+
+# Transaction History
+
+
+Displays:
+
+
+- Deposit
+- Withdraw
+- Swap
+
+
+With:
+
+
+- Date
+- Amount
+- Status
+
+
+---
+
+# Security
+
+
+- Wallet Protection
+- Transaction Validation
+- Address Verification
+
+
+---
+
+# Integration
+
+
+Connected With:
+
+
+- Transactions
+- Profile
+- Notifications
+
+
+---
+
+End Overview
+

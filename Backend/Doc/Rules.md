@@ -3514,3 +3514,918 @@ Priority Levels
 - Medium
 - High
 - Critical
+
+
+
+
+
+# Dashboard Rules
+
+Version: 1.0
+
+---
+
+# General Rules
+
+- Dashboard data depends on logged-in user.
+- User only sees authorized content.
+
+---
+
+# Live Stream Rules
+
+Live content must have:
+
+- Active stream
+- Valid source
+- Viewer count
+
+
+If stream unavailable:
+
+Show offline status.
+
+
+---
+
+# Trending Rules
+
+Trending content calculated by:
+
+- Viewers
+- Engagement
+- Popularity
+
+
+---
+
+# Lobby Rules
+
+Users can:
+
+- View Public Lobby
+- Join Allowed Lobby
+
+
+Private Lobby:
+
+Requires invitation.
+
+
+---
+
+# Friend Rules
+
+Display:
+
+- Online Users
+- Current Activity
+
+
+Offline users are hidden from active list.
+
+
+---
+
+# IPTV Rules
+
+User must have access permission.
+
+Streaming quality depends on subscription.
+
+
+---
+
+# Security Rules
+
+- Validate User Session
+- Check Permissions
+- Protect Private Content
+
+
+---
+
+# Future Rules
+
+- Personalized Recommendations
+- AI Suggestions
+- Watch History
+
+
+---
+
+End of Rules
+# Sports Lounge Rules
+
+Version: 1.0
+
+
+---
+
+# Match Rules
+
+
+Every match must contain:
+
+
+- Valid Stream
+- Sports Category
+- Status
+
+
+---
+
+# Live Match Rules
+
+
+LIVE match requires:
+
+
+- Active Stream
+- Current Score
+- Viewer Count
+
+
+---
+
+# Watch Party Rules
+
+
+Public Party:
+
+Anyone can join
+
+
+Private Party:
+
+Invitation Required
+
+
+---
+
+# User Rules
+
+
+User can:
+
+
+- Watch Match
+- Join Party
+- Create Party
+
+
+---
+
+# Party Limits
+
+
+Free User:
+
+Limited Members
+
+
+Premium:
+
+Higher Capacity
+
+
+---
+
+# Content Rules
+
+
+Only verified sports content allowed.
+
+
+---
+
+# Category Rules
+
+
+Allowed:
+
+
+- Football
+- UFC
+- Boxing
+- NBA
+
+
+---
+
+# Security Rules
+
+
+- Validate Access
+- Protect Stream URLs
+- Prevent Unauthorized Sharing
+
+
+---
+
+# Future Rules
+
+
+- Tournament Rooms
+- Betting Integration
+- Voice Chat
+
+
+---
+
+End of Rules
+# IPTV Rules
+
+Version: 1.0
+
+
+---
+
+# Screen Rules
+
+
+User can create screens based on plan.
+
+
+Each screen requires:
+
+
+- Unique Name
+- Layout Position
+
+
+---
+
+# Lobby Rules
+
+
+Lobby must contain:
+
+
+- Name
+- Type
+
+
+Types:
+
+
+Public
+
+Private
+
+
+---
+
+# Channel Rules
+
+
+Channel requires:
+
+
+- Name
+- Category
+- Stream Source
+
+
+---
+
+# Access Rules
+
+
+Public Lobby:
+
+Anyone can join
+
+
+Private Lobby:
+
+Invitation required
+
+
+---
+
+# Channel Permission
+
+
+User can add only authorized channels.
+
+
+---
+
+# Rearrange Rules
+
+
+Screen order changes are saved automatically.
+
+
+---
+
+# Streaming Rules
+
+
+Before playback:
+
+
+Check:
+
+- User Access
+- Stream Availability
+- Subscription
+
+
+---
+
+# Security
+
+
+- Protect Stream URL
+- Validate User
+- Prevent Unauthorized Access
+
+
+---
+
+# Future Rules
+
+
+- Premium Channels
+- Subscription Packages
+- Multi Screen Streaming
+
+
+---
+
+End Rules
+# Live Match Rules
+
+Version: 1.0
+
+
+---
+
+# Match Access Rules
+
+
+User must:
+
+
+- Login
+- Have Stream Access
+
+
+---
+
+# Streaming Rules
+
+
+Before Playing:
+
+
+Check:
+
+- Match Status
+- Stream Availability
+- User Permission
+
+
+---
+
+# Chat Rules
+
+
+Allowed:
+
+
+- Match Discussion
+- Reactions
+- Messages
+
+
+Not Allowed:
+
+
+- Spam
+- Abuse
+- Fake Links
+
+
+---
+
+# Watch Party Rules
+
+
+Public:
+
+
+Anyone can join
+
+
+Private:
+
+
+Invitation Required
+
+
+---
+
+# Score Rules
+
+
+Live data comes from verified provider.
+
+
+Updates:
+
+
+- Goals
+- Cards
+- Time
+
+
+---
+
+# User Rules
+
+
+Users can:
+
+
+- Watch
+- Chat
+- Share
+- Join Party
+
+
+---
+
+# Moderation
+
+
+Admin can:
+
+
+- Delete Messages
+- Block Users
+- Report Content
+
+
+---
+
+# Security
+
+
+- JWT Validation
+- Rate Limit
+- Message Filtering
+
+
+---
+
+End Rules
+# Watch Party Rules
+
+Version: 1.0
+
+
+---
+
+# Lobby Rules
+
+
+Every lobby requires:
+
+
+- Name
+- Owner
+- Type
+
+
+---
+
+# Screen Rules
+
+
+Maximum Screens:
+
+
+4 per lobby
+
+
+User cannot exceed limit.
+
+
+---
+
+# Public Lobby Rules
+
+
+Anyone can:
+
+
+- View Lobby
+- Join Party
+
+
+---
+
+# Private Lobby Rules
+
+
+Only invited users can join.
+
+
+---
+
+# Invite Rules
+
+
+Owner can:
+
+
+- Send Invite
+- Remove Member
+
+
+---
+
+# Permission Rules
+
+
+Owner:
+
+
+- Edit Lobby
+- Manage Screens
+- Delete Lobby
+
+
+Member:
+
+
+- Watch
+- Chat
+- Leave
+
+
+---
+
+# Screen Access
+
+
+Only available screens can be added.
+
+
+---
+
+# Security
+
+
+- Verify User
+- Validate Lobby Access
+- Protect Content
+
+
+---
+
+# Future Rules
+
+
+- Premium Rooms
+- Bigger Capacity
+- Paid Events
+
+
+---
+
+End Rules
+# Friends Rules
+
+Version: 1.0
+
+
+---
+
+# Friend Request Rules
+
+
+User can:
+
+
+- Send Request
+- Accept Request
+- Reject Request
+
+
+---
+
+# Duplicate Rule
+
+
+Same user cannot receive duplicate requests.
+
+
+---
+
+# Block Rules
+
+
+Blocked users cannot:
+
+
+- Send Request
+- Send Message
+- Invite Lobby
+
+
+---
+
+# Friendship Rules
+
+
+Only accepted users appear in friend list.
+
+
+---
+
+# Privacy Rules
+
+
+Users can control:
+
+
+- Friend Visibility
+- Activity Status
+
+
+---
+
+# Invite Rules
+
+
+Only friends can receive lobby invitations.
+
+
+---
+
+# Online Status Rules
+
+
+Status updates automatically:
+
+
+Online
+
+↓
+
+Activity
+
+↓
+
+Offline
+
+
+---
+
+# Spam Protection
+
+
+Limits:
+
+
+- Friend Requests
+- Invites
+
+
+---
+
+# Security
+
+
+- User Validation
+- Permission Check
+- Abuse Prevention
+
+
+---
+
+End Rules
+# Chat Rules
+
+Version: 1.0
+
+
+---
+
+# Message Rules
+
+
+Users can:
+
+
+- Send Messages
+- Reply
+- React
+
+
+---
+
+# Channel Rules
+
+
+Every channel requires:
+
+
+- Name
+- Permission
+- Members
+
+
+---
+
+# Spam Rules
+
+
+Prevent:
+
+
+- Message Flooding
+- Duplicate Spam
+- Abuse
+
+
+---
+
+# Moderation
+
+
+Admin can:
+
+
+- Delete Message
+- Mute User
+- Remove User
+
+
+---
+
+# Voice Rules
+
+
+Users can:
+
+
+- Join Voice
+- Leave Voice
+
+
+---
+
+# Privacy Rules
+
+
+Private channels require permission.
+
+
+---
+
+# Content Safety
+
+
+Forbidden:
+
+
+- Abuse
+- Illegal Content
+- Harassment
+
+
+---
+
+# Security
+
+
+- Authentication
+- Permission Check
+- Rate Limit
+
+
+---
+
+End Rules
+# Wallet Rules
+
+Version: 1.0
+
+
+---
+
+# Balance Rules
+
+
+Wallet balance updates after:
+
+
+- Deposit Confirmation
+- Withdrawal Completion
+- Swap Completion
+
+
+---
+
+# Deposit Rules
+
+
+User must:
+
+
+- Use Valid Address
+- Send Supported Asset
+
+
+Invalid asset may fail.
+
+
+---
+
+# Withdrawal Rules
+
+
+Required:
+
+
+- Valid Destination Address
+- Enough Balance
+
+
+---
+
+# Send Rules
+
+
+Before sending:
+
+
+Check:
+
+
+- Balance
+- Address
+- Network
+
+
+---
+
+# Swap Rules
+
+
+Swap requires:
+
+
+- Available Asset
+- Valid Rate
+
+
+---
+
+# Transaction Rules
+
+
+Every transaction stores:
+
+
+- ID
+- Amount
+- Asset
+- Status
+- Time
+
+
+---
+
+# Security Rules
+
+
+- Confirm Transaction
+- Validate Address
+- Prevent Duplicate Request
+
+
+---
+
+# Limits
+
+
+Future:
+
+
+- Daily Limit
+- Withdrawal Limit
+
+
+---
+
+End Rules
+
+
+
+

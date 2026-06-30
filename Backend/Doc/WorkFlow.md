@@ -8916,3 +8916,1923 @@ User
 
 Assigned To:
 Support Team
+
+
+
+# Dashboard Workflow
+
+Version: 1.0
+
+Module: PlayGroundX Dashboard
+
+---
+
+# Dashboard Load Flow
+
+
+User Login
+
+↓
+
+JWT Authentication
+
+↓
+
+Open Dashboard
+
+↓
+
+Request Dashboard API
+
+↓
+
+Fetch Dashboard Data
+
+↓
+
+Render Components
+
+
+---
+
+# Live Content Flow
+
+
+Streaming Service
+
+↓
+
+Check Active Streams
+
+↓
+
+Get Match Data
+
+↓
+
+Get Viewer Count
+
+↓
+
+Show Live Card
+
+
+---
+
+# Trending Flow
+
+
+System Collects Data
+
+↓
+
+Analyze Engagement
+
+↓
+
+Calculate Popularity
+
+↓
+
+Sort Content
+
+↓
+
+Display Trending List
+
+
+---
+
+# IPTV Flow
+
+
+User Opens IPTV Section
+
+↓
+
+Fetch Channels
+
+↓
+
+Check Subscription
+
+↓
+
+Load Available Channels
+
+↓
+
+Start Stream
+
+
+---
+
+# Lobby Flow
+
+
+User Click Lobby
+
+↓
+
+Check Access
+
+↓
+
+Validate User
+
+↓
+
+Join Room
+
+
+Private Lobby
+
+↓
+
+Invitation Check
+
+↓
+
+Allow / Reject
+
+
+---
+
+# Friends Activity Flow
+
+
+Friend Service
+
+↓
+
+Fetch Online Users
+
+↓
+
+Get Current Activity
+
+↓
+
+Display Status
+
+
+---
+
+# Notification Flow
+
+
+Event Occurs
+
+↓
+
+Notification Service
+
+↓
+
+Dashboard Badge Update
+
+↓
+
+User Opens Notification
+
+
+---
+
+# Error Handling
+
+
+Stream Failed
+
+↓
+
+Show Offline Status
+
+
+API Failed
+
+↓
+
+Show Retry Option
+
+
+---
+
+# Background Jobs
+
+
+- Update Viewer Count
+- Refresh Trending Data
+- Sync Live Matches
+- Update Friend Status
+
+
+---
+
+# Future Flow
+
+
+AI Recommendation
+
+↓
+
+User Interest Analysis
+
+↓
+
+Personalized Dashboard
+
+
+---
+
+End of Workflow
+# Sports Lounge Workflow
+
+Version: 1.0
+
+Module:
+PlayGroundX → Sports Lounge
+
+
+---
+
+# Sports Feed Load Flow
+
+
+User Opens Sports Lounge
+
+↓
+
+Request Sports API
+
+↓
+
+Fetch Categories
+
+↓
+
+Fetch Matches
+
+↓
+
+Fetch Live Data
+
+↓
+
+Render Match Cards
+
+
+---
+
+# Live Match Flow
+
+
+Streaming Provider
+
+↓
+
+Check Match Status
+
+↓
+
+Fetch Stream
+
+↓
+
+Update Viewer Count
+
+↓
+
+Show LIVE Badge
+
+
+---
+
+# Football Flow
+
+
+Football Service
+
+↓
+
+Fetch Leagues
+
+↓
+
+Fetch Matches
+
+↓
+
+Get Scores
+
+↓
+
+Display
+
+
+Examples:
+
+- Premier League
+- Champions League
+- Serie A
+
+
+---
+
+# UFC / Boxing Flow
+
+
+Fight Database
+
+↓
+
+Fetch Events
+
+↓
+
+Fetch Main Card
+
+↓
+
+Show Fight Details
+
+
+---
+
+# NBA Flow
+
+
+NBA Provider
+
+↓
+
+Fetch Games
+
+↓
+
+Get Quarter Score
+
+↓
+
+Update Live Status
+
+
+---
+
+# Watch Party Creation Flow
+
+
+User Click Create Party
+
+↓
+
+Select Match
+
+↓
+
+Enter Party Details
+
+↓
+
+Validate User
+
+↓
+
+Create Lobby
+
+↓
+
+Invite Friends
+
+
+---
+
+# Join Party Flow
+
+
+User Select Lobby
+
+↓
+
+Check Access
+
+
+Public
+
+↓
+
+Join
+
+
+Private
+
+↓
+
+Check Invitation
+
+↓
+
+Allow / Reject
+
+
+---
+
+# Friend Activity Flow
+
+
+Friend Service
+
+↓
+
+Get Online Users
+
+↓
+
+Get Current Match
+
+↓
+
+Display Activity
+
+
+---
+
+# Notification Flow
+
+
+New Party Created
+
+↓
+
+Notification Service
+
+↓
+
+Send Invite
+
+↓
+
+Update User
+
+
+---
+
+# Error Handling
+
+
+Stream Failed
+
+↓
+
+Show Retry
+
+
+Match Data Failed
+
+↓
+
+Show Cached Data
+
+
+---
+
+# Background Jobs
+
+
+- Sync Live Scores
+- Update Viewers
+- Refresh Match Data
+- Remove Expired Parties
+
+
+---
+
+# Future Workflow
+
+
+AI Recommendation
+
+↓
+
+User Interest
+
+↓
+
+Suggested Matches
+
+
+---
+
+End of Workflow
+# IPTV Network Workflow
+
+Version: 1.0
+
+Module:
+PlayGroundX → IPTV Network
+
+
+---
+
+# IPTV Load Flow
+
+
+User Opens IPTV
+
+↓
+
+Request IPTV API
+
+↓
+
+Fetch Screens
+
+↓
+
+Fetch Lobbies
+
+↓
+
+Fetch Channels
+
+↓
+
+Render Dashboard
+
+
+---
+
+# Create Screen Flow
+
+
+User Click Add Screen
+
+↓
+
+Enter Screen Name
+
+↓
+
+Validate Request
+
+↓
+
+Create Screen
+
+↓
+
+Save Position
+
+
+---
+
+# Rearrange Screen Flow
+
+
+User Drag Screen
+
+↓
+
+Update Position
+
+↓
+
+Save Order
+
+↓
+
+Refresh Layout
+
+
+---
+
+# Create Lobby Flow
+
+
+User Click New Lobby
+
+↓
+
+Enter Lobby Name
+
+↓
+
+Select Type
+
+
+Public / Private
+
+
+↓
+
+Create Lobby
+
+↓
+
+Show Lobby
+
+
+---
+
+# Add Channel Flow
+
+
+User Select Lobby
+
+↓
+
+Click Add Channel
+
+↓
+
+Fetch Available Channels
+
+↓
+
+Select Channel
+
+↓
+
+Attach Channel
+
+
+---
+
+# Channel Watch Flow
+
+
+User Click Channel
+
+↓
+
+Validate Access
+
+↓
+
+Check Stream
+
+↓
+
+Generate Stream Token
+
+↓
+
+Start Playback
+
+
+---
+
+# Private Lobby Flow
+
+
+Join Request
+
+↓
+
+Check Invitation
+
+
+Allowed
+
+↓
+
+Join Lobby
+
+
+Denied
+
+↓
+
+Reject
+
+
+---
+
+# Real Time Updates
+
+
+WebSocket
+
+↓
+
+Update Viewer Count
+
+↓
+
+Update Channel Status
+
+
+---
+
+# Notification Flow
+
+
+Channel Added
+
+↓
+
+Notify Users
+
+
+Lobby Created
+
+↓
+
+Send Invite
+
+
+---
+
+# Error Handling
+
+
+Stream Down
+
+↓
+
+Show Offline
+
+
+Channel Unavailable
+
+↓
+
+Show Retry
+
+
+---
+
+# Background Jobs
+
+
+- Sync Channels
+- Update Viewers
+- Validate Streams
+- Remove Dead Links
+
+
+---
+
+# Future Workflow
+
+
+- AI Channel Recommendation
+- Auto Playlist
+- Smart Layout
+
+
+---
+
+End Workflow
+# Live Match Workflow
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → Live Matches
+
+
+---
+
+# Live Match Load Flow
+
+
+User Opens Match
+
+↓
+
+Request Match API
+
+↓
+
+Fetch Match Data
+
+↓
+
+Fetch Stream
+
+↓
+
+Fetch Live Stats
+
+↓
+
+Open Watch Screen
+
+
+---
+
+# Stream Start Flow
+
+
+User Click Watch
+
+↓
+
+Check Permission
+
+↓
+
+Generate Stream Token
+
+↓
+
+Load Video Player
+
+↓
+
+Start Streaming
+
+
+---
+
+# Score Update Flow
+
+
+Sports Provider
+
+↓
+
+Live Score Service
+
+↓
+
+WebSocket Server
+
+↓
+
+Connected Users
+
+↓
+
+Update Score
+
+
+---
+
+# Match Event Flow
+
+
+Event Occurs
+
+
+Examples:
+
+Goal
+
+Card
+
+Corner
+
+
+↓
+
+Receive Event
+
+↓
+
+Save Event
+
+↓
+
+Broadcast Update
+
+
+---
+
+# Live Chat Flow
+
+
+User Sends Message
+
+↓
+
+Validate Message
+
+↓
+
+Check Spam
+
+↓
+
+Save Message
+
+↓
+
+Broadcast To Users
+
+
+---
+
+# Watch Party Flow
+
+
+User Click Join Party
+
+↓
+
+Check Party Type
+
+
+Public
+
+↓
+
+Join Directly
+
+
+Private
+
+↓
+
+Check Invitation
+
+
+↓
+
+Allow Access
+
+
+---
+
+# Stats Update Flow
+
+
+Provider API
+
+↓
+
+Stats Service
+
+↓
+
+Update Cache
+
+↓
+
+Send Real Time Update
+
+
+---
+
+# Notification Flow
+
+
+Goal/Event
+
+↓
+
+Notification Service
+
+↓
+
+Notify Viewers
+
+
+---
+
+# Error Handling
+
+
+Stream Error
+
+↓
+
+Retry Stream
+
+
+Chat Failure
+
+↓
+
+Reconnect Socket
+
+
+---
+
+# Background Jobs
+
+
+- Sync Score
+- Update Stats
+- Remove Expired Streams
+- Moderate Chat
+
+
+---
+
+End Workflow
+# Watch Party Workflow
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → Watch Party
+
+
+---
+
+# Lobby Load Flow
+
+
+User Opens Watch Party
+
+↓
+
+Request Lobby API
+
+↓
+
+Fetch User Lobbies
+
+↓
+
+Fetch Members
+
+↓
+
+Fetch Screens
+
+↓
+
+Render Lobby
+
+
+---
+
+# Create Lobby Flow
+
+
+User Click Create Lobby
+
+↓
+
+Enter Lobby Name
+
+↓
+
+Select Type
+
+
+Public / Private
+
+
+↓
+
+Select Screens
+
+↓
+
+Validate Max 4 Screens
+
+↓
+
+Create Lobby
+
+
+---
+
+# Screen Add Flow
+
+
+Open Lobby
+
+↓
+
+Click Add Screen
+
+↓
+
+Select Screen
+
+↓
+
+Check Limit
+
+
+If < 4
+
+↓
+
+Add Screen
+
+
+If >= 4
+
+↓
+
+Reject
+
+
+---
+
+# Rearrange Screen Flow
+
+
+User Drag Screen
+
+↓
+
+Update Position
+
+↓
+
+Save Order
+
+↓
+
+Broadcast Update
+
+
+---
+
+# Join Lobby Flow
+
+
+User Select Lobby
+
+↓
+
+Check Lobby Type
+
+
+Public
+
+↓
+
+Join Directly
+
+
+Private
+
+↓
+
+Check Invitation
+
+
+↓
+
+Allow / Reject
+
+
+---
+
+# Invite Friend Flow
+
+
+Owner Click Invite
+
+↓
+
+Select Friend
+
+↓
+
+Send Invitation
+
+↓
+
+Notification Trigger
+
+
+---
+
+# Watch Together Flow
+
+
+Lobby Open
+
+↓
+
+Load Screens
+
+↓
+
+Sync Content
+
+↓
+
+Start Watching
+
+
+---
+
+# Real Time Flow
+
+
+WebSocket
+
+↓
+
+Member Join
+
+↓
+
+Screen Change
+
+↓
+
+Chat Update
+
+
+---
+
+# Leave Lobby Flow
+
+
+User Leave
+
+↓
+
+Remove Member
+
+↓
+
+Update Lobby Count
+
+
+---
+
+# Background Jobs
+
+
+- Clean Empty Lobbies
+- Update Active Users
+- Remove Expired Invites
+
+
+---
+
+End Workflow
+# Friends Workflow
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → Friends
+
+
+---
+
+# Friends Page Load
+
+
+User Opens Friends
+
+↓
+
+Request Friends API
+
+↓
+
+Fetch Friend List
+
+↓
+
+Fetch Online Status
+
+↓
+
+Show Friends
+
+
+---
+
+# Search Friend Flow
+
+
+User Search Username/Email
+
+↓
+
+Send Search Request
+
+↓
+
+Find User
+
+↓
+
+Display Result
+
+
+---
+
+# Add Friend Flow
+
+
+User Click Add Friend
+
+↓
+
+Select User
+
+↓
+
+Create Request
+
+↓
+
+Send Notification
+
+↓
+
+Wait For Response
+
+
+---
+
+# Accept Request Flow
+
+
+Incoming Request
+
+↓
+
+User Accept
+
+↓
+
+Create Friendship
+
+↓
+
+Update Friend List
+
+↓
+
+Notify User
+
+
+---
+
+# Reject Request Flow
+
+
+Reject Click
+
+↓
+
+Remove Request
+
+↓
+
+Update Status
+
+
+---
+
+# Online Status Flow
+
+
+User Login
+
+↓
+
+Set Online
+
+
+User Logout
+
+↓
+
+Set Offline
+
+
+---
+
+# Activity Update Flow
+
+
+User Opens Match/Lobby
+
+↓
+
+Update Activity
+
+↓
+
+Broadcast Status
+
+
+Example:
+
+
+Watching Manchester Derby
+
+
+---
+
+# Lobby Invite Flow
+
+
+Click Invite
+
+↓
+
+Select Lobby
+
+↓
+
+Send Invite
+
+↓
+
+Friend Receives Notification
+
+
+---
+
+# Block User Flow
+
+
+User Block
+
+↓
+
+Update Block Table
+
+↓
+
+Remove Connection
+
+↓
+
+Disable Interaction
+
+
+---
+
+# Background Jobs
+
+
+- Update Presence
+- Clean Requests
+- Remove Expired Invites
+
+
+---
+
+End Workflow
+# Chat Workflow
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → Chat
+
+
+---
+
+# Chat Load Flow
+
+
+User Opens Chat
+
+↓
+
+Request Channels API
+
+↓
+
+Fetch User Channels
+
+↓
+
+Fetch Recent Messages
+
+↓
+
+Connect WebSocket
+
+↓
+
+Show Chat
+
+
+---
+
+# Send Message Flow
+
+
+User Types Message
+
+↓
+
+Click Send
+
+↓
+
+Validate Message
+
+↓
+
+Save Message
+
+↓
+
+Broadcast To Channel
+
+
+---
+
+# Receive Message Flow
+
+
+New Message Event
+
+↓
+
+WebSocket Receive
+
+↓
+
+Update UI
+
+↓
+
+Save Local State
+
+
+---
+
+# Channel Join Flow
+
+
+User Select Channel
+
+↓
+
+Check Permission
+
+↓
+
+Join Channel
+
+↓
+
+Load Messages
+
+
+---
+
+# Voice Channel Flow
+
+
+User Click Voice Room
+
+↓
+
+Check Access
+
+↓
+
+Join Voice Server
+
+↓
+
+Connect Audio
+
+
+---
+
+# Member Status Flow
+
+
+User Login
+
+↓
+
+Set Online
+
+
+User Join Channel
+
+↓
+
+Update Presence
+
+
+---
+
+# Typing Indicator Flow
+
+
+User Typing
+
+↓
+
+Send Event
+
+↓
+
+Broadcast Typing Status
+
+
+---
+
+# Moderation Flow
+
+
+Report Message
+
+↓
+
+Check Rules
+
+↓
+
+Admin Action
+
+
+Actions:
+
+
+Delete
+
+Mute
+
+Ban
+
+
+---
+
+# Notification Flow
+
+
+Message Mention
+
+↓
+
+Notification Service
+
+↓
+
+Notify User
+
+
+---
+
+# Background Jobs
+
+
+- Delete Old Messages
+- Update Online Status
+- Clean Rooms
+
+
+---
+
+End Workflow
+# Wallet Workflow
+
+Version: 1.0
+
+Module:
+
+PlayGroundX → Wallet
+
+
+---
+
+# Wallet Load Flow
+
+
+User Opens Wallet
+
+↓
+
+Request Wallet API
+
+↓
+
+Fetch Balance
+
+↓
+
+Fetch Assets
+
+↓
+
+Fetch Transactions
+
+↓
+
+Display Wallet
+
+
+---
+
+# Deposit Flow
+
+
+User Click Deposit
+
+↓
+
+Generate Wallet Address
+
+↓
+
+Show QR Code
+
+↓
+
+User Sends Crypto
+
+↓
+
+Blockchain Confirmation
+
+↓
+
+Update Balance
+
+
+---
+
+# Withdraw Flow
+
+
+User Click Withdraw
+
+↓
+
+Select Asset
+
+↓
+
+Enter Amount
+
+↓
+
+Enter Destination Address
+
+↓
+
+Validate
+
+
+↓
+
+Check Balance
+
+
+↓
+
+Create Transaction
+
+
+↓
+
+Process Withdrawal
+
+
+---
+
+# Send Crypto Flow
+
+
+User Click Send
+
+↓
+
+Enter Recipient Address
+
+↓
+
+Enter Amount
+
+↓
+
+Confirm
+
+
+↓
+
+Validate Address
+
+
+↓
+
+Transfer Asset
+
+
+↓
+
+Update History
+
+
+---
+
+# Swap Flow
+
+
+User Select Swap
+
+↓
+
+Choose From Asset
+
+↓
+
+Choose To Asset
+
+↓
+
+Calculate Rate
+
+↓
+
+Confirm Swap
+
+
+↓
+
+Execute Exchange
+
+
+↓
+
+Update Balance
+
+
+---
+
+# Transaction Flow
+
+
+New Transaction
+
+↓
+
+Pending Status
+
+↓
+
+Blockchain Processing
+
+↓
+
+Completed / Failed
+
+
+---
+
+# Notification Flow
+
+
+Transaction Update
+
+↓
+
+Notification Service
+
+↓
+
+User Alert
+
+
+---
+
+# Error Handling
+
+
+Insufficient Balance
+
+↓
+
+Reject
+
+
+Invalid Address
+
+↓
+
+Reject
+
+
+Failed Transaction
+
+↓
+
+Rollback
+
+
+---
+
+# Background Jobs
+
+
+- Sync Blockchain
+- Update Prices
+- Verify Transactions
+
+
+---
+
+End Workflow
+
