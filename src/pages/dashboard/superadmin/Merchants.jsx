@@ -8,6 +8,8 @@ const Merchants = () => {
     { id: 'MER-1094', name: 'Digital Goods', sub: 'Starter', revenue: '$12K', status: 'Suspended', country: 'CA', date: '2024-01-20' },
     { id: 'MER-1095', name: 'SaaS Connect', sub: 'Business', revenue: '$890K', status: 'Active', country: 'AU', date: '2023-08-15' },
     { id: 'MER-1096', name: 'Web3 Gaming', sub: 'Enterprise', revenue: '$3.4M', status: 'Active', country: 'SG', date: '2023-05-30' },
+    { id: 'MER-1097', name: 'Crypto Pay', sub: 'Business', revenue: '$2.1M', status: 'Active', country: 'UAE', date: '2023-02-14' },
+    { id: 'MER-1098', name: 'Nexus Solutions', sub: 'Enterprise', revenue: '$5.5M', status: 'Active', country: 'US', date: '2022-11-20' },
   ]);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);

@@ -337,10 +337,6 @@ const SuperAdminLayout = () => {
 
             <div className={`hidden sm:block w-px h-6 ${isDarkMode ? 'bg-white/10' : 'bg-gray-200'}`}></div>
 
-            <button onClick={() => setIsDarkMode(!isDarkMode)} className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'text-gray-400 hover:bg-white/10 hover:text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}>
-              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
-
             {/* Notifications */}
             <div className="relative">
               <button
