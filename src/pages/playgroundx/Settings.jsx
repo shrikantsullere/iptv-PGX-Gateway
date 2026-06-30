@@ -72,10 +72,10 @@ export default function Settings() {
                     <div className="space-y-4">
                        <div className="relative">
                          <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                         <input type={showPassword ? 'text' : 'password'} placeholder="Current Password" className="w-full bg-[#09090B] border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-white focus:outline-none focus:border-[#7C3AED] transition-colors text-sm" />
+                         <input type={showPassword ? 'text' : 'password'} placeholder="New Password" className="w-full bg-[#09090B] border border-white/10 rounded-xl pl-10 pr-10 py-2.5 text-white focus:outline-none focus:border-[#7C3AED] transition-colors text-sm" />
                          <button onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"><Eye className="w-4 h-4" /></button>
                        </div>
-                       <input type={showPassword ? 'text' : 'password'} placeholder="New Password" className="w-full bg-[#09090B] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#7C3AED] transition-colors text-sm" />
+                       <input type={showPassword ? 'text' : 'password'} placeholder="Confirm New Password" className="w-full bg-[#09090B] border border-white/10 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-[#7C3AED] transition-colors text-sm" />
                        <button className="px-6 py-2.5 bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold rounded-xl transition-colors text-sm">Update Password</button>
                     </div>
                  </div>

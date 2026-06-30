@@ -96,27 +96,27 @@ const Webhooks = () => {
 
       {/* Add Endpoint Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#13131A] border border-white/10 rounded-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-6 border-b border-white/5">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/5 shrink-0">
               <h3 className="text-xl font-bold">Add Webhook Endpoint</h3>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+              <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-white transition-colors p-1">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto custom-scrollbar">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Endpoint URL</label>
+                <label className="block text-sm font-medium text-gray-400 mb-1.5">Endpoint URL</label>
                 <input 
                   type="url" 
                   placeholder="https://your-domain.com/webhooks"
                   value={endpointUrl}
                   onChange={(e) => setEndpointUrl(e.target.value)}
-                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors"
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors text-sm sm:text-base"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Events to send</label>
+                <label className="block text-sm font-medium text-gray-400 mb-1.5">Events to send</label>
                 <div className="space-y-2">
                   <label className="flex items-center gap-3 cursor-pointer p-3 border border-white/5 rounded-xl hover:bg-white/5 transition-colors">
                     <input type="checkbox" defaultChecked className="w-4 h-4 text-pink-500 rounded border-white/10 bg-black/50 focus:ring-pink-500 focus:ring-offset-gray-900" />
@@ -135,11 +135,11 @@ const Webhooks = () => {
                 </div>
               </div>
             </div>
-            <div className="p-6 border-t border-white/5 flex justify-end gap-3 bg-black/20">
-              <button onClick={() => setIsAddModalOpen(false)} className="px-4 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors font-medium">
+            <div className="p-4 sm:p-6 border-t border-white/5 flex flex-col-reverse sm:flex-row justify-end gap-3 bg-black/20 shrink-0">
+              <button onClick={() => setIsAddModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors font-medium">
                 Cancel
               </button>
-              <button onClick={() => setIsAddModalOpen(false)} className="px-4 py-2 rounded-xl bg-pink-500 hover:bg-pink-600 text-white transition-colors font-medium">
+              <button onClick={() => setIsAddModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white transition-colors font-medium">
                 Add Endpoint
               </button>
             </div>
@@ -149,25 +149,25 @@ const Webhooks = () => {
 
       {/* Edit Endpoint Modal */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#13131A] border border-white/10 rounded-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-6 border-b border-white/5">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/5 shrink-0">
               <h3 className="text-xl font-bold">Edit Webhook Endpoint</h3>
-              <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+              <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-white transition-colors p-1">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto custom-scrollbar">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Endpoint URL</label>
+                <label className="block text-sm font-medium text-gray-400 mb-1.5">Endpoint URL</label>
                 <input 
                   type="url" 
                   defaultValue="https://api.acme.com/webhooks/pgx"
-                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors"
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-pink-500 transition-colors text-sm sm:text-base"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Events to send</label>
+                <label className="block text-sm font-medium text-gray-400 mb-1.5">Events to send</label>
                 <div className="space-y-2">
                   <label className="flex items-center gap-3 cursor-pointer p-3 border border-white/5 rounded-xl hover:bg-white/5 transition-colors">
                     <input type="checkbox" defaultChecked className="w-4 h-4 text-pink-500 rounded border-white/10 bg-black/50 focus:ring-pink-500 focus:ring-offset-gray-900" />
@@ -193,15 +193,15 @@ const Webhooks = () => {
                 </div>
               </div>
             </div>
-            <div className="p-6 border-t border-white/5 flex justify-between items-center bg-black/20">
-              <button onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors font-medium text-sm">
+            <div className="p-4 sm:p-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 bg-black/20 shrink-0">
+              <button onClick={() => setIsEditModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors font-medium text-sm sm:text-base order-last sm:order-first">
                 Delete Endpoint
               </button>
-              <div className="flex gap-3">
-                <button onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors font-medium">
+              <div className="flex flex-col-reverse sm:flex-row w-full sm:w-auto gap-3">
+                <button onClick={() => setIsEditModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors font-medium">
                   Cancel
                 </button>
-                <button onClick={() => setIsEditModalOpen(false)} className="px-4 py-2 rounded-xl bg-pink-500 hover:bg-pink-600 text-white transition-colors font-medium">
+                <button onClick={() => setIsEditModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white transition-colors font-medium">
                   Save Changes
                 </button>
               </div>

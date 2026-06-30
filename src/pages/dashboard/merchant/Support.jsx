@@ -1,4 +1,5 @@
-import { HelpCircle, MessageSquare, Plus } from 'lucide-react';
+import { HelpCircle, MessageSquare, Plus, X } from 'lucide-react';
+import { useState } from 'react';
 
 const mockTickets = Array(4).fill(null).map((_, i) => ({
   id: `TKT-${100 + i}`,
@@ -8,8 +9,10 @@ const mockTickets = Array(4).fill(null).map((_, i) => ({
 }));
 
 const Support = () => {
+  const [isNewTicketModalOpen, setIsNewTicketModalOpen] = useState(false);
+
   return (
-    <div className="w-full animate-in fade-in zoom-in-95 duration-500">
+    <div className="w-full animate-in fade-in zoom-in-95 duration-500 relative">
       <div className="w-full flex flex-col">
         <div className="w-full">
           
@@ -20,7 +23,10 @@ const Support = () => {
               </h1>
               <p className="text-gray-400">Get help, read documentation, or contact our team.</p>
             </div>
-            <button className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-xl transition-all font-bold">
+            <button 
+              onClick={() => setIsNewTicketModalOpen(true)}
+              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-xl transition-all font-bold shadow-[0_0_20px_rgba(124,58,237,0.3)]"
+            >
               <Plus className="w-4 h-4" /> New Ticket
             </button>
           </div>
@@ -77,7 +83,7 @@ const Support = () => {
               <div className="bg-[#13131A] border border-white/5 rounded-2xl p-6">
                 <h3 className="text-lg font-bold mb-2">Documentation</h3>
                 <p className="text-sm text-gray-400 mb-4">Find answers quickly in our comprehensive knowledge base.</p>
-                <button className="w-full bg-white/5 hover:bg-white/10 text-white py-2 rounded-xl border border-white/10 transition-colors">
+                <button className="w-full bg-white/5 hover:bg-white/10 text-white py-2 rounded-xl border border-white/10 transition-colors font-medium">
                   Browse Help Center
                 </button>
               </div>
@@ -86,6 +92,56 @@ const Support = () => {
           
         </div>
       </div>
+
+      {/* New Ticket Modal */}
+      {isNewTicketModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/5 shrink-0">
+              <h3 className="text-xl font-bold">Create New Ticket</h3>
+              <button onClick={() => setIsNewTicketModalOpen(false)} className="text-gray-400 hover:text-white transition-colors p-1">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto custom-scrollbar">
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1.5">Subject</label>
+                <input 
+                  type="text" 
+                  placeholder="e.g. Cannot process refunds"
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors text-sm sm:text-base"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1.5">Category</label>
+                <select className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors appearance-none text-sm sm:text-base">
+                  <option value="technical">Technical Support</option>
+                  <option value="billing">Billing Inquiry</option>
+                  <option value="account">Account Management</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1.5">Message</label>
+                <textarea 
+                  rows="4"
+                  placeholder="Describe your issue in detail..."
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors resize-none text-sm sm:text-base"
+                ></textarea>
+              </div>
+            </div>
+            <div className="p-4 sm:p-6 border-t border-white/5 flex flex-col-reverse sm:flex-row justify-end gap-3 bg-black/20 shrink-0">
+              <button onClick={() => setIsNewTicketModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors font-medium">
+                Cancel
+              </button>
+              <button onClick={() => setIsNewTicketModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white transition-colors font-medium">
+                Submit Ticket
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

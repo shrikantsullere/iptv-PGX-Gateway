@@ -84,27 +84,27 @@ const ApiKeys = () => {
 
       {/* Generate Key Modal */}
       {isGenerateModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#13131A] border border-white/10 rounded-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-6 border-b border-white/5">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/5 shrink-0">
               <h3 className="text-xl font-bold">Generate New API Key</h3>
-              <button onClick={() => setIsGenerateModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+              <button onClick={() => setIsGenerateModalOpen(false)} className="text-gray-400 hover:text-white transition-colors p-1">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto custom-scrollbar">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Key Name</label>
+                <label className="block text-sm font-medium text-gray-400 mb-1.5">Key Name</label>
                 <input 
                   type="text" 
                   placeholder="e.g. Mobile App Production"
                   value={newKeyName}
                   onChange={(e) => setNewKeyName(e.target.value)}
-                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors"
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-colors text-sm sm:text-base"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Environment</label>
+                <label className="block text-sm font-medium text-gray-400 mb-1.5">Environment</label>
                 <div className="flex gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="env" defaultChecked className="text-primary focus:ring-primary bg-black/50 border-white/10" />
@@ -117,11 +117,11 @@ const ApiKeys = () => {
                 </div>
               </div>
             </div>
-            <div className="p-6 border-t border-white/5 flex justify-end gap-3 bg-black/20">
-              <button onClick={() => setIsGenerateModalOpen(false)} className="px-4 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors font-medium">
+            <div className="p-4 sm:p-6 border-t border-white/5 flex flex-col-reverse sm:flex-row justify-end gap-3 bg-black/20 shrink-0">
+              <button onClick={() => setIsGenerateModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors font-medium">
                 Cancel
               </button>
-              <button onClick={() => setIsGenerateModalOpen(false)} className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white transition-colors font-medium">
+              <button onClick={() => setIsGenerateModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white transition-colors font-medium">
                 Generate Key
               </button>
             </div>
@@ -131,15 +131,15 @@ const ApiKeys = () => {
 
       {/* Roll Key Modal */}
       {isRollModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#13131A] border border-white/10 rounded-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-6 border-b border-white/5">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="bg-[#13131A] border border-white/10 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/5 shrink-0">
               <h3 className="text-xl font-bold flex items-center gap-2"><RefreshCw className="w-5 h-5 text-blue-500" /> Roll API Key</h3>
-              <button onClick={() => setIsRollModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+              <button onClick={() => setIsRollModalOpen(false)} className="text-gray-400 hover:text-white transition-colors p-1">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6">
+            <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar">
               <p className="text-gray-300 text-sm mb-4">
                 Rolling this key will generate a new secret. The old key will remain active for <strong className="text-white">24 hours</strong> to give you time to update your integration.
               </p>
@@ -148,11 +148,11 @@ const ApiKeys = () => {
                 <p className="text-xs text-blue-200">After 24 hours, any API requests using the old key will be rejected.</p>
               </div>
             </div>
-            <div className="p-6 border-t border-white/5 flex justify-end gap-3 bg-black/20">
-              <button onClick={() => setIsRollModalOpen(false)} className="px-4 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors font-medium">
+            <div className="p-4 sm:p-6 border-t border-white/5 flex flex-col-reverse sm:flex-row justify-end gap-3 bg-black/20 shrink-0">
+              <button onClick={() => setIsRollModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors font-medium">
                 Cancel
               </button>
-              <button onClick={() => setIsRollModalOpen(false)} className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors font-medium">
+              <button onClick={() => setIsRollModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors font-medium">
                 Roll Key
               </button>
             </div>
@@ -162,15 +162,15 @@ const ApiKeys = () => {
 
       {/* Revoke Key Modal */}
       {isRevokeModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#13131A] border border-red-500/20 rounded-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center p-6 border-b border-white/5">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="bg-[#13131A] border border-red-500/20 rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-4 sm:p-6 border-b border-white/5 shrink-0">
               <h3 className="text-xl font-bold flex items-center gap-2"><Trash2 className="w-5 h-5 text-red-500" /> Revoke API Key</h3>
-              <button onClick={() => setIsRevokeModalOpen(false)} className="text-gray-400 hover:text-white transition-colors">
+              <button onClick={() => setIsRevokeModalOpen(false)} className="text-gray-400 hover:text-white transition-colors p-1">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6">
+            <div className="p-4 sm:p-6 overflow-y-auto custom-scrollbar">
               <p className="text-gray-300 text-sm mb-4">
                 Are you sure you want to revoke this API key? This action <strong>cannot be undone</strong>.
               </p>
@@ -179,11 +179,11 @@ const ApiKeys = () => {
                 <p className="text-xs text-red-200">Any integrations currently using this key will immediately stop working and transactions will fail.</p>
               </div>
             </div>
-            <div className="p-6 border-t border-white/5 flex justify-end gap-3 bg-black/20">
-              <button onClick={() => setIsRevokeModalOpen(false)} className="px-4 py-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors font-medium">
+            <div className="p-4 sm:p-6 border-t border-white/5 flex flex-col-reverse sm:flex-row justify-end gap-3 bg-black/20 shrink-0">
+              <button onClick={() => setIsRevokeModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-colors font-medium">
                 Cancel
               </button>
-              <button onClick={() => setIsRevokeModalOpen(false)} className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-colors font-medium">
+              <button onClick={() => setIsRevokeModalOpen(false)} className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white transition-colors font-medium">
                 Yes, Revoke Key
               </button>
             </div>
