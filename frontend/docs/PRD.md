@@ -1,41 +1,42 @@
 # Product Requirements Document (PRD)
-**Product Name:** PGX Gateway
-**Version:** 1.0.0 (Frontend UI)
-**Domain:** Enterprise SaaS Crypto Payment Infrastructure
+## PGX Gateway & PlayGroundX
 
-## 1. Product Vision
-PGX Gateway aims to be the complete, enterprise-grade crypto payment infrastructure for modern businesses. Similar to Stripe or Coinbase Commerce, it provides merchants with the tools to accept crypto payments globally, manage wallets, customize their white-label checkout experience, and view deep analytics, while providing Super Admins a massive command center to manage liquidity routing and thousands of merchants.
+### 1. Project Overview
+PGX Gateway is a standalone, multi-tenant SaaS payment infrastructure platform. It is designed to power external businesses, marketplaces, e-commerce, and specifically **PlayGroundX** (an IPTV and Sports Lounge platform). The gateway acts as a robust backend that handles fiat-to-crypto onboarding (via MoonPay), crypto-to-crypto transfers, and crypto-to-fiat offboarding, all while maintaining strict data isolation for every merchant.
 
-## 2. Target Audience
-- **Merchants:** E-commerce platforms, SaaS companies, and digital creators wanting to accept crypto without managing complex blockchain infrastructure.
-- **Super Admins (PGX Staff):** Operations, Risk, and Network engineers who manage the PGX platform, monitor fraud, configure payment routing, and oversee global transaction flow.
+### 2. Core Architecture & Multi-Tenancy
+- **Isolated Environments:** Every merchant operates in complete isolation. Transactions, wallets, users, API keys, and settlements are strictly separated. No merchant can access another's data.
+- **PlayGroundX Integration:** PlayGroundX operates as a flagship "merchant" on the PGX Gateway, ensuring complete separation between PlayGroundX's streaming revenue and PGX Gateway's fee revenue.
 
-## 3. Core Roles & Permissions
-1. **Merchant:** Access to sales analytics, wallet management, API keys, webhook configurations, and white-label checkout settings.
-2. **Super Admin:** God-mode access. Can view global enterprise transactions, manage payment processor routing (MoonPay, Banxa, etc.), configure subscription tiers, and monitor network health.
-3. **Admin:** Internal PGX staff with limited scoped access (e.g., support tickets, KYC approvals).
+### 3. Dashboard Specifications
 
-## 4. Key Features & Requirements
+#### 3.1 Merchant Dashboard (`/merchant`)
+Designed for external businesses and PlayGroundX admins to manage their payment operations.
+- **Dashboard Overview:** Displays total revenue, transaction volume, active users, and wallet balances.
+- **Transactions Management:** Tracks all deposits, withdrawals, pending, and failed transactions. Stores rich metadata (Merchant Name, Customer Name, TX ID, Amount, Payment Type, Wallet Address, Fees, Timestamps) locally in the database, not relying solely on blockchain memos.
+- **Wallet & Settlement Center:** Merchants link their primary crypto wallet, settlement wallet, and fiat bank accounts. Funds flow directly to these merchant-controlled wallets automatically.
+- **API Keys & Webhooks:** Allows merchants to generate, roll, and revoke API keys (Sandbox & Production). Features an interactive UI to add/edit Webhook endpoints (e.g., `payment.*`, `payout.*`, `dispute.*`).
+- **White-Label & Branding:** Enterprise merchants can configure custom domains (e.g., `pay.theirdomain.com`), upload logos, and define brand colors to seamlessly integrate the gateway into their brand.
+- **Billing & Subscriptions:** Subscription management for gateway usage (Starter: $299/mo, Business: $999/mo, Enterprise: $2500/mo).
+- **Support:** Integrated ticketing system for merchant assistance.
 
-### 4.1 Authentication & Onboarding
-- **Split-Screen Auth:** Modern login/register flows with social logins (Google, GitHub, Microsoft).
-- **Multi-step Onboarding:** A seamless wizard covering Business Details -> KYC -> Wallet Setup -> Bank Account -> Subscription -> Branding -> API Keys -> Completed.
+#### 3.2 SuperAdmin Dashboard (`/superadmin`)
+Designed for the PGX Gateway owners to monitor the entire SaaS platform.
+- **Global Settings:** Toggles for Maintenance Mode, Sandbox Environments, strict IP whitelisting, and mandatory 2FA.
+- **Revenue Tracking:** Differentiates between Total Gateway Revenue, Subscription Revenue, and Transaction Fee Revenue.
+- **Merchant Management:** Tracks Total, Active, New, and Cancelled merchants.
+- **Risk & KYC Monitoring:** Monitors pending/approved KYC, suspicious activities, fraud alerts, and high-risk accounts.
+- **Processors Management:** Manages multiple payment processors (e.g., MoonPay, Transak, Banxa). Features automatic fallback routing and email notifications if a primary processor fails.
+- **Fees & Plans Configuration:** Admins can dynamically edit merchant transaction fees, create new subscription plans, and adjust pricing.
 
-### 4.2 Merchant Dashboard
-- **Analytics:** Widgets for Revenue, Wallet balances, Pending Settlements, and Fees. Donut and Area charts.
-- **Transactions & Ledger:** Detailed lists of Transactions, Deposits, and Withdrawals with status indicators.
-- **Wallet Management:** Portfolio overview with asset-specific details (USDC, USDT, BTC, ETH) and Deposit/Withdraw modals.
-- **Developer Tools:** API key generation with visibility toggles and Webhook endpoint configuration/logging.
-- **White Label Studio:** Live-preview checkout simulator allowing merchants to customize colors, fonts, logos, and custom domains.
+#### 3.3 PlayGroundX Dashboard (`/playgroundx`)
+The consumer-facing portal for users to watch IPTV and socialize.
+- **IPTV Network:** Users can browse 4K/1080p live streams across various categories (Sports, Boxing, Racing, etc.).
+- **Lobbies (Watch Parties):** 
+  - **Screen Limits & Pagination:** A lobby can hold a maximum of 4 active screens. If more screens are needed, users can create new Lobbies (e.g., Lobby 1, Lobby 2) accessible via top tabs.
+  - **Customization:** Users can seamlessly drag-and-drop screens to rearrange their viewing layout.
+  - **Private Lobbies:** Users can create private, invite-only lobbies.
+- **Sports Lounge & Friends:** Users can add friends, see who is online, and send direct invites to their private lobbies for synchronized watch parties.
 
-### 4.3 Super Admin Dashboard
-- **Global Overview:** Massive data-dense metrics covering volume, active subscriptions, and processor usage.
-- **Enterprise Transactions:** A global ledger tracking every transaction across all merchants with advanced multi-filtering.
-- **Processor & Routing Engine:** Visual workflow diagrams of payment routing (Primary vs Failover) and health monitoring for liquidity providers (MoonPay, Transak, etc.).
-- **Subscription Management:** Interactive editor to create and modify pricing plans, transaction fees, and feature limits.
-
-## 5. Design System Requirements
-- **Theme:** Strict Dark Mode (#09090B background).
-- **Aesthetics:** Luxury Fintech, Glassmorphism, smooth Framer Motion animations.
-- **Typography:** Inter (default) with options for modern sans-serif.
-- **Colors:** Vibrant accents (Purple #7C3AED, Blue, Green) against dark backgrounds.
+### 4. Future Scalability
+The platform is architected from day one to handle millions of transactions, millions of users, and thousands of merchants across multiple geographic regions with high-availability infrastructure.
