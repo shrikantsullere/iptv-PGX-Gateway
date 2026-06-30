@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, UserPlus, MessageSquare, X, CheckCircle2, Loader2, Tv2, Users, Clock, ChevronRight, UserCheck, UserX } from 'lucide-react';
+import { Search, UserPlus, MessageSquare, X, CheckCircle2, Loader2, Tv2, Users, Clock, ChevronRight, UserCheck, UserX, Send } from 'lucide-react';
 
 const LOBBIES = [
   { id: 0, name: 'Lobby 1', type: 'public', screens: 5 },
@@ -37,6 +37,14 @@ export default function Friends() {
   const [selectedLobby, setSelectedLobby] = useState(null);
   const [inviteSending, setInviteSending] = useState(false);
   const [inviteSent, setInviteSent] = useState(false);
+
+  // Chat/Message Modal
+  const [chatFriend, setChatFriend] = useState(null);
+  const [chatMessage, setChatMessage] = useState('');
+  const [messages, setMessages] = useState([
+    { id: 1, text: "Hey! Are we watching the UFC fight tonight?", sender: 'them', time: '10:30 AM' },
+    { id: 2, text: "Yeah absolutely, I'll send you a lobby invite.", sender: 'me', time: '10:32 AM' }
+  ]);
 
   const filtered = friends.filter(f =>
     f.name.toLowerCase().includes(search.toLowerCase())
@@ -191,7 +199,7 @@ export default function Friends() {
               </div>
             )}
             {onlineFriends.map(friend => (
-              <div key={friend.id} className="px-5 py-4 flex items-center justify-between hover:bg-white/[0.02] transition-colors group cursor-pointer">
+              <div key={friend.id} className="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-white/[0.02] transition-colors group cursor-pointer gap-4 sm:gap-0">
                 <div className="flex items-center gap-4">
                   <div className="relative">
                     <img src={friend.avatar} className="w-11 h-11 rounded-full" alt={friend.name} />
@@ -202,15 +210,18 @@ export default function Friends() {
                     <div className="text-xs text-gray-400 mt-0.5">{friend.activity}</div>
                   </div>
                 </div>
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex gap-2 transition-opacity">
                   <button
                     onClick={() => { setInviteFriend(friend); setSelectedLobby(null); setInviteSent(false); }}
-                    className="px-3 py-2 rounded-xl text-xs font-bold bg-[#7C3AED]/10 text-[#7C3AED] border border-[#7C3AED]/20 hover:bg-[#7C3AED]/20 transition-colors flex items-center gap-1.5"
+                    className="flex-1 sm:flex-none px-3 py-2 rounded-xl text-xs font-bold bg-[#7C3AED]/10 text-[#7C3AED] border border-[#7C3AED]/20 hover:bg-[#7C3AED]/20 transition-colors flex items-center justify-center gap-1.5"
                     title="Invite to Lobby"
                   >
                     <Tv2 className="w-3.5 h-3.5" /> Invite to Lobby
                   </button>
-                  <button className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center border border-white/5 transition-colors">
+                  <button 
+                    onClick={() => setChatFriend(friend)}
+                    className="w-9 h-9 shrink-0 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center border border-white/5 transition-colors"
+                  >
                     <MessageSquare className="w-4 h-4" />
                   </button>
                 </div>
@@ -224,7 +235,7 @@ export default function Friends() {
               </div>
             )}
             {offlineFriends.map(friend => (
-              <div key={friend.id} className="px-5 py-4 flex items-center justify-between hover:bg-white/[0.02] transition-colors group cursor-pointer opacity-60 hover:opacity-100">
+              <div key={friend.id} className="px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-white/[0.02] transition-colors group cursor-pointer opacity-80 sm:opacity-60 hover:opacity-100 gap-4 sm:gap-0">
                 <div className="flex items-center gap-4">
                   <div className="relative">
                     <img src={friend.avatar} className="w-11 h-11 rounded-full grayscale group-hover:grayscale-0 transition-all" alt={friend.name} />
@@ -235,8 +246,11 @@ export default function Friends() {
                     <div className="text-xs text-gray-500 mt-0.5">{friend.activity}</div>
                   </div>
                 </div>
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center border border-white/5 transition-colors">
+                <div className="flex gap-2 transition-opacity">
+                  <button 
+                    onClick={() => setChatFriend(friend)}
+                    className="w-9 h-9 shrink-0 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center border border-white/5 transition-colors"
+                  >
                     <MessageSquare className="w-4 h-4" />
                   </button>
                 </div>
@@ -380,6 +394,74 @@ export default function Friends() {
           </div>
         </div>
       )}
+
+      {/* Chat Message Modal */}
+      {chatFriend && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#13131A] border border-white/10 rounded-3xl w-full max-w-md shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col h-[500px]">
+            {/* Header */}
+            <div className="p-4 border-b border-white/5 flex justify-between items-center bg-[#09090B] rounded-t-3xl shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <img src={chatFriend.avatar} className="w-10 h-10 rounded-full" alt={chatFriend.name} />
+                  <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#09090B] ${chatFriend.status === 'Online' ? 'bg-green-500' : 'bg-gray-500'}`} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-sm leading-tight">{chatFriend.name}</h3>
+                  <div className={`text-xs ${chatFriend.status === 'Online' ? 'text-green-400' : 'text-gray-500'}`}>{chatFriend.status}</div>
+                </div>
+              </div>
+              <button onClick={() => setChatFriend(null)} className="text-gray-500 hover:text-white bg-white/5 p-1.5 rounded-full transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Messages Area */}
+            <div className="flex-1 p-4 overflow-y-auto custom-scrollbar flex flex-col gap-4">
+               <div className="text-center text-xs text-gray-500 font-bold my-2">Today</div>
+               {messages.map(msg => (
+                 <div key={msg.id} className={`flex flex-col max-w-[80%] ${msg.sender === 'me' ? 'self-end items-end' : 'self-start items-start'}`}>
+                   <div className={`p-3 rounded-2xl text-sm ${msg.sender === 'me' ? 'bg-[#7C3AED] text-white rounded-br-sm' : 'bg-white/10 text-white rounded-bl-sm border border-white/5'}`}>
+                     {msg.text}
+                   </div>
+                   <span className="text-[10px] text-gray-500 mt-1">{msg.time}</span>
+                 </div>
+               ))}
+            </div>
+
+            {/* Input Area */}
+            <div className="p-4 border-t border-white/5 bg-[#09090B] rounded-b-3xl shrink-0">
+              <div className="relative">
+                <input 
+                  type="text"
+                  value={chatMessage}
+                  onChange={(e) => setChatMessage(e.target.value)}
+                  placeholder={`Message ${chatFriend.name}...`}
+                  className="w-full bg-black/50 border border-white/10 rounded-xl pl-4 pr-12 py-3 text-sm text-white focus:outline-none focus:border-[#7C3AED] transition-colors"
+                  onKeyDown={e => {
+                    if(e.key === 'Enter' && chatMessage.trim()) {
+                      setMessages([...messages, { id: Date.now(), text: chatMessage, sender: 'me', time: 'Just now' }]);
+                      setChatMessage('');
+                    }
+                  }}
+                />
+                <button 
+                  onClick={() => {
+                    if(chatMessage.trim()) {
+                      setMessages([...messages, { id: Date.now(), text: chatMessage, sender: 'me', time: 'Just now' }]);
+                      setChatMessage('');
+                    }
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-[#7C3AED] hover:bg-[#6D28D9] flex items-center justify-center text-white transition-colors"
+                >
+                  <Send className="w-4 h-4 ml-0.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

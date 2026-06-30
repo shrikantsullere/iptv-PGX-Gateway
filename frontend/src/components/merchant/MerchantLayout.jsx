@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { 
-  LayoutDashboard, CreditCard, ArrowDownToLine, ArrowUpToLine, Wallet, 
-  Landmark, Users, DollarSign, BarChart3, Key, Webhook, 
+import {
+  LayoutDashboard, CreditCard, ArrowDownToLine, ArrowUpToLine, Wallet,
+  Landmark, Users, DollarSign, BarChart3, Key, Webhook,
   Palette, Brush, Receipt, Users2, Bell, Settings, HelpCircle,
   Search, LogOut, ChevronLeft, ChevronRight, Copy
 } from 'lucide-react';
@@ -36,17 +36,17 @@ const MerchantLayout = () => {
 
   return (
     <div className="h-screen overflow-hidden flex bg-[#050508] text-white font-sans">
-      
+
       {/* Mobile Backdrop */}
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         ></div>
       )}
 
       {/* Sidebar */}
-      <aside 
+      <aside
         className={`
           fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 md:relative md:translate-x-0
           ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -76,8 +76,8 @@ const MerchantLayout = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={({ isActive }) => `
                   flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
-                  ${isActive 
-                    ? `bg-[#7C3AED] text-white shadow-[0_0_15px_rgba(124,58,237,0.3)]` 
+                  ${isActive
+                    ? `bg-[#7C3AED] text-white shadow-[0_0_15px_rgba(124,58,237,0.3)]`
                     : `text-gray-400 hover:text-white hover:bg-white/5`
                   }
                 `}
@@ -92,7 +92,7 @@ const MerchantLayout = () => {
 
         {/* Fixed Logout Button */}
         <div className="p-4 border-t border-white/5 mt-auto">
-          <button 
+          <button
             onClick={() => navigate('/login')}
             className={`w-full flex items-center ${isSidebarOpen ? 'justify-start px-3' : 'justify-center'} py-2.5 rounded-xl transition-all duration-200 text-red-500 hover:bg-red-500/10 hover:text-red-400 group`}
             title={!isSidebarOpen ? 'Logout' : ''}
@@ -103,7 +103,7 @@ const MerchantLayout = () => {
         </div>
 
         {/* Sidebar Toggle (Desktop Only) */}
-        <button 
+        <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           className="hidden md:flex absolute -right-3 top-20 w-6 h-6 rounded-full items-center justify-center shadow-lg bg-[#13131A] border border-white/10 text-gray-400 hover:text-white transition-colors"
         >
@@ -113,39 +113,39 @@ const MerchantLayout = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        
+
         {/* Top Header */}
         <header className="h-16 flex-shrink-0 flex items-center justify-between px-4 sm:px-6 border-b border-white/5 bg-[#09090B] sticky top-0 z-30">
-          
+
           <div className="flex items-center gap-4">
-             {/* Mobile Logo Title */}
-             <div className="md:hidden flex items-center gap-2">
-               <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#7C3AED] to-blue-600 flex items-center justify-center font-black text-white text-xs shadow-[0_0_10px_rgba(124,58,237,0.5)]">P</div>
-               <span className="font-bold text-base tracking-tight text-white">PGX Gateway</span>
-             </div>
+            {/* Mobile Logo Title */}
+            <div className="md:hidden flex items-center gap-2">
+              <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#7C3AED] to-blue-600 flex items-center justify-center font-black text-white text-xs shadow-[0_0_10px_rgba(124,58,237,0.5)]">P</div>
+              <span className="font-bold text-base tracking-tight text-white">PGX Gateway</span>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
             {/* Wallet Balance Pill */}
             <div className="hidden md:flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/5 border border-white/10">
-               <div className="w-5 h-5 rounded-full bg-[#7C3AED] flex items-center justify-center">
-                 <Wallet className="w-3 h-3 text-white" />
-               </div>
-               <div className="flex flex-col">
-                 <span className="text-[10px] text-gray-400 uppercase font-bold leading-none">Available Balance</span>
-                 <span className="text-sm font-black text-white leading-tight">$124,500.00</span>
-               </div>
+              <div className="w-5 h-5 rounded-full bg-[#7C3AED] flex items-center justify-center">
+                <Wallet className="w-3 h-3 text-white" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] text-gray-400 uppercase font-bold leading-none">Available Balance</span>
+                <span className="text-sm font-black text-white leading-tight">$124,500.00</span>
+              </div>
             </div>
 
             <div className="w-px h-6 bg-white/10 mx-2"></div>
-            
+
             {/* Notifications Dropdown */}
             <div className="relative">
               <button onClick={() => setIsNotificationOpen(!isNotificationOpen)} className="p-2 rounded-lg transition-colors relative text-gray-400 hover:bg-white/10 hover:text-white">
                 <Bell className="w-5 h-5" />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#7C3AED] shadow-[0_0_10px_rgba(124,58,237,0.8)]"></span>
               </button>
-              
+
               {isNotificationOpen && (
                 <div className="absolute top-12 right-0 w-80 bg-[#13131A] border border-white/10 rounded-2xl shadow-2xl z-50 animate-in slide-in-from-top-2 duration-200">
                   <div className="p-4 border-b border-white/5 flex justify-between items-center">
@@ -153,19 +153,19 @@ const MerchantLayout = () => {
                     <button className="text-xs text-[#7C3AED] hover:text-[#6D28D9] font-bold transition-colors">Mark all as read</button>
                   </div>
                   <div className="max-h-64 overflow-y-auto custom-scrollbar">
-                     <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
-                        <div className="text-sm font-bold text-white mb-1">Settlement Completed</div>
-                        <div className="text-xs text-gray-400">$45,200.00 has been successfully settled to your bank account.</div>
-                        <div className="text-[10px] text-gray-500 mt-2">2 hours ago</div>
-                     </div>
-                     <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
-                        <div className="text-sm font-bold text-white mb-1">New Chargeback</div>
-                        <div className="text-xs text-gray-400">A chargeback of $150.00 has been filed for txn #TX-9021.</div>
-                        <div className="text-[10px] text-gray-500 mt-2">5 hours ago</div>
-                     </div>
+                    <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                      <div className="text-sm font-bold text-white mb-1">Settlement Completed</div>
+                      <div className="text-xs text-gray-400">$45,200.00 has been successfully settled to your bank account.</div>
+                      <div className="text-[10px] text-gray-500 mt-2">2 hours ago</div>
+                    </div>
+                    <div className="p-4 border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer">
+                      <div className="text-sm font-bold text-white mb-1">New Chargeback</div>
+                      <div className="text-xs text-gray-400">A chargeback of $150.00 has been filed for txn #TX-9021.</div>
+                      <div className="text-[10px] text-gray-500 mt-2">5 hours ago</div>
+                    </div>
                   </div>
                   <div className="p-3 text-center border-t border-white/5 hover:bg-white/5 transition-colors cursor-pointer rounded-b-2xl">
-                     <span className="text-xs font-bold text-gray-400">View all notifications</span>
+                    <span className="text-xs font-bold text-gray-400">View all notifications</span>
                   </div>
                 </div>
               )}
@@ -186,13 +186,13 @@ const MerchantLayout = () => {
               </div>
             </div>
 
-             {/* Mobile Menu Toggle (Right Side) */}
-             <button 
-               className="md:hidden p-2 -mr-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
-               onClick={() => setIsMobileMenuOpen(true)}
-             >
-               <LayoutDashboard className="w-6 h-6" />
-             </button>
+            {/* Mobile Menu Toggle (Right Side) */}
+            <button
+              className="md:hidden p-2 -mr-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <LayoutDashboard className="w-6 h-6" />
+            </button>
           </div>
         </header>
 
@@ -202,7 +202,7 @@ const MerchantLayout = () => {
         </main>
 
       </div>
-      
+
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
