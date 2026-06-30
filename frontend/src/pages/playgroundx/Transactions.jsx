@@ -21,6 +21,28 @@ export default function Transactions() {
     return true;
   });
 
+  const exportToCSV = () => {
+    if (filteredTxs.length === 0) return;
+    
+    const headers = ['ID', 'Type', 'Description', 'Amount', 'Fiat Amount', 'Status', 'Date', 'Hash'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredTxs.map(tx => 
+        [tx.id, tx.type, `"${tx.desc}"`, `"${tx.amount}"`, `"${tx.fiat}"`, tx.status, `"${tx.date}"`, tx.hash].join(',')
+      )
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `pgx_transactions_${new Date().toISOString().slice(0,10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const getStatusIcon = (status) => {
     switch (status) {
       case 'completed': return <CheckCircle2 className="w-4 h-4 text-green-500" />;
@@ -52,7 +74,10 @@ export default function Transactions() {
           <p className="text-gray-400 text-sm mt-1">View and manage all your platform activities, purchases, and deposits.</p>
         </div>
         <div className="relative z-10 flex gap-3 w-full md:w-auto">
-          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-white px-5 py-2.5 rounded-xl text-sm font-bold border border-white/10 transition-colors">
+          <button 
+            onClick={exportToCSV}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-white px-5 py-2.5 rounded-xl text-sm font-bold border border-white/10 transition-colors"
+          >
             <Download className="w-4 h-4" /> Export CSV
           </button>
         </div>
