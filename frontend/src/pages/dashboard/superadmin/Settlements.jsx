@@ -1,20 +1,54 @@
-import { useState } from 'react';
-import { Landmark, ArrowRight, ArrowDownRight, Clock, CheckCircle2, XCircle, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Landmark, ArrowRight, ArrowDownRight, Clock, CheckCircle2, XCircle, X, Loader2 } from 'lucide-react';
+import apiClient from '../../../utils/apiClient';
 
 const Settlements = () => {
+  const [settlements, setSettlements] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [selectedSettlement, setSelectedSettlement] = useState(null);
+
+  useEffect(() => {
+    fetchSettlements();
+  }, []);
+
+  const fetchSettlements = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/settlements');
+      if (res.success) {
+        setSettlements(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch settlements');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const openReview = (settlement) => {
     setSelectedSettlement(settlement);
     setIsReviewModalOpen(true);
   };
-  const settlements = [
-    { id: 'SET-991', merchant: 'Acme Corp', amount: '$45,200.00', status: 'Completed', date: '2023-11-20', method: 'Wire Transfer (USD)' },
-    { id: 'SET-992', merchant: 'Global Tech', amount: '$12,450.00', status: 'Processing', date: '2023-11-21', method: 'SEPA (EUR)' },
-    { id: 'SET-993', merchant: 'Web3 Gaming', amount: '12.5 BTC', status: 'Pending', date: '2023-11-21', method: 'On-Chain (BTC)' },
-    { id: 'SET-994', merchant: 'SaaS Connect', amount: '$8,900.00', status: 'Failed', date: '2023-11-19', method: 'ACH (USD)' },
-  ];
+
+  const handleAction = async (status) => {
+    if (!selectedSettlement) return;
+    try {
+      const res = await apiClient.put(`/admin/settlements/${selectedSettlement.settlementId}/status`, { status });
+      if (res.success) {
+        setSettlements(settlements.map(s => s.settlementId === selectedSettlement.settlementId ? { ...s, status } : s));
+        setIsReviewModalOpen(false);
+      }
+    } catch (error) {
+      alert('Failed to update settlement status');
+    }
+  };
+
+  // Calculate dynamic stats
+  const pendingVolume = settlements.filter(s => s.status === 'Pending').reduce((acc, curr) => acc + Number(curr.amount), 0);
+  const processingCount = settlements.filter(s => s.status === 'Processing').length;
+  const completedToday = settlements.filter(s => s.status === 'Completed').reduce((acc, curr) => acc + Number(curr.amount), 0); // Simplified for today
+  const failedCount = settlements.filter(s => s.status === 'Failed').length;
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -29,19 +63,19 @@ const Settlements = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-[#13131A] border border-white/5 rounded-2xl p-6 shadow-xl">
            <div className="text-sm font-bold text-gray-500 mb-2">Pending Volume</div>
-           <div className="text-3xl font-black text-white">$1.2M</div>
+           <div className="text-3xl font-black text-white">${pendingVolume.toLocaleString()}</div>
         </div>
         <div className="bg-[#13131A] border border-white/5 rounded-2xl p-6 shadow-xl">
            <div className="text-sm font-bold text-gray-500 mb-2">Processing</div>
-           <div className="text-3xl font-black text-blue-500">14</div>
+           <div className="text-3xl font-black text-blue-500">{processingCount}</div>
         </div>
         <div className="bg-[#13131A] border border-white/5 rounded-2xl p-6 shadow-xl">
-           <div className="text-sm font-bold text-gray-500 mb-2">Completed Today</div>
-           <div className="text-3xl font-black text-green-500">$840K</div>
+           <div className="text-sm font-bold text-gray-500 mb-2">Completed Volume</div>
+           <div className="text-3xl font-black text-green-500">${completedToday.toLocaleString()}</div>
         </div>
         <div className="bg-[#13131A] border border-white/5 rounded-2xl p-6 shadow-xl">
            <div className="text-sm font-bold text-gray-500 mb-2">Failed</div>
-           <div className="text-3xl font-black text-red-500">2</div>
+           <div className="text-3xl font-black text-red-500">{failedCount}</div>
         </div>
       </div>
 
@@ -63,12 +97,23 @@ const Settlements = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {settlements.map((s, i) => (
-                <tr key={i} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="p-4 text-sm font-mono text-gray-400">{s.id}</td>
-                  <td className="p-4 font-bold text-white">{s.merchant}</td>
-                  <td className="p-4 font-bold text-white">{s.amount}</td>
-                  <td className="p-4 text-sm text-gray-400">{s.method}</td>
+              {loading ? (
+                <tr>
+                  <td colSpan="7" className="p-8 text-center text-gray-400">
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#7C3AED] mb-2" />
+                    Fetching settlements from database...
+                  </td>
+                </tr>
+              ) : settlements.length === 0 ? (
+                 <tr>
+                   <td colSpan="7" className="p-8 text-center text-gray-400">No settlements found in the database.</td>
+                 </tr>
+              ) : settlements.map((s) => (
+                <tr key={s.settlementId} className="hover:bg-white/[0.02] transition-colors">
+                  <td className="p-4 text-sm font-mono text-gray-400">{s.settlementId}</td>
+                  <td className="p-4 font-bold text-white">{s.merchantId}</td>
+                  <td className="p-4 font-bold text-white">${Number(s.amount).toLocaleString()} {s.currency}</td>
+                  <td className="p-4 text-sm text-gray-400">{s.payoutMethod || 'Wire Transfer'}</td>
                   <td className="p-4">
                     <span className={`flex w-fit items-center gap-1.5 text-xs font-bold px-2 py-1 rounded-full ${
                       s.status === 'Completed' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 
@@ -82,7 +127,7 @@ const Settlements = () => {
                       {s.status}
                     </span>
                   </td>
-                  <td className="p-4 text-sm text-gray-400">{s.date}</td>
+                  <td className="p-4 text-sm text-gray-400">{new Date(s.createdAt).toLocaleDateString()}</td>
                   <td className="p-4 text-right">
                     <button onClick={() => openReview(s)} className="text-[#7C3AED] hover:text-white font-bold text-sm transition-colors">Review</button>
                   </td>
@@ -107,23 +152,23 @@ const Settlements = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Settlement ID</p>
-                  <p className="text-white font-mono">{selectedSettlement.id}</p>
+                  <p className="text-white font-mono break-all text-xs">{selectedSettlement.settlementId}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Date</p>
-                  <p className="text-white">{selectedSettlement.date}</p>
+                  <p className="text-white text-sm">{new Date(selectedSettlement.createdAt).toLocaleString()}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Merchant</p>
-                  <p className="text-white font-bold">{selectedSettlement.merchant}</p>
+                  <p className="text-white font-bold">{selectedSettlement.merchantId}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Amount</p>
-                  <p className="text-white font-black text-lg">{selectedSettlement.amount}</p>
+                  <p className="text-white font-black text-lg">${Number(selectedSettlement.amount).toLocaleString()} {selectedSettlement.currency}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Method</p>
-                  <p className="text-white">{selectedSettlement.method}</p>
+                  <p className="text-white">{selectedSettlement.payoutMethod || 'Wire Transfer'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Status</p>
@@ -138,11 +183,11 @@ const Settlements = () => {
                 </div>
               </div>
               <div className="pt-4 flex gap-3 border-t border-white/5 mt-6">
-                <button onClick={() => setIsReviewModalOpen(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg font-bold transition-colors border border-white/10">
-                  Close
+                <button onClick={() => handleAction('Failed')} className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-500 py-2 rounded-lg font-bold transition-colors border border-red-500/20">
+                  Mark Failed
                 </button>
-                <button onClick={() => { alert('Action processed'); setIsReviewModalOpen(false); }} className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors">
-                  Take Action
+                <button onClick={() => handleAction('Completed')} className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors">
+                  Approve Payout
                 </button>
               </div>
             </div>

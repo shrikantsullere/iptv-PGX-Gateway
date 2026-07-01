@@ -3,19 +3,43 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, ShieldCheck, Building2, Gamepad2 } from 'lucide-react';
 import AuthLayout from '../../components/auth/AuthLayout';
 
+import apiClient from '../../utils/apiClient';
+
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call then route to super admin by default
-    setTimeout(() => {
+    setError(null);
+    
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
+    try {
+      const res = await apiClient.post('/auth/login', { email, password });
+      if (res.success) {
+        localStorage.setItem('pgx_token', res.data.token);
+        localStorage.setItem('pgx_user', JSON.stringify(res.data.user));
+        
+        // Route based on role
+        if (res.data.user.role === 'Merchant' || email.includes('merchant')) {
+           navigate('/merchant-dashboard');
+        } else {
+           navigate('/super-admin');
+        }
+      } else {
+        setError(res.message || 'Login failed');
+      }
+    } catch (err) {
+      console.error(err);
+      setError(err?.response?.data?.message || 'Failed to authenticate. Please check your credentials.');
+    } finally {
       setIsLoading(false);
-      navigate('/super-admin');
-    }, 1000);
+    }
   };
 
   return (
@@ -26,12 +50,20 @@ const Login = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
+        
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/50 text-red-500 px-4 py-3 rounded-xl text-sm font-bold flex items-center justify-between">
+            {error}
+          </div>
+        )}
+
         <div className="relative group">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Mail className="h-5 w-5 text-gray-500 group-focus-within:text-[#7C3AED] transition-colors" />
           </div>
           <input
             type="email"
+            name="email"
             required
             className="w-full bg-[#09090B] border border-white/10 rounded-xl pl-11 pr-4 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] transition-all text-sm"
             placeholder="Business Email"
@@ -44,6 +76,7 @@ const Login = () => {
           </div>
           <input
             type={showPassword ? 'text' : 'password'}
+            name="password"
             required
             className="w-full bg-[#09090B] border border-white/10 rounded-xl pl-11 pr-12 py-3.5 text-white placeholder-gray-500 focus:outline-none focus:border-[#7C3AED] focus:ring-1 focus:ring-[#7C3AED] transition-all text-sm"
             placeholder="Password"
@@ -89,32 +122,47 @@ const Login = () => {
               <div className="w-full border-t border-white/10"></div>
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-2 bg-[#13131A] text-gray-500">Quick Access (Demo)</span>
+              <span className="px-2 bg-[#13131A] text-gray-500">Quick Access (Live API Demo)</span>
             </div>
           </div>
 
           <div className="mt-6 grid grid-cols-3 gap-3">
             <button
               type="button"
-              onClick={() => navigate('/super-admin')}
+              onClick={() => {
+                const form = document.querySelector('form');
+                form.elements['email'].value = 'superadmin@pgx.com';
+                form.elements['password'].value = 'password123';
+                handleSubmit({ preventDefault: () => {}, target: form });
+              }}
               className="flex flex-col items-center justify-center gap-2 py-3 bg-[#09090B] border border-white/10 hover:border-purple-500/50 hover:bg-white/5 rounded-xl transition-all group"
-              title="Super Admin"
+              title="Super Admin Login"
             >
               <ShieldCheck className="w-5 h-5 text-gray-400 group-hover:text-purple-500 transition-colors" />
               <span className="text-[10px] font-bold text-gray-500 group-hover:text-white uppercase tracking-wider">Admin</span>
             </button>
             <button
               type="button"
-              onClick={() => navigate('/merchant-dashboard')}
+              onClick={() => {
+                const form = document.querySelector('form');
+                form.elements['email'].value = 'merchant@pgx.com';
+                form.elements['password'].value = 'password123';
+                handleSubmit({ preventDefault: () => {}, target: form });
+              }}
               className="flex flex-col items-center justify-center gap-2 py-3 bg-[#09090B] border border-white/10 hover:border-cyan-500/50 hover:bg-white/5 rounded-xl transition-all group"
-              title="Merchant"
+              title="Merchant Login"
             >
               <Building2 className="w-5 h-5 text-gray-400 group-hover:text-cyan-500 transition-colors" />
               <span className="text-[10px] font-bold text-gray-500 group-hover:text-white uppercase tracking-wider">Merchant</span>
             </button>
             <button
               type="button"
-              onClick={() => navigate('/playgroundx')}
+              onClick={() => {
+                const form = document.querySelector('form');
+                form.elements['email'].value = 'user@pgx.com';
+                form.elements['password'].value = 'password123';
+                handleSubmit({ preventDefault: () => {}, target: form });
+              }}
               className="flex flex-col items-center justify-center gap-2 py-3 bg-[#09090B] border border-white/10 hover:border-pink-500/50 hover:bg-white/5 rounded-xl transition-all group"
               title="PlayGroundX"
             >
@@ -123,7 +171,6 @@ const Login = () => {
             </button>
           </div>
         </div>
-
       </form>
 
       <p className="mt-8 text-center text-sm text-gray-400 relative z-10">

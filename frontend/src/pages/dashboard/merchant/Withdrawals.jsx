@@ -1,26 +1,62 @@
-import { useState } from 'react';
-import { ArrowUpFromLine, Search, Clock, CheckCircle2, XCircle, X, Wallet, ArrowRight } from 'lucide-react';
-
-const mockWithdrawals = Array(10).fill(null).map((_, i) => ({
-  id: `WD-${7821 + i}`,
-  destination: ['Bank Account ending in 4921', '0x71C...8976F', 'T9y...K2L', 'Bank Account ending in 1102'][Math.floor(Math.random() * 4)],
-  method: ['Fiat Wire', 'Crypto ERC-20', 'Crypto TRC-20', 'ACH Transfer'][Math.floor(Math.random() * 4)],
-  amount: (Math.random() * 10000 + 500).toFixed(2),
-  status: ['Completed', 'Processing', 'Failed'][Math.floor(Math.random() * 3)],
-  date: new Date(Date.now() - Math.random() * 5000000000).toLocaleString(),
-}));
+import { useState, useEffect } from 'react';
+import { ArrowUpFromLine, Search, Clock, CheckCircle2, XCircle, X, Wallet, ArrowRight, Loader2 } from 'lucide-react';
+import apiClient from '../../../utils/apiClient';
 
 const Withdrawals = () => {
+  const [withdrawals, setWithdrawals] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [payoutMethod, setPayoutMethod] = useState('crypto');
   const [amount, setAmount] = useState('');
   const [destination, setDestination] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const filteredWithdrawals = mockWithdrawals.filter(wd => 
-    wd.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    wd.destination.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    wd.method.toLowerCase().includes(searchTerm.toLowerCase())
+  useEffect(() => {
+    fetchWithdrawals();
+  }, []);
+
+  const fetchWithdrawals = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/settlements');
+      if (res.success && res.data) {
+        setWithdrawals(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch withdrawals');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePayoutRequest = async () => {
+    if (!amount) return;
+    try {
+      setSubmitting(true);
+      await apiClient.post('/admin/settlements', {
+        merchantId: 'MER-CURRENT', // Mock context for merchant
+        amount: Number(amount),
+        currency: 'USD',
+        destinationDetails: JSON.stringify({ method: payoutMethod, target: destination })
+      });
+      // Optimistically add to list
+      fetchWithdrawals();
+      setIsModalOpen(false);
+      setAmount('');
+      setDestination('');
+    } catch (err) {
+      alert('Failed to submit payout request');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const filteredWithdrawals = withdrawals.filter(wd => 
+    (wd.settlementId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (wd.merchantId || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -64,34 +100,41 @@ const Withdrawals = () => {
                   <tr className="text-gray-500 text-xs border-b border-white/5 bg-black/20">
                     <th className="p-4 font-medium">Withdrawal ID</th>
                     <th className="p-4 font-medium">Date & Time</th>
-                    <th className="p-4 font-medium">Destination</th>
                     <th className="p-4 font-medium">Method</th>
                     <th className="p-4 font-medium text-right">Amount</th>
                     <th className="p-4 font-medium text-right">Status</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm divide-y divide-white/5">
-                  {filteredWithdrawals.length === 0 ? (
+                  {loading ? (
                     <tr>
-                      <td colSpan="6" className="p-8 text-center text-gray-500">No withdrawals found matching your criteria.</td>
+                      <td colSpan="5" className="p-8 text-center text-gray-500">
+                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-500 mb-2" />
+                        Fetching withdrawals...
+                      </td>
+                    </tr>
+                  ) : filteredWithdrawals.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="p-8 text-center text-gray-500">No withdrawals found matching your criteria.</td>
                     </tr>
                   ) : filteredWithdrawals.map((wd, i) => (
-                    <tr key={i} className="hover:bg-white/[0.02] transition-colors group cursor-pointer">
-                      <td className="p-4 text-gray-300 font-mono text-xs">{wd.id}</td>
-                      <td className="p-4 text-gray-400 text-xs">{wd.date}</td>
-                      <td className="p-4 text-gray-200">{wd.destination}</td>
+                    <tr key={wd.settlementId} className="hover:bg-white/[0.02] transition-colors group cursor-pointer">
+                      <td className="p-4 text-gray-300 font-mono text-xs">{wd.settlementId}</td>
+                      <td className="p-4 text-gray-400 text-xs">{new Date(wd.createdAt).toLocaleString()}</td>
                       <td className="p-4">
-                        <span className="bg-white/5 text-gray-300 px-2.5 py-1 rounded-md text-xs font-medium border border-white/5">{wd.method}</span>
+                        <span className="bg-white/5 text-gray-300 px-2.5 py-1 rounded-md text-xs font-medium border border-white/5">
+                          {wd.destinationDetails ? 'API Defined' : 'Standard Payout'}
+                        </span>
                       </td>
-                      <td className="p-4 text-white font-bold text-right">- ${wd.amount}</td>
+                      <td className="p-4 text-white font-bold text-right">- ${Number(wd.amount).toLocaleString()}</td>
                       <td className="p-4 text-right">
                         <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full ${
                           wd.status === 'Completed' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
-                          wd.status === 'Processing' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' : 
+                          wd.status === 'Pending' ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20' : 
                           'bg-red-500/10 text-red-500 border border-red-500/20'
                         }`}>
                           {wd.status === 'Completed' && <CheckCircle2 className="w-3.5 h-3.5" />}
-                          {wd.status === 'Processing' && <Clock className="w-3.5 h-3.5 animate-spin-slow" />}
+                          {wd.status === 'Pending' && <Clock className="w-3.5 h-3.5 animate-spin-slow" />}
                           {wd.status === 'Failed' && <XCircle className="w-3.5 h-3.5" />}
                           {wd.status}
                         </span>
@@ -197,7 +240,7 @@ const Withdrawals = () => {
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 flex justify-between">
                   <span>Amount to Withdraw</span>
-                  <span className="text-blue-500 cursor-pointer hover:underline">Max: $124,500.00</span>
+                  <span className="text-blue-500 cursor-pointer hover:underline">Available Balance</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
@@ -209,10 +252,6 @@ const Withdrawals = () => {
                     className="w-full bg-[#09090B] border border-white/10 rounded-xl pl-8 pr-4 py-3 text-white focus:outline-none focus:border-blue-500 transition-colors font-bold text-lg"
                   />
                 </div>
-                <p className="text-[10px] text-gray-500 mt-2 flex justify-between">
-                  <span>Network Fee: $2.50</span>
-                  <span>Estimated Arrival: 5-10 Mins</span>
-                </p>
               </div>
 
             </div>
@@ -221,17 +260,18 @@ const Withdrawals = () => {
               <button 
                 onClick={() => setIsModalOpen(false)}
                 className="flex-1 py-3 rounded-xl font-bold text-gray-400 bg-white/5 hover:bg-white/10 hover:text-white transition-colors"
+                disabled={submitting}
               >
                 Cancel
               </button>
               <button 
-                onClick={() => {
-                  /* Dummy submit logic */
-                  setIsModalOpen(false);
-                }}
-                className="flex-1 py-3 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 group"
+                onClick={handlePayoutRequest}
+                disabled={submitting || !amount}
+                className="flex-1 py-3 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 group disabled:opacity-50"
               >
-                Confirm Payout <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                {submitting ? 'Processing...' : (
+                  <>Confirm Payout <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></>
+                )}
               </button>
             </div>
           </div>

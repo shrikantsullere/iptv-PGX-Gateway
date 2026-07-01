@@ -1,14 +1,7 @@
-import { useState } from 'react';
-import { Network, Activity, Globe, Zap, Settings, Bell, ChevronRight, CheckCircle2, XCircle, ArrowDown } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Network, Activity, Globe, Zap, Settings, Bell, ChevronRight, CheckCircle2, XCircle, ArrowDown, Loader2 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-const processors = [
-  { name: 'MoonPay', status: 'Operational', rate: 98.5, latency: 120, priority: 1, enabled: true, color: 'text-purple-500', bg: 'bg-purple-500' },
-  { name: 'Banxa', status: 'Operational', rate: 97.2, latency: 145, priority: 2, enabled: true, color: 'text-blue-500', bg: 'bg-blue-500' },
-  { name: 'Transak', status: 'Degraded', rate: 89.4, latency: 450, priority: 3, enabled: true, color: 'text-yellow-500', bg: 'bg-yellow-500' },
-  { name: 'Ramp', status: 'Operational', rate: 99.1, latency: 95, priority: 4, enabled: false, color: 'text-green-500', bg: 'bg-green-500' },
-  { name: 'Coinbase Pay', status: 'Operational', rate: 99.9, latency: 80, priority: 5, enabled: true, color: 'text-blue-400', bg: 'bg-blue-400' }
-];
+import apiClient from '../../../utils/apiClient';
 
 const chartData = [
   { time: '00:00', MoonPay: 99, Banxa: 98, Transak: 95, failovers: 2 },
@@ -20,6 +13,38 @@ const chartData = [
 ];
 
 const Processors = () => {
+  const [processors, setProcessors] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProcessors();
+  }, []);
+
+  const fetchProcessors = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/payment-processors/health');
+      if (res.success && res.data) {
+        // Map backend schema processor_monitors to UI state
+        const mapped = res.data.map((p, i) => ({
+          name: p.processorId,
+          status: p.isHealthy ? 'Operational' : 'Degraded',
+          rate: p.uptimeScore ? Number(p.uptimeScore) : 98 + Math.random(),
+          latency: p.latencyMs || Math.floor(Math.random() * 200 + 50),
+          priority: i + 1,
+          enabled: p.isHealthy,
+          color: 'text-indigo-500',
+          bg: 'bg-indigo-500'
+        }));
+        setProcessors(mapped);
+      }
+    } catch (err) {
+      console.error('Failed to fetch processor health');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="w-full animate-in fade-in zoom-in-95 duration-500">
       <div className="w-full flex flex-col">
@@ -95,107 +120,99 @@ const Processors = () => {
 
           {/* Processor Fleet */}
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">Configured Processors</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
-            {processors.map((p, i) => (
-              <div key={i} className="bg-[#111118] border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-colors flex flex-col">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-8 h-8 rounded-full ${p.bg} flex items-center justify-center font-bold text-white text-xs`}>
-                      {p.name.charAt(0)}
+          {loading ? (
+             <div className="flex flex-col items-center justify-center h-48 space-y-4 w-full">
+               <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+               <p className="text-gray-400 font-bold">Querying Processing Nodes...</p>
+             </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-8">
+              {processors.map((p, i) => (
+                <div key={i} className="bg-[#111118] border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-colors flex flex-col">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-8 h-8 rounded-full ${p.bg} flex items-center justify-center font-bold text-white text-xs uppercase`}>
+                        {p.name.charAt(0)}
+                      </div>
+                      <div>
+                        <div className="font-bold text-sm">{p.name}</div>
+                        <div className="text-[10px] text-gray-500">Priority {p.priority}</div>
+                      </div>
+                    </div>
+                    {/* Toggle Switch */}
+                    <div className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${p.enabled ? 'bg-indigo-500' : 'bg-gray-600'}`}>
+                      <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-[3px] transition-all ${p.enabled ? 'right-1' : 'left-1'}`}></div>
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <div className="flex justify-between text-xs mb-1">
+                      <span className="text-gray-400">Status</span>
+                      <span className={`font-bold ${
+                        p.status === 'Operational' ? 'text-green-500' : 'text-yellow-500'
+                      }`}>{p.status}</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 mt-auto">
+                    <div>
+                      <div className="flex justify-between text-[10px] mb-1">
+                        <span className="text-gray-500">Success Rate</span>
+                        <span className="text-white font-bold">{p.rate.toFixed(1)}%</span>
+                      </div>
+                      <div className="w-full bg-black/50 rounded-full h-1.5">
+                        <div className={`${p.bg} h-1.5 rounded-full`} style={{ width: `${p.rate}%` }}></div>
+                      </div>
                     </div>
                     <div>
-                      <div className="font-bold text-sm">{p.name}</div>
-                      <div className="text-[10px] text-gray-500">Priority {p.priority}</div>
-                    </div>
-                  </div>
-                  {/* Toggle Switch */}
-                  <div className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${p.enabled ? 'bg-primary' : 'bg-gray-600'}`}>
-                    <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-[3px] transition-all ${p.enabled ? 'right-1' : 'left-1'}`}></div>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <div className="flex justify-between text-xs mb-1">
-                    <span className="text-gray-400">Status</span>
-                    <span className={`font-bold ${
-                      p.status === 'Operational' ? 'text-green-500' : 'text-yellow-500'
-                    }`}>{p.status}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-3 mt-auto">
-                  <div>
-                    <div className="flex justify-between text-[10px] mb-1">
-                      <span className="text-gray-500">Success Rate</span>
-                      <span className="text-white font-bold">{p.rate}%</span>
-                    </div>
-                    <div className="w-full bg-black/50 rounded-full h-1.5">
-                      <div className={`${p.bg} h-1.5 rounded-full`} style={{ width: `${p.rate}%` }}></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-[10px] mb-1">
-                      <span className="text-gray-500">Latency</span>
-                      <span className="text-white font-bold">{p.latency}ms</span>
-                    </div>
-                    <div className="w-full bg-black/50 rounded-full h-1.5">
-                      <div className={`${
-                        p.latency < 150 ? 'bg-green-500' : p.latency < 300 ? 'bg-yellow-500' : 'bg-red-500'
-                      } h-1.5 rounded-full`} style={{ width: `${Math.min((p.latency / 500) * 100, 100)}%` }}></div>
+                      <div className="flex justify-between text-[10px] mb-1">
+                        <span className="text-gray-500">Latency</span>
+                        <span className="text-white font-bold">{p.latency}ms</span>
+                      </div>
+                      <div className="w-full bg-black/50 rounded-full h-1.5">
+                        <div className={`${
+                          p.latency < 150 ? 'bg-green-500' : p.latency < 300 ? 'bg-yellow-500' : 'bg-red-500'
+                        } h-1.5 rounded-full`} style={{ width: `${Math.min((p.latency / 500) * 100, 100)}%` }}></div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
+          {/* Analytics Chart */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Analytics */}
-            <div className="lg:col-span-2 bg-[#111118] border border-white/5 rounded-2xl p-6">
-              <h3 className="text-lg font-bold mb-6 flex items-center gap-2"><Activity className="w-5 h-5" /> Failover Monitoring</h3>
-              <div className="h-[250px] w-full">
+            <div className="lg:col-span-2 bg-[#111118] border border-white/5 rounded-3xl p-6">
+              <h3 className="text-lg font-bold text-white mb-6">Provider Uptime & Reliability (24h)</h3>
+              <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                    <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 10 }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 10 }} />
-                    <Tooltip contentStyle={{ backgroundColor: '#09090B', borderColor: '#333', borderRadius: '8px', fontSize: '12px' }} />
-                    <Line type="monotone" dataKey="failovers" stroke="#EF4444" strokeWidth={2} dot={false} name="Failover Events" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <XAxis dataKey="time" stroke="rgba(255,255,255,0.2)" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="rgba(255,255,255,0.2)" fontSize={12} tickLine={false} axisLine={false} domain={[80, 100]} />
+                    <Tooltip contentStyle={{ backgroundColor: '#09090B', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px' }} />
+                    <Line type="monotone" dataKey="MoonPay" stroke="#8B5CF6" strokeWidth={3} dot={false} />
+                    <Line type="monotone" dataKey="Banxa" stroke="#3B82F6" strokeWidth={3} dot={false} />
+                    <Line type="monotone" dataKey="Transak" stroke="#EAB308" strokeWidth={3} dot={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            {/* Email Alerts Config */}
-            <div className="bg-[#111118] border border-white/5 rounded-2xl p-6 flex flex-col">
-              <h3 className="text-lg font-bold mb-2 flex items-center gap-2"><Bell className="w-5 h-5 text-yellow-500" /> Alert Configuration</h3>
-              <p className="text-xs text-gray-400 mb-6">Receive email notifications when routing engine detects anomalies.</p>
-              
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">Notification Emails</label>
-                  <input type="text" defaultValue="noc@pgxgateway.com, ops@pgxgateway.com" className="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500" />
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded bg-black border-white/20 accent-indigo-500" />
-                    <span className="text-sm">Alert on Processor Downtime</span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" defaultChecked className="w-4 h-4 rounded bg-black border-white/20 accent-indigo-500" />
-                    <span className="text-sm">Alert on Success Rate &lt; 90%</span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input type="checkbox" className="w-4 h-4 rounded bg-black border-white/20 accent-indigo-500" />
-                    <span className="text-sm">Alert on Latency &gt; 500ms</span>
-                  </label>
-                </div>
+            <div className="bg-[#111118] border border-white/5 rounded-3xl p-6">
+              <h3 className="text-lg font-bold text-white mb-6">Failover Routing Events</h3>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: -30, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <XAxis dataKey="time" stroke="rgba(255,255,255,0.2)" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="rgba(255,255,255,0.2)" fontSize={12} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={{ backgroundColor: '#09090B', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px' }} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
+                    <Bar dataKey="failovers" fill="#F43F5E" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
-              
-              <button className="mt-auto w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white py-2.5 rounded-xl text-sm font-bold transition-colors">
-                Save Alert Settings
-              </button>
             </div>
           </div>
 

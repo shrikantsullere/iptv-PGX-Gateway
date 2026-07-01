@@ -1,24 +1,36 @@
-import { useState } from 'react';
-import { Search, Download, Filter, ChevronDown, CheckCircle2, Clock, XCircle, ArrowRightCircle } from 'lucide-react';
-
-const mockTransactions = Array(15).fill(null).map((_, i) => ({
-  id: `TX-89${21 + i}`,
-  customer: ['John Smith', 'Sarah Jones', 'Acme Corp', 'Global Tech', 'Jane Doe'][Math.floor(Math.random() * 5)],
-  amount: `$${(Math.random() * 1000 + 50).toFixed(2)}`,
-  type: ['Card Payment', 'Crypto Transfer', 'Bank Transfer'][Math.floor(Math.random() * 3)],
-  status: ['Completed', 'Pending', 'Failed'][Math.floor(Math.random() * 3)],
-  date: new Date(Date.now() - Math.random() * 10000000000).toLocaleString(),
-}));
+import { useState, useEffect } from 'react';
+import { Search, Download, Filter, ChevronDown, CheckCircle2, Clock, XCircle, Loader2 } from 'lucide-react';
+import apiClient from '../../../utils/apiClient';
 
 const Transactions = () => {
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Statuses');
 
-  const filteredTransactions = mockTransactions.filter(tx => {
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
+
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/transactions');
+      if (res.success && res.data) {
+        setTransactions(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch transactions');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredTransactions = transactions.filter(tx => {
     const matchesSearch = 
-      tx.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tx.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tx.amount.toLowerCase().includes(searchTerm.toLowerCase());
+      (tx.transactionId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (tx.customerId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      String(tx.amount).includes(searchTerm);
     
     const matchesStatus = statusFilter === 'All Statuses' || tx.status === statusFilter;
     
@@ -30,7 +42,7 @@ const Transactions = () => {
     const csvContent = [
       headers.join(','),
       ...filteredTransactions.map(tx => 
-        `"${tx.id}","${tx.date}","${tx.customer}","${tx.type}","${tx.amount}","${tx.status}"`
+        `"${tx.transactionId}","${new Date(tx.createdAt).toLocaleString()}","${tx.customerId}","${tx.paymentMethod}","${tx.amount}","${tx.status}"`
       )
     ].join('\n');
 
@@ -55,7 +67,7 @@ const Transactions = () => {
               <p className="text-gray-400">View and manage all your historical transactions.</p>
             </div>
             <div className="flex items-center gap-3">
-              <button onClick={handleExportCSV} className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-xl transition-all font-medium">
+              <button onClick={handleExportCSV} className="flex items-center gap-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white px-4 py-2 rounded-xl transition-all font-medium">
                 <Download className="w-4 h-4" /> Export CSV
               </button>
             </div>
@@ -70,13 +82,13 @@ const Transactions = () => {
                   placeholder="Search by TxID, customer, or amount..." 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary"
+                  className="w-full bg-black/50 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#7C3AED]"
                 />
               </div>
               <select 
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-primary appearance-none cursor-pointer"
+                className="bg-black/50 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#7C3AED] appearance-none cursor-pointer"
               >
                 <option>All Statuses</option>
                 <option>Completed</option>
@@ -97,17 +109,24 @@ const Transactions = () => {
                   </tr>
                 </thead>
                 <tbody className="text-sm divide-y divide-white/5">
-                  {filteredTransactions.length === 0 ? (
+                  {loading ? (
+                    <tr>
+                      <td colSpan="6" className="p-8 text-center text-gray-500">
+                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#7C3AED] mb-2" />
+                        Fetching transactions...
+                      </td>
+                    </tr>
+                  ) : filteredTransactions.length === 0 ? (
                     <tr>
                       <td colSpan="6" className="p-8 text-center text-gray-500">No transactions found matching your criteria.</td>
                     </tr>
                   ) : filteredTransactions.map((tx, i) => (
-                    <tr key={i} className="hover:bg-white/[0.02] transition-colors group cursor-pointer">
-                      <td className="p-4 text-primary font-mono text-xs font-medium">{tx.id}</td>
-                      <td className="p-4 text-gray-400 text-xs">{tx.date}</td>
-                      <td className="p-4 text-gray-200">{tx.customer}</td>
-                      <td className="p-4 text-gray-400">{tx.type}</td>
-                      <td className="p-4 text-white font-bold text-right">{tx.amount}</td>
+                    <tr key={tx.transactionId} className="hover:bg-white/[0.02] transition-colors group cursor-pointer">
+                      <td className="p-4 text-[#7C3AED] font-mono text-xs font-medium">{tx.transactionId}</td>
+                      <td className="p-4 text-gray-400 text-xs">{new Date(tx.createdAt).toLocaleString()}</td>
+                      <td className="p-4 text-gray-200">{tx.customerId || 'Guest Customer'}</td>
+                      <td className="p-4 text-gray-400">{tx.paymentMethod}</td>
+                      <td className="p-4 text-white font-bold text-right">${Number(tx.amount).toLocaleString()} {tx.currency}</td>
                       <td className="p-4 text-right">
                         <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full ${
                           tx.status === 'Completed' ? 'bg-green-500/10 text-green-500' :
@@ -126,11 +145,7 @@ const Transactions = () => {
               </table>
             </div>
             <div className="p-4 border-t border-white/5 flex items-center justify-between text-sm text-gray-400">
-              <span>Showing 1 to 15 of 245 entries</span>
-              <div className="flex items-center gap-2">
-                <button className="px-3 py-1 rounded bg-white/5 hover:bg-white/10 transition-colors">Previous</button>
-                <button className="px-3 py-1 rounded bg-white/5 hover:bg-white/10 transition-colors">Next</button>
-              </div>
+              <span>Showing 1 to {filteredTransactions.length} entries</span>
             </div>
           </div>
         </div>

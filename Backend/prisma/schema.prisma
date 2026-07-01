@@ -1,0 +1,908 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Dashboard_metrics {
+  totalGatewayRevenue   Int
+  todayVolume           Int
+  activeMerchants       Int
+  failedTransactionRate Int
+  systemStatus          String
+  lastUpdated           DateTime
+  id                    String   @id @default(uuid())
+}
+
+model Merchants {
+  merchantId       String   @id @default(uuid())
+  companyName      String
+  email            String
+  phone            String
+  subscriptionPlan String
+  revenue          Int
+  status           String
+  country          String
+  website          String
+  apiKey           String
+  createdAt        DateTime
+  updatedAt        DateTime
+}
+
+model Transactions {
+  transactionId   String   @id @default(uuid())
+  merchantId      String
+  merchantName    String
+  customerName    String
+  customerEmail   String
+  amount          Int
+  currency        String
+  processor       String
+  gatewayFee      Int
+  transactionHash String
+  walletAddress   String
+  status          String
+  paymentMethod   String
+  createdAt       DateTime
+  updatedAt       DateTime
+}
+
+model Revenues {
+  revenueId           String   @id @default(uuid())
+  processingVolume    Int
+  gatewayFeeRevenue   Int
+  subscriptionRevenue Int
+  pendingSettlements  Int
+  totalRevenue        Int
+  month               String
+  year                Int
+  generatedAt         DateTime
+}
+
+model Settlements {
+  settlementId     String   @id @default(uuid())
+  merchantId       String
+  merchantName     String
+  amount           Int
+  currency         String
+  settlementMethod String
+  settlementType   String
+  status           String
+  transactionHash  String
+  bankReference    String
+  initiatedAt      DateTime
+  completedAt      DateTime
+  createdAt        DateTime
+  updatedAt        DateTime
+}
+
+model Wallets {
+  walletId          String   @id @default(uuid())
+  walletName        String
+  walletAddress     String
+  walletType        String
+  network           String
+  balanceUSD        Int
+  balanceCrypto     Int
+  assetSymbol       String
+  status            String
+  lastTransactionAt DateTime
+  createdAt         DateTime
+  updatedAt         DateTime
+}
+
+model Processor_dashboard {
+  dashboardId    String   @id @default(uuid())
+  total24hVolume Int
+  activeNodes    Int
+  totalNodes     Int
+  approvalRate   Int
+  criticalAlerts Int
+  generatedAt    DateTime
+}
+
+model Processor_monitors {
+  monitorId      String   @id @default(uuid())
+  processorName  String
+  status         String
+  pingMs         Int
+  loadPercentage Int
+  successRate    Int
+  lastCheckedAt  DateTime
+  createdAt      DateTime
+}
+
+model Failover_events {
+  eventId         String   @id @default(uuid())
+  sourceProcessor String
+  targetProcessor String
+  triggerReason   String
+  status          String
+  failoverAt      DateTime
+  recoveredAt     DateTime
+}
+
+model Failover_triggers {
+  triggerId   String   @id @default(uuid())
+  triggerName String
+  enabled     Boolean
+  threshold   String
+  createdAt   DateTime
+}
+
+model Alert_settings {
+  email         String
+  failoverAlert Boolean
+  degradeAlert  Boolean
+  recoveryAlert Boolean
+  dailyDigest   Boolean
+  id            String  @id @default(uuid())
+}
+
+model Fee_configurations {
+  configId       String   @id @default(uuid())
+  merchantShare  Int
+  gatewayRevenue Int
+  processorFee   Int
+  networkFee     Int
+  createdAt      DateTime
+  updatedAt      DateTime
+}
+
+model Markup_rules {
+  ruleId          String   @id @default(uuid())
+  transactionType String
+  processorBase   Int
+  gatewayMarkup   Int
+  totalFee        Int
+  status          String
+  createdBy       String
+  createdAt       DateTime
+  updatedAt       DateTime
+}
+
+model Geo_routing_rules {
+  ruleId        String   @id @default(uuid())
+  regionName    String
+  countries     Json
+  processorId   String
+  processorName String
+  priority      Int
+  status        String
+  createdBy     String
+  createdAt     DateTime
+  updatedAt     DateTime
+}
+
+model Merchant_fee_rules {
+  ruleId              String   @id @default(uuid())
+  merchantId          String
+  merchantName        String
+  merchantType        String
+  globalFeePercentage Int
+  globalFixedFee      Int
+  customFeePercentage Int
+  customFixedFee      Int
+  overrideReason      String
+  status              String
+  createdBy           String
+  createdAt           DateTime
+  updatedAt           DateTime
+}
+
+model Processor_settlements {
+  settlementId     String   @id @default(uuid())
+  processorId      String
+  processorName    String
+  currency         String
+  availableBalance Int
+  pendingBalance   Int
+  totalSettled     Int
+  status           String
+  createdAt        DateTime
+  updatedAt        DateTime
+}
+
+model Settlement_batches {
+  batchId            String   @id @default(uuid())
+  processorId        String
+  amount             Int
+  destinationAccount String
+  settlementMethod   String
+  status             String
+  initiatedBy        String
+  completedAt        DateTime
+}
+
+model Auto_settlement_rules {
+  ruleId             String   @id @default(uuid())
+  frequency          String
+  minimumThreshold   Int
+  includedProcessors Json
+  enabled            Boolean
+  createdAt          DateTime
+}
+
+model Revenue_wallet {
+  walletId            String   @id @default(uuid())
+  totalRevenuePool    Int
+  monthlyRevenue      Int
+  averageDailyRevenue Int
+  totalWithdrawn      Int
+  revenueSources      Int
+  createdAt           DateTime
+  updatedAt           DateTime
+}
+
+model Revenue_withdrawals {
+  withdrawalId   String   @id @default(uuid())
+  amount         Int
+  destination    String
+  status         String
+  initiatedBy    String
+  withdrawalDate DateTime
+  completedAt    DateTime
+}
+
+model Monthly_revenue_history {
+  month         String
+  year          Int
+  revenueAmount Int
+  createdAt     DateTime
+  id            String   @id @default(uuid())
+}
+
+model Processor_logs {
+  logId           String   @id @default(uuid())
+  timestamp       DateTime
+  processorName   String
+  transactionId   String
+  endpoint        String
+  requestMethod   String
+  statusCode      Int
+  latencyMs       Int
+  requestPayload  String
+  responsePayload String
+  ipAddress       String
+  createdAt       DateTime
+}
+
+model Webhook_logs {
+  webhookId     String   @id @default(uuid())
+  processorName String
+  eventType     String
+  payload       String
+  status        String
+  receivedAt    DateTime
+}
+
+model Processor_reports {
+  reportId    String   @id @default(uuid())
+  reportName  String
+  period      String
+  generatedBy String
+  generatedAt DateTime
+  reportUrl   String
+}
+
+model Processor_metrics {
+  metricId          String   @id @default(uuid())
+  processorName     String
+  successRate       Int
+  chargebackRate    Int
+  refundRate        Int
+  transactionVolume Int
+  reportingPeriod   String
+  createdAt         DateTime
+}
+
+model Report_exports {
+  exportId   String   @id @default(uuid())
+  reportId   String
+  format     String
+  exportedBy String
+  exportedAt DateTime
+}
+
+model Kyc_submissions {
+  kycId       String   @id @default(uuid())
+  merchantId  String
+  entityName  String
+  entityType  String
+  submittedAt DateTime
+  riskLevel   String
+  status      String
+  reviewedBy  String
+  reviewedAt  DateTime
+  createdAt   DateTime
+}
+
+model Kyc_documents {
+  documentId         String @id @default(uuid())
+  kycId              String
+  documentType       String
+  documentUrl        String
+  verificationStatus String
+}
+
+model Kyc_reviews {
+  reviewId    String   @id @default(uuid())
+  kycId       String
+  decision    String
+  reviewNotes String
+  reviewerId  String
+  reviewedAt  DateTime
+}
+
+model Aml_alerts {
+  alertId           String   @id @default(uuid())
+  entityId          String
+  entityName        String
+  entityType        String
+  alertType         String
+  transactionAmount Int
+  severity          String
+  status            String
+  investigatorId    String
+  createdAt         DateTime
+  updatedAt         DateTime
+}
+
+model Aml_investigations {
+  investigationId   String   @id @default(uuid())
+  alertId           String
+  investigatorNotes String
+  actionTaken       String
+  escalated         Boolean
+  resolvedAt        DateTime
+}
+
+model Flagged_entities {
+  flagId     String   @id @default(uuid())
+  entityId   String
+  entityName String
+  reason     String
+  flaggedBy  String
+  flaggedAt  DateTime
+  status     String
+}
+
+model Compliance_reports {
+  reportId        String   @id @default(uuid())
+  reportType      String
+  reportingPeriod String
+  generatedBy     String
+  generatedAt     DateTime
+  reportUrl       String
+}
+
+model Regulatory_filings {
+  filingId     String   @id @default(uuid())
+  filingType   String
+  filingPeriod String
+  filedDate    DateTime
+  status       String
+  submittedBy  String
+}
+
+model Compliance_metrics {
+  metricId          String @id @default(uuid())
+  approvalRate      Int
+  processingTime    Int
+  amlResolutionRate Int
+  filingCount       Int
+  reportingPeriod   String
+}
+
+model Compliance_timeline_events {
+  eventId     String   @id @default(uuid())
+  eventType   String
+  entityName  String
+  entityId    String
+  category    String
+  description String
+  severity    String
+  createdBy   String
+  createdAt   DateTime
+}
+
+model Event_filters {
+  filterId   String   @id @default(uuid())
+  filterName String
+  filterType String
+  createdAt  DateTime
+}
+
+model Risk_entities {
+  entityId         String   @id @default(uuid())
+  entityName       String
+  riskType         String
+  transactionCount Int
+  riskScore        Int
+  trend            String
+  status           String
+  createdAt        DateTime
+}
+
+model Risk_incidents {
+  incidentId   String   @id @default(uuid())
+  entityId     String
+  incidentType String
+  severity     String
+  riskScore    Int
+  status       String
+  assignedTo   String
+  createdAt    DateTime
+}
+
+model Risk_rules {
+  ruleId         String   @id @default(uuid())
+  thresholdScore Int
+  actionType     String
+  enabled        Boolean
+  updatedBy      String
+  updatedAt      DateTime
+}
+
+model Fraud_alerts {
+  alertId          String   @id @default(uuid())
+  entityName       String
+  entityType       String
+  fraudType        String
+  amount           Int
+  transactionCount Int
+  severity         String
+  status           String
+  createdAt        DateTime
+}
+
+model Blocked_entities {
+  blockId     String   @id @default(uuid())
+  entityId    String
+  entityName  String
+  blockReason String
+  blockedBy   String
+  blockedAt   DateTime
+  status      String
+}
+
+model Fraud_investigations {
+  investigationId String   @id @default(uuid())
+  alertId         String
+  analystNotes    String
+  actionTaken     String
+  investigatorId  String
+  createdAt       DateTime
+}
+
+model Entity_reviews {
+  reviewId     String   @id @default(uuid())
+  blockId      String
+  reviewNotes  String
+  reviewerId   String
+  reviewStatus String
+  reviewedAt   DateTime
+}
+
+model Block_policy_history {
+  policyId    String   @id @default(uuid())
+  blockId     String
+  oldSeverity String
+  newSeverity String
+  changedBy   String
+  changedAt   DateTime
+}
+
+model Investigation_cases {
+  caseId      String   @id @default(uuid())
+  entityName  String
+  entityId    String
+  caseType    String
+  priority    String
+  status      String
+  assignedTo  String
+  description String
+  openedAt    DateTime
+  resolvedAt  DateTime
+}
+
+model Case_timeline {
+  timelineId String   @id @default(uuid())
+  caseId     String
+  actionBy   String
+  actionType String
+  notes      String
+  createdAt  DateTime
+}
+
+model Case_notes {
+  noteId    String   @id @default(uuid())
+  caseId    String
+  note      String
+  createdBy String
+  createdAt DateTime
+}
+
+model Gateway_fees {
+  feeId               String   @id @default(uuid())
+  basePlatformFee     Int
+  fixedTransactionFee Int
+  whiteLabelMarkup    Int
+  updatedBy           String
+  updatedAt           DateTime
+}
+
+model Processor_fees {
+  processorId   String   @id @default(uuid())
+  processorName String
+  feePercentage Int
+  updatedBy     String
+  updatedAt     DateTime
+}
+
+model Fee_rules {
+  ruleId        String   @id @default(uuid())
+  ruleName      String
+  merchantScope String
+  feePercentage Int
+  fixedFee      Int
+  status        String
+  createdBy     String
+  createdAt     DateTime
+}
+
+model Subscription_plans {
+  planId         String   @id @default(uuid())
+  planName       String
+  themeColor     String
+  monthlyPrice   Int
+  billingCycle   String
+  transactionFee Int
+  features       Json
+  status         String
+  createdBy      String
+  createdAt      DateTime
+}
+
+model Merchant_subscriptions {
+  subscriptionId String   @id @default(uuid())
+  merchantId     String
+  planId         String
+  startDate      DateTime
+  endDate        DateTime
+  status         String
+}
+
+model Countries {
+  countryId          String   @id @default(uuid())
+  countryName        String
+  countryCode        String
+  region             String
+  status             String
+  merchantCount      Int
+  paymentMethodCount Int
+  createdAt          DateTime
+}
+
+model Country_compliance {
+  complianceId     String  @id @default(uuid())
+  countryId        String
+  sanctionsEnabled Boolean
+  highRisk         Boolean
+  notes            String
+}
+
+model Country_audit_logs {
+  logId       String   @id @default(uuid())
+  countryId   String
+  action      String
+  performedBy String
+  createdAt   DateTime
+}
+
+model Currencies {
+  assetId         String   @id @default(uuid())
+  assetCode       String
+  assetName       String
+  assetType       String
+  exchangeRateUSD Int
+  conversionFee   Int
+  status          String
+  createdAt       DateTime
+}
+
+model Fx_rate_history {
+  rateId       String   @id @default(uuid())
+  assetId      String
+  exchangeRate Int
+  source       String
+  syncedAt     DateTime
+}
+
+model Currency_audit_logs {
+  logId       String   @id @default(uuid())
+  assetId     String
+  action      String
+  performedBy String
+  createdAt   DateTime
+}
+
+model Api_keys {
+  keyId       String   @id @default(uuid())
+  keyName     String
+  environment String
+  apiToken    String
+  status      String
+  permissions Json
+  lastUsedAt  DateTime
+  createdBy   String
+  createdAt   DateTime
+}
+
+model Api_usage_logs {
+  logId      String   @id @default(uuid())
+  keyId      String
+  endpoint   String
+  method     String
+  ipAddress  String
+  statusCode Int
+  timestamp  DateTime
+}
+
+model Api_audit_logs {
+  auditId   String   @id @default(uuid())
+  keyId     String
+  action    String
+  adminId   String
+  createdAt DateTime
+}
+
+model Webhook_endpoints {
+  endpointId  String   @id @default(uuid())
+  endpointUrl String
+  eventType   String
+  secretKey   String
+  status      String
+  createdBy   String
+  createdAt   DateTime
+}
+
+model Webhook_deliveries {
+  deliveryId      String   @id @default(uuid())
+  endpointId      String
+  eventType       String
+  payload         String
+  responseCode    Int
+  responseMessage String
+  status          String
+  deliveredAt     DateTime
+}
+
+model Reports {
+  reportId    String   @id @default(uuid())
+  reportType  String
+  generatedBy String
+  fileUrl     String
+  fileSize    String
+  dateRange   String
+  generatedAt DateTime
+}
+
+model Report_jobs {
+  jobId       String   @id @default(uuid())
+  reportId    String
+  status      String
+  startedAt   DateTime
+  completedAt DateTime
+}
+
+model Report_audit_logs {
+  auditId   String   @id @default(uuid())
+  reportId  String
+  action    String
+  adminId   String
+  createdAt DateTime
+}
+
+model White_label_requests {
+  requestId       String   @id @default(uuid())
+  merchantId      String
+  merchantName    String
+  requestedDomain String
+  sslStatus       String
+  approvalStatus  String
+  notes           String
+  requestedAt     DateTime
+}
+
+model Ssl_certificates {
+  sslId     String   @id @default(uuid())
+  domain    String
+  provider  String
+  issuedAt  DateTime
+  expiresAt DateTime
+  status    String
+}
+
+model White_label_audit_logs {
+  auditId     String   @id @default(uuid())
+  requestId   String
+  action      String
+  performedBy String
+  createdAt   DateTime
+}
+
+model Broadcast_notifications {
+  broadcastId    String   @id @default(uuid())
+  title          String
+  message        String
+  category       String
+  targetAudience String
+  status         String
+  createdBy      String
+  scheduledAt    DateTime
+  createdAt      DateTime
+}
+
+model Notification_deliveries {
+  deliveryId     String   @id @default(uuid())
+  broadcastId    String
+  merchantId     String
+  deliveryStatus String
+  deliveredAt    DateTime
+}
+
+model Notification_audit_logs {
+  auditId     String   @id @default(uuid())
+  broadcastId String
+  action      String
+  adminId     String
+  createdAt   DateTime
+}
+
+model Support_tickets {
+  ticketId     String   @id @default(uuid())
+  merchantId   String
+  merchantName String
+  subject      String
+  description  String
+  status       String
+  priority     String
+  assignedTo   String
+  lastUpdated  DateTime
+  createdAt    DateTime
+}
+
+model Ticket_messages {
+  messageId String   @id @default(uuid())
+  ticketId  String
+  senderId  String
+  message   String
+  createdAt DateTime
+}
+
+model Support_audit_logs {
+  auditId     String   @id @default(uuid())
+  ticketId    String
+  action      String
+  performedBy String
+  createdAt   DateTime
+}
+
+model Audit_logs {
+  auditId            String   @id @default(uuid())
+  actionType         String
+  description        String
+  administratorId    String
+  administratorEmail String
+  ipAddress          String
+  metadata           String
+  timestamp          DateTime
+}
+
+model Security_events {
+  eventId   String   @id @default(uuid())
+  severity  String
+  eventType String
+  sourceIp  String
+  createdAt DateTime
+}
+
+model Audit_exports {
+  exportId    String   @id @default(uuid())
+  generatedBy String
+  fileUrl     String
+  generatedAt DateTime
+}
+
+model Roles {
+  roleId      String   @id @default(uuid())
+  roleName    String
+  description String
+  riskProfile String
+  permissions Json
+  status      String
+  createdBy   String
+  createdAt   DateTime
+}
+
+model Role_assignments {
+  assignmentId String   @id @default(uuid())
+  userId       String
+  roleId       String
+  assignedBy   String
+  assignedAt   DateTime
+}
+
+model Role_permissions {
+  permissionId String @id @default(uuid())
+  moduleName   String
+  accessType   String
+  roleId       String
+}
+
+model Platform_settings {
+  settingId            String   @id @default(uuid())
+  maintenanceMode      Boolean
+  sandboxEnvironment   Boolean
+  force2FA             Boolean
+  strictIPWhitelisting Boolean
+  updatedBy            String
+  updatedAt            DateTime
+}
+
+model Security_settings {
+  securityId           String   @id @default(uuid())
+  force2FA             Boolean
+  strictIPWhitelisting Boolean
+  allowedIPs           Json
+  updatedBy            String
+  updatedAt            DateTime
+}
+
+model User_settings {
+  userId           String   @id @default(uuid())
+  username         String
+  email            String
+  isPrivateProfile Boolean
+  is2FAEnabled     Boolean
+  theme            String
+  language         String
+  createdAt        DateTime
+  updatedAt        DateTime
+}
+
+model Notification_preferences {
+  userId          String  @id @default(uuid())
+  lobbyInvites    Boolean
+  chatMentions    Boolean
+  walletActivity  Boolean
+  marketingOffers Boolean
+}
+
+model Connected_accounts {
+  connectionId String   @id @default(uuid())
+  userId       String
+  provider     String
+  accountEmail String
+  connectedAt  DateTime
+}
+
+model Faq_articles {
+  faqId    String @id @default(uuid())
+  question String
+  answer   String
+  category String
+  views    Int
+}
+
+model Support_chats {
+  chatId    String   @id @default(uuid())
+  userId    String
+  agentId   String
+  status    String
+  startedAt DateTime
+  endedAt   DateTime
+}

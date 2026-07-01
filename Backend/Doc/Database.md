@@ -1,4 +1,6 @@
-# Database
+# Database (MySQL + Prisma ORM)
+
+*Note: This entire schema will be implemented using MySQL as the underlying relational database and Prisma as the Object-Relational Mapper (ORM) in a Node.js environment. While some terminology below uses terms like "Collection" or "ObjectId" (from earlier NoSQL drafts), they map directly to MySQL Tables and UUIDs.*
 
 # Dashboard Database Design
 

@@ -1,0 +1,1845 @@
+model Dashboard_metrics {
+  totalGatewayRevenue Int
+  todayVolume Int
+  activeMerchants Int
+  failedTransactionRate Int
+  systemStatus String
+  lastUpdated DateTime
+  id String @id @default(uuid())
+}
+
+model Merchants {
+  merchantId String @id @default(uuid())
+  companyName String
+  email String
+  phone String
+  subscriptionPlan String
+  revenue Int
+  status String
+  country String
+  website String
+  apiKey String
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Transactions {
+  transactionId String @id @default(uuid())
+  merchantId String
+  merchantName String
+  customerName String
+  customerEmail String
+  amount Int
+  currency String
+  processor String
+  gatewayFee Int
+  transactionHash String
+  walletAddress String
+  status String
+  paymentMethod String
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Revenues {
+  revenueId String @id @default(uuid())
+  processingVolume Int
+  gatewayFeeRevenue Int
+  subscriptionRevenue Int
+  pendingSettlements Int
+  totalRevenue Int
+  month String
+  year Int
+  generatedAt DateTime
+}
+
+model Settlements {
+  settlementId String @id @default(uuid())
+  merchantId String
+  merchantName String
+  amount Int
+  currency String
+  settlementMethod String
+  settlementType String
+  status String
+  transactionHash String
+  bankReference String
+  initiatedAt DateTime
+  completedAt DateTime
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Wallets {
+  walletId String @id @default(uuid())
+  walletName String
+  walletAddress String
+  walletType String
+  network String
+  balanceUSD Int
+  balanceCrypto Int
+  assetSymbol String
+  status String
+  lastTransactionAt DateTime
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Processor_dashboard {
+  dashboardId String @id @default(uuid())
+  total24hVolume Int
+  activeNodes Int
+  totalNodes Int
+  approvalRate Int
+  criticalAlerts Int
+  generatedAt DateTime
+}
+
+model Processor_monitors {
+  monitorId String @id @default(uuid())
+  processorName String
+  status String
+  pingMs Int
+  loadPercentage Int
+  successRate Int
+  lastCheckedAt DateTime
+  createdAt DateTime
+}
+
+model Failover_events {
+  eventId String @id @default(uuid())
+  sourceProcessor String
+  targetProcessor String
+  triggerReason String
+  status String
+  failoverAt DateTime
+  recoveredAt DateTime
+}
+
+model Failover_triggers {
+  triggerId String @id @default(uuid())
+  triggerName String
+  enabled Boolean
+  threshold String
+  createdAt DateTime
+}
+
+model Alert_settings {
+  email String
+  failoverAlert Boolean
+  degradeAlert Boolean
+  recoveryAlert Boolean
+  dailyDigest Boolean
+  id String @id @default(uuid())
+}
+
+model Fee_configurations {
+  configId String @id @default(uuid())
+  merchantShare Int
+  gatewayRevenue Int
+  processorFee Int
+  networkFee Int
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Markup_rules {
+  ruleId String @id @default(uuid())
+  transactionType String
+  processorBase Int
+  gatewayMarkup Int
+  totalFee Int
+  status String
+  createdBy String
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Geo_routing_rules {
+  ruleId String @id @default(uuid())
+  regionName String
+  countries Json
+  processorId String
+  processorName String
+  priority Int
+  status String
+  createdBy String
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Merchant_fee_rules {
+  ruleId String @id @default(uuid())
+  merchantId String
+  merchantName String
+  merchantType String
+  globalFeePercentage Int
+  globalFixedFee Int
+  customFeePercentage Int
+  customFixedFee Int
+  overrideReason String
+  status String
+  createdBy String
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Processor_settlements {
+  settlementId String @id @default(uuid())
+  processorId String
+  processorName String
+  currency String
+  availableBalance Int
+  pendingBalance Int
+  totalSettled Int
+  status String
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Settlement_batches {
+  batchId String @id @default(uuid())
+  processorId String
+  amount Int
+  destinationAccount String
+  settlementMethod String
+  status String
+  initiatedBy String
+  completedAt DateTime
+}
+
+model Auto_settlement_rules {
+  ruleId String @id @default(uuid())
+  frequency String
+  minimumThreshold Int
+  includedProcessors Json
+  enabled Boolean
+  createdAt DateTime
+}
+
+model Revenue_wallet {
+  walletId String @id @default(uuid())
+  totalRevenuePool Int
+  monthlyRevenue Int
+  averageDailyRevenue Int
+  totalWithdrawn Int
+  revenueSources Int
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Revenue_withdrawals {
+  withdrawalId String @id @default(uuid())
+  amount Int
+  destination String
+  status String
+  initiatedBy String
+  withdrawalDate DateTime
+  completedAt DateTime
+}
+
+model Monthly_revenue_history {
+  month String
+  year Int
+  revenueAmount Int
+  createdAt DateTime
+  id String @id @default(uuid())
+}
+
+model Processor_logs {
+  logId String @id @default(uuid())
+  timestamp DateTime
+  processorName String
+  transactionId String
+  endpoint String
+  requestMethod String
+  statusCode Int
+  latencyMs Int
+  requestPayload String
+  responsePayload String
+  ipAddress String
+  createdAt DateTime
+}
+
+model Webhook_logs {
+  webhookId String @id @default(uuid())
+  processorName String
+  eventType String
+  payload String
+  status String
+  receivedAt DateTime
+}
+
+model Processor_reports {
+  reportId String @id @default(uuid())
+  reportName String
+  period String
+  generatedBy String
+  generatedAt DateTime
+  reportUrl String
+}
+
+model Processor_metrics {
+  metricId String @id @default(uuid())
+  processorName String
+  successRate Int
+  chargebackRate Int
+  refundRate Int
+  transactionVolume Int
+  reportingPeriod String
+  createdAt DateTime
+}
+
+model Report_exports {
+  exportId String @id @default(uuid())
+  reportId String
+  format String
+  exportedBy String
+  exportedAt DateTime
+}
+
+model Kyc_submissions {
+  kycId String @id @default(uuid())
+  merchantId String
+  entityName String
+  entityType String
+  submittedAt DateTime
+  riskLevel String
+  status String
+  reviewedBy String
+  reviewedAt DateTime
+  createdAt DateTime
+}
+
+model Kyc_documents {
+  documentId String @id @default(uuid())
+  kycId String
+  documentType String
+  documentUrl String
+  verificationStatus String
+}
+
+model Kyc_reviews {
+  reviewId String @id @default(uuid())
+  kycId String
+  decision String
+  reviewNotes String
+  reviewerId String
+  reviewedAt DateTime
+}
+
+model Aml_alerts {
+  alertId String @id @default(uuid())
+  entityId String
+  entityName String
+  entityType String
+  alertType String
+  transactionAmount Int
+  severity String
+  status String
+  investigatorId String
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Aml_investigations {
+  investigationId String @id @default(uuid())
+  alertId String
+  investigatorNotes String
+  actionTaken String
+  escalated Boolean
+  resolvedAt DateTime
+}
+
+model Flagged_entities {
+  flagId String @id @default(uuid())
+  entityId String
+  entityName String
+  reason String
+  flaggedBy String
+  flaggedAt DateTime
+  status String
+}
+
+model Compliance_reports {
+  reportId String @id @default(uuid())
+  reportType String
+  reportingPeriod String
+  generatedBy String
+  generatedAt DateTime
+  reportUrl String
+}
+
+model Regulatory_filings {
+  filingId String @id @default(uuid())
+  filingType String
+  filingPeriod String
+  filedDate DateTime
+  status String
+  submittedBy String
+}
+
+model Compliance_metrics {
+  metricId String @id @default(uuid())
+  approvalRate Int
+  processingTime Int
+  amlResolutionRate Int
+  filingCount Int
+  reportingPeriod String
+}
+
+model Compliance_timeline_events {
+  eventId String @id @default(uuid())
+  eventType String
+  entityName String
+  entityId String
+  category String
+  description String
+  severity String
+  createdBy String
+  createdAt DateTime
+}
+
+model Event_filters {
+  filterId String @id @default(uuid())
+  filterName String
+  filterType String
+  createdAt DateTime
+}
+
+model Risk_entities {
+  entityId String @id @default(uuid())
+  entityName String
+  riskType String
+  transactionCount Int
+  riskScore Int
+  trend String
+  status String
+  createdAt DateTime
+}
+
+model Risk_incidents {
+  incidentId String @id @default(uuid())
+  entityId String
+  incidentType String
+  severity String
+  riskScore Int
+  status String
+  assignedTo String
+  createdAt DateTime
+}
+
+model Risk_rules {
+  ruleId String @id @default(uuid())
+  thresholdScore Int
+  actionType String
+  enabled Boolean
+  updatedBy String
+  updatedAt DateTime
+}
+
+model Fraud_alerts {
+  alertId String @id @default(uuid())
+  entityName String
+  entityType String
+  fraudType String
+  amount Int
+  transactionCount Int
+  severity String
+  status String
+  createdAt DateTime
+}
+
+model Blocked_entities {
+  blockId String @id @default(uuid())
+  entityId String
+  entityName String
+  blockReason String
+  blockedBy String
+  blockedAt DateTime
+  status String
+}
+
+model Fraud_investigations {
+  investigationId String @id @default(uuid())
+  alertId String
+  analystNotes String
+  actionTaken String
+  investigatorId String
+  createdAt DateTime
+}
+
+model Blocked_entities {
+  blockId String @id @default(uuid())
+  entityName String
+  entityType String
+  entityValue String
+  blockReason String
+  severity String
+  status String
+  blockedBy String
+  blockedAt DateTime
+  updatedAt DateTime
+}
+
+model Entity_reviews {
+  reviewId String @id @default(uuid())
+  blockId String
+  reviewNotes String
+  reviewerId String
+  reviewStatus String
+  reviewedAt DateTime
+}
+
+model Block_policy_history {
+  policyId String @id @default(uuid())
+  blockId String
+  oldSeverity String
+  newSeverity String
+  changedBy String
+  changedAt DateTime
+}
+
+model Investigation_cases {
+  caseId String @id @default(uuid())
+  entityName String
+  entityId String
+  caseType String
+  priority String
+  status String
+  assignedTo String
+  description String
+  openedAt DateTime
+  resolvedAt DateTime
+}
+
+model Case_timeline {
+  timelineId String @id @default(uuid())
+  caseId String
+  actionBy String
+  actionType String
+  notes String
+  createdAt DateTime
+}
+
+model Case_notes {
+  noteId String @id @default(uuid())
+  caseId String
+  note String
+  createdBy String
+  createdAt DateTime
+}
+
+model Gateway_fees {
+  feeId String @id @default(uuid())
+  basePlatformFee Int
+  fixedTransactionFee Int
+  whiteLabelMarkup Int
+  updatedBy String
+  updatedAt DateTime
+}
+
+model Processor_fees {
+  processorId String @id @default(uuid())
+  processorName String
+  feePercentage Int
+  updatedBy String
+  updatedAt DateTime
+}
+
+model Fee_rules {
+  ruleId String @id @default(uuid())
+  ruleName String
+  merchantScope String
+  feePercentage Int
+  fixedFee Int
+  status String
+  createdBy String
+  createdAt DateTime
+}
+
+model Subscription_plans {
+  planId String @id @default(uuid())
+  planName String
+  themeColor String
+  monthlyPrice Int
+  billingCycle String
+  transactionFee Int
+  features Json
+  status String
+  createdBy String
+  createdAt DateTime
+}
+
+model Merchant_subscriptions {
+  subscriptionId String @id @default(uuid())
+  merchantId String
+  planId String
+  startDate DateTime
+  endDate DateTime
+  status String
+}
+
+model Countries {
+  countryId String @id @default(uuid())
+  countryName String
+  countryCode String
+  region String
+  status String
+  merchantCount Int
+  paymentMethodCount Int
+  createdAt DateTime
+}
+
+model Country_compliance {
+  complianceId String @id @default(uuid())
+  countryId String
+  sanctionsEnabled Boolean
+  highRisk Boolean
+  notes String
+}
+
+model Country_audit_logs {
+  logId String @id @default(uuid())
+  countryId String
+  action String
+  performedBy String
+  createdAt DateTime
+}
+
+model Currencies {
+  assetId String @id @default(uuid())
+  assetCode String
+  assetName String
+  assetType String
+  exchangeRateUSD Int
+  conversionFee Int
+  status String
+  createdAt DateTime
+}
+
+model Fx_rate_history {
+  rateId String @id @default(uuid())
+  assetId String
+  exchangeRate Int
+  source String
+  syncedAt DateTime
+}
+
+model Currency_audit_logs {
+  logId String @id @default(uuid())
+  assetId String
+  action String
+  performedBy String
+  createdAt DateTime
+}
+
+model Api_keys {
+  keyId String @id @default(uuid())
+  keyName String
+  environment String
+  apiToken String
+  status String
+  permissions Json
+  lastUsedAt DateTime
+  createdBy String
+  createdAt DateTime
+}
+
+model Api_usage_logs {
+  logId String @id @default(uuid())
+  keyId String
+  endpoint String
+  method String
+  ipAddress String
+  statusCode Int
+  timestamp DateTime
+}
+
+model Api_audit_logs {
+  auditId String @id @default(uuid())
+  keyId String
+  action String
+  adminId String
+  createdAt DateTime
+}
+
+model Webhook_endpoints {
+  endpointId String @id @default(uuid())
+  endpointUrl String
+  eventType String
+  secretKey String
+  status String
+  createdBy String
+  createdAt DateTime
+}
+
+model Webhook_deliveries {
+  deliveryId String @id @default(uuid())
+  endpointId String
+  eventType String
+  payload String
+  responseCode Int
+  responseMessage String
+  status String
+  deliveredAt DateTime
+}
+
+model Webhook_logs {
+  logId String @id @default(uuid())
+  endpointId String
+  action String
+  adminId String
+  createdAt DateTime
+}
+
+model Reports {
+  reportId String @id @default(uuid())
+  reportType String
+  generatedBy String
+  fileUrl String
+  fileSize String
+  dateRange String
+  generatedAt DateTime
+}
+
+model Report_jobs {
+  jobId String @id @default(uuid())
+  reportId String
+  status String
+  startedAt DateTime
+  completedAt DateTime
+}
+
+model Report_audit_logs {
+  auditId String @id @default(uuid())
+  reportId String
+  action String
+  adminId String
+  createdAt DateTime
+}
+
+model White_label_requests {
+  requestId String @id @default(uuid())
+  merchantId String
+  merchantName String
+  requestedDomain String
+  sslStatus String
+  approvalStatus String
+  notes String
+  requestedAt DateTime
+}
+
+model Ssl_certificates {
+  sslId String @id @default(uuid())
+  domain String
+  provider String
+  issuedAt DateTime
+  expiresAt DateTime
+  status String
+}
+
+model White_label_audit_logs {
+  auditId String @id @default(uuid())
+  requestId String
+  action String
+  performedBy String
+  createdAt DateTime
+}
+
+model Broadcast_notifications {
+  broadcastId String @id @default(uuid())
+  title String
+  message String
+  category String
+  targetAudience String
+  status String
+  createdBy String
+  scheduledAt DateTime
+  createdAt DateTime
+}
+
+model Notification_deliveries {
+  deliveryId String @id @default(uuid())
+  broadcastId String
+  merchantId String
+  deliveryStatus String
+  deliveredAt DateTime
+}
+
+model Notification_audit_logs {
+  auditId String @id @default(uuid())
+  broadcastId String
+  action String
+  adminId String
+  createdAt DateTime
+}
+
+model Support_tickets {
+  ticketId String @id @default(uuid())
+  merchantId String
+  merchantName String
+  subject String
+  description String
+  status String
+  priority String
+  assignedTo String
+  lastUpdated DateTime
+  createdAt DateTime
+}
+
+model Ticket_messages {
+  messageId String @id @default(uuid())
+  ticketId String
+  senderId String
+  message String
+  createdAt DateTime
+}
+
+model Support_audit_logs {
+  auditId String @id @default(uuid())
+  ticketId String
+  action String
+  performedBy String
+  createdAt DateTime
+}
+
+model Audit_logs {
+  auditId String @id @default(uuid())
+  actionType String
+  description String
+  administratorId String
+  administratorEmail String
+  ipAddress String
+  metadata String
+  timestamp DateTime
+}
+
+model Security_events {
+  eventId String @id @default(uuid())
+  severity String
+  eventType String
+  sourceIp String
+  createdAt DateTime
+}
+
+model Audit_exports {
+  exportId String @id @default(uuid())
+  generatedBy String
+  fileUrl String
+  generatedAt DateTime
+}
+
+model Roles {
+  roleId String @id @default(uuid())
+  roleName String
+  description String
+  riskProfile String
+  permissions Json
+  status String
+  createdBy String
+  createdAt DateTime
+}
+
+model Role_assignments {
+  assignmentId String @id @default(uuid())
+  userId String
+  roleId String
+  assignedBy String
+  assignedAt DateTime
+}
+
+model Role_permissions {
+  permissionId String @id @default(uuid())
+  moduleName String
+  accessType String
+  roleId String
+}
+
+model Platform_settings {
+  settingId String @id @default(uuid())
+  maintenanceMode Boolean
+  sandboxEnvironment Boolean
+  force2FA Boolean
+  strictIPWhitelisting Boolean
+  updatedBy String
+  updatedAt DateTime
+}
+
+model Security_settings {
+  securityId String @id @default(uuid())
+  force2FA Boolean
+  strictIPWhitelisting Boolean
+  allowedIPs Json
+  updatedBy String
+  updatedAt DateTime
+}
+
+model Maintenance_logs {
+  logId String @id @default(uuid())
+  enabledBy String
+  startTime DateTime
+  endTime DateTime
+  notes String
+  id String
+  merchant_code String
+  business_name String
+  email String
+  phone String
+  status String
+  created_at String
+  updated_at String
+  id String
+  merchant_id String
+  customer_name String
+  email String
+  phone String
+  created_at String
+  id String
+  transaction_id String
+  reference_no String
+  merchant_id String
+  customer_id String
+  payment_method_id String
+  amount Float
+  fee Float
+  net_amount Float
+  currency String
+  gateway String
+  status String
+  payment_date String
+  metadata String
+  created_at String
+  updated_at String
+  id String
+  method_name String
+  provider String
+  status Boolean
+  id String
+  transaction_id String
+  refund_amount Float
+  refund_reason String
+  refund_status String
+  processed_by String
+  created_at String
+  id String
+  transaction_id String
+  merchant_id String
+  gross_amount Float
+  fee Float
+  net_amount Float
+  settlement_status String
+  settled_at String
+  id String
+  transaction_id String
+  provider String
+  event String
+  payload String
+  response String
+  retry_count Int
+  status String
+  created_at String
+  id String
+  transaction_id String
+  old_status String
+  new_status String
+  updated_by String
+  remarks String
+  created_at String
+  id String
+  user_id String
+  module String
+  action String
+  transaction_id String
+  ip_address String
+  user_agent String
+  created_at String
+  id String
+  merchant_id String
+  asset String
+  network String
+  wallet_address String
+  qr_code String
+  status Boolean
+  created_at String
+  id String
+  deposit_id String
+  merchant_id String
+  address_id String
+  tx_hash String
+  asset String
+  network String
+  amount Float
+  confirmations Int
+  required_confirmations Int
+  status String
+  received_at String
+  created_at String
+  id String
+  deposit_id String
+  block_number Int
+  tx_hash String
+  sender_address String
+  receiver_address String
+  gas_fee Float
+  explorer_url String
+  created_at String
+  id String
+  merchant_id String
+  deposit_id String
+  transaction_type String
+  amount Float
+  balance_before Float
+  balance_after Float
+  created_at String
+  id String
+  merchant_id String
+  module String
+  action String
+  deposit_id String
+  ip_address String
+  created_at String
+  id String
+  withdrawal_id String
+  merchant_id String
+  destination_id String
+  method String
+  asset String
+  network String
+  amount Float
+  platform_fee Float
+  network_fee Float
+  total_deduction Float
+  status String
+  transaction_hash String
+  reference_number String
+  remarks String
+  created_at String
+  updated_at String
+  id String
+  merchant_id String
+  type String
+  wallet_address String
+  bank_name String
+  account_name String
+  account_number String
+  swift_ifsc String
+  network String
+  is_default Boolean
+  created_at String
+  id String
+  merchant_id String
+  asset String
+  available_balance Float
+  reserved_balance Float
+  updated_at String
+  id String
+  merchant_id String
+  withdrawal_id String
+  transaction_type String
+  amount Float
+  balance_before Float
+  balance_after Float
+  created_at String
+  id String
+  withdrawal_id String
+  old_status String
+  new_status String
+  updated_by String
+  remarks String
+  created_at String
+  id String
+  merchant_id String
+  module String
+  action String
+  withdrawal_id String
+  ip_address String
+  created_at String
+  id String
+  merchant_id String
+  asset String
+  network String
+  available_balance Float
+  locked_balance Float
+  usd_value Float
+  status String
+  created_at String
+  updated_at String
+  id String
+  symbol String
+  asset_name String
+  network String
+  current_price Float
+  change_24h Float
+  is_active Boolean
+  id String
+  wallet_id String
+  address String
+  qr_code String
+  is_primary Boolean
+  created_at String
+  id String
+  wallet_id String
+  transaction_type String
+  reference_id String
+  amount Float
+  balance_before Float
+  balance_after Float
+  created_at String
+  id String
+  merchant_id String
+  total_value Float
+  total_assets Int
+  profit_loss Float
+  recorded_at String
+  id String
+  merchant_id String
+  module String
+  action String
+  wallet_id String
+  ip_address String
+  created_at String
+  id String
+  merchant_id String
+  account_type String
+  bank_name String
+  account_number String
+  routing_number String
+  wallet_address String
+  network String
+  is_primary Boolean
+  status String
+  created_at String
+  id String
+  settlement_id String
+  merchant_id String
+  account_id String
+  method String
+  currency String
+  amount Float
+  fee Float
+  net_amount Float
+  status String
+  reference_number String
+  transaction_hash String
+  scheduled_at String
+  completed_at String
+  id String
+  settlement_id String
+  merchant_id String
+  payout_amount Float
+  fee_percentage Float
+  fee_amount Float
+  status String
+  requested_at String
+  id String
+  settlement_id String
+  old_status String
+  new_status String
+  updated_by String
+  remarks String
+  created_at String
+  id String
+  settlement_id String
+  ledger_amount Float
+  settled_amount Float
+  status String
+  verified_at String
+  id String
+  merchant_id String
+  module String
+  action String
+  settlement_id String
+  created_at String
+  id String
+  customer_id String
+  merchant_id String
+  full_name String
+  email String
+  joined_date DateTime
+  transaction_count Int
+  lifetime_value Float
+  risk_profile String
+  status String
+  created_at String
+  updated_at String
+  id String
+  customer_id String
+  transaction_id String
+  amount Float
+  transaction_type String
+  status String
+  created_at String
+  id String
+  customer_id String
+  note String
+  created_by String
+  created_at String
+  id String
+  customer_id String
+  tag_name String
+  created_at String
+  id String
+  customer_id String
+  activity String
+  ip_address String
+  created_at String
+  id String
+  merchant_id String
+  module String
+  action String
+  customer_id String
+  created_at String
+  id String
+  merchant_id String
+  transaction_id String
+  gross_amount Float
+  gateway_fee Float
+  network_fee Float
+  settlement_fee Float
+  net_amount Float
+  currency String
+  created_at String
+  id String
+  merchant_id String
+  period String
+  gross_revenue Float
+  total_fees Float
+  net_revenue Float
+  total_transactions Int
+  created_at String
+  id String
+  revenue_id String
+  fee_type String
+  fee_amount Float
+  created_at String
+  id String
+  merchant_id String
+  report_type String
+  file_name String
+  generated_at String
+  id String
+  merchant_id String
+  module String
+  action String
+  created_at String
+  id String
+  merchant_id String
+  period String
+  total_volume Float
+  gross_revenue Float
+  net_revenue Float
+  refunds Float
+  chargebacks Float
+  created_at String
+  id String
+  merchant_id String
+  metric_name String
+  metric_value Float
+  period String
+  updated_at String
+  id String
+  merchant_id String
+  report_type String
+  start_date DateTime
+  end_date DateTime
+  status String
+  generated_at String
+  id String
+  report_id String
+  chart_type String
+  label String
+  value Float
+  id String
+  merchant_id String
+  frequency String
+  format String
+  next_run String
+  status String
+  id String
+  report_id String
+  file_type String
+  file_name String
+  exported_at String
+  id String
+  merchant_id String
+  module String
+  action String
+  created_at String
+  id String
+  merchant_id String
+  key_name String
+  public_key String
+  secret_hash String
+  environment String
+  status String
+  created_at String
+  updated_at String
+  last_used_at String
+  id String
+  api_key_id String
+  request_count Int
+  last_ip String
+  last_endpoint String
+  created_at String
+  id String
+  api_key_id String
+  permission String
+  created_at String
+  id String
+  merchant_id String
+  action String
+  entity_id String
+  created_at String
+  id String
+  merchant_id String
+  url String
+  status String
+  created_at String
+  updated_at String
+  id String
+  endpoint_id String
+  event_type String
+  created_at String
+  id String
+  event_id String
+  endpoint_id String
+  status String
+  response_code String
+  response_body String
+  attempt_count Int
+  delivered_at String
+  id String
+  delivery_id String
+  attempt_no Int
+  next_retry_at String
+  status String
+  id String
+  merchant_id String
+  action String
+  entity_id String
+  created_at String
+  id String
+  merchant_id String
+  enabled Boolean
+  remove_pgx_branding Boolean
+  created_at String
+  id String
+  merchant_id String
+  domain String
+  status String
+  verified_at String
+  id String
+  domain_id String
+  certificate String
+  expiry_date DateTime
+  status String
+  id String
+  merchant_id String
+  logo_url String
+  primary_color String
+  font_family String
+  updated_at String
+  id String
+  merchant_id String
+  billing_required Boolean
+  phone_required Boolean
+  kyc_required Boolean
+  show_network_fee Boolean
+  id String
+  merchant_id String
+  sender_name String
+  reply_email String
+  footer_note String
+  updated_at String
+  id String
+  merchant_id String
+  file_name String
+  file_url String
+  type String
+  created_at String
+  id String
+  merchant_id String
+  action String
+  created_at String
+  id String
+  name String
+  price Float
+  billing_cycle String
+  api_limit Int
+  features String
+  created_at String
+  id String
+  merchant_id String
+  plan_id String
+  status String
+  start_date DateTime
+  end_date DateTime
+  auto_renew Boolean
+  id String
+  merchant_id String
+  provider_token String
+  card_brand String
+  last_four String
+  expiry_date String
+  is_default Boolean
+  id String
+  merchant_id String
+  invoice_number String
+  amount Float
+  status String
+  invoice_date DateTime
+  id String
+  merchant_id String
+  metric String
+  usage_count Int
+  period String
+  id String
+  merchant_id String
+  amount Float
+  payment_status String
+  gateway_reference String
+  created_at String
+  id String
+  merchant_id String
+  action String
+  created_at String
+  id String
+  merchant_id String
+  name String
+  email String
+  role_id String
+  status String
+  created_at String
+  id String
+  name String
+  description String
+  id String
+  name String
+  module String
+  id String
+  role_id String
+  permission_id String
+  id String
+  merchant_id String
+  email String
+  role_id String
+  token String
+  expires_at String
+  status String
+  id String
+  merchant_id String
+  user_id String
+  action String
+  created_at String
+  id String
+  merchant_id String
+  user_id String
+  title String
+  message String
+  type String
+  priority String
+  is_read Boolean
+  created_at String
+  id String
+  user_id String
+  email_enabled Boolean
+  push_enabled Boolean
+  sms_enabled Boolean
+  id String
+  notification_id String
+  delivery_status String
+  sent_at String
+  id String
+  merchant_id String
+  action String
+  created_at String
+  id String
+  merchant_id String
+  company_name String
+  email String
+  timezone String
+  updated_at String
+  id String
+  user_id String
+  password_hash String
+  two_factor_enabled Boolean
+  secret_key String
+  updated_at String
+  id String
+  user_id String
+  notification_enabled Boolean
+  timezone String
+  language String
+  id String
+  user_id String
+  token String
+  expires_at String
+  created_at String
+  id String
+  user_id String
+  action String
+  ip_address String
+  created_at String
+  id String
+  merchant_id String
+  ticket_id String
+  subject String
+  category_id String
+  status String
+  priority String
+  created_at String
+  id String
+  ticket_id String
+  sender_id String
+  message String
+  sender_type String
+  created_at String
+  id String
+  name String
+  email String
+  active Boolean
+  id String
+  name String
+  description String
+  id String
+  ticket_id String
+  action String
+  created_at String
+  transactionId String
+  userId String
+  type String
+  title String
+  description String
+  amount Int
+  currency String
+  convertedAmount Int
+  status String
+  hash String
+  createdAt DateTime
+  updatedAt DateTime
+  exportId String
+  userId String
+  format String
+  generatedAt DateTime
+  fileUrl String
+  notificationId String
+  userId String
+  type String
+  title String
+  message String
+  actionLabel String
+  actionUrl String
+  isRead Boolean
+  createdAt DateTime
+  userId String
+  lobbyInvites Boolean
+  walletActivity Boolean
+  chatMentions Boolean
+  systemUpdates Boolean
+  achievements Boolean
+  userId String
+  username String
+  displayName String
+  email String
+  avatar String
+  coverImage String
+  bio String
+  isPro Boolean
+  joinedDate DateTime
+  createdAt DateTime
+  updatedAt DateTime
+  userId String
+  totalFriends Int
+  lobbiesHosted Int
+  watchHours Int
+  channelId String
+  userId String
+  channelName String
+  category String
+  imageUrl String
+  activityId String
+  userId String
+  title String
+  description String
+  createdAt DateTime
+}
+
+model User_settings {
+  userId String @id @default(uuid())
+  username String
+  email String
+  isPrivateProfile Boolean
+  is2FAEnabled Boolean
+  theme String
+  language String
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Notification_preferences {
+  userId String @id @default(uuid())
+  lobbyInvites Boolean
+  chatMentions Boolean
+  walletActivity Boolean
+  marketingOffers Boolean
+}
+
+model Connected_accounts {
+  connectionId String @id @default(uuid())
+  userId String
+  provider String
+  accountEmail String
+  connectedAt DateTime
+}
+
+model Support_tickets {
+  ticketId String @id @default(uuid())
+  userId String
+  subject String
+  category String
+  description String
+  priority String
+  status String
+  assignedAgent String
+  createdAt DateTime
+  updatedAt DateTime
+}
+
+model Faq_articles {
+  faqId String @id @default(uuid())
+  question String
+  answer String
+  category String
+  views Int
+}
+
+model Support_chats {
+  chatId String @id @default(uuid())
+  userId String
+  agentId String
+  status String
+  startedAt DateTime
+  endedAt DateTime
+}
+
+model Documentation_articles {
+  docId String @id @default(uuid())
+  title String
+  content String
+  category String
+  id String
+  title String
+  category String
+  viewers Int
+  stream_url String
+  status String
+  created_at String
+  id String
+  content_id String
+  views Int
+  score Float
+  rank Int
+  id String
+  name String
+  quality String
+  stream_url String
+  status Boolean
+  id String
+  owner_id String
+  name String
+  type String
+  private Boolean
+  created_at String
+  id String
+  lobby_id String
+  user_id String
+  joined_at String
+  user_id String
+  status String
+  activity String
+  updated_at String
+  id String
+  name String
+  description String
+  id String
+  category_id String
+  title String
+  league String
+  status String
+  viewers Int
+  start_time String
+  id String
+  match_id String
+  stream_url String
+  quality String
+  id String
+  match_id String
+  owner_id String
+  name String
+  type String
+  created_at String
+  id String
+  party_id String
+  user_id String
+  joined_at String
+  user_id String
+  activity String
+  status String
+  updated_at String
+  id String
+  user_id String
+  name String
+  position Int
+  created_at String
+  id String
+  owner_id String
+  name String
+  type String
+  created_at String
+  id String
+  name String
+  category String
+  quality String
+  stream_url String
+  viewers Int
+  status Boolean
+  id String
+  lobby_id String
+  channel_id String
+  added_at String
+  id String
+  lobby_id String
+  user_id String
+  joined_at String
+  id String
+  channel_id String
+  user_id String
+  started_at String
+  ended_at String
+  id String
+  team_home String
+  team_away String
+  league String
+  score_home Int
+  score_away Int
+  minute Int
+  status String
+  id String
+  match_id String
+  url String
+  quality String
+  token String
+  id String
+  match_id String
+  possession_home Int
+  possession_away Int
+  shots_home Int
+  shots_away Int
+  passes_home Int
+  passes_away Int
+  id String
+  match_id String
+  owner_id String
+  type String
+  id String
+  match_id String
+  user_id String
+  message String
+  created_at String
+  id String
+  match_id String
+  event_type String
+  minute Int
+  created_at String
+  id String
+  owner_id String
+  name String
+  type String
+  created_at String
+  id String
+  lobby_id String
+  user_id String
+  role String
+  joined_at String
+  id String
+  lobby_id String
+  screen_id String
+  position Int
+  id String
+  lobby_id String
+  sender_id String
+  receiver_id String
+  status String
+  id String
+  lobby_id String
+  event String
+  created_at String
+  id String
+  user_id String
+  friend_id String
+  created_at String
+  id String
+  sender_id String
+  receiver_id String
+  status String
+  created_at String
+  id String
+  blocker_id String
+  blocked_id String
+  created_at String
+  id String
+  user_id String
+  status String
+  activity String
+  updated_at String
+  id String
+  name String
+  type String
+  created_at String
+  id String
+  channel_id String
+  user_id String
+  joined_at String
+  id String
+  channel_id String
+  user_id String
+  message String
+  created_at String
+  id String
+  channel_id String
+  user_id String
+  joined_at String
+  id String
+  message_id String
+  reporter_id String
+  reason String
+  status String
+  id String
+  user_id String
+  total_balance Float
+  created_at String
+  id String
+  wallet_id String
+  asset String
+  amount Float
+  value_usd Float
+  id String
+  wallet_id String
+  type String
+  asset String
+  amount Float
+  status String
+  created_at String
+  id String
+  wallet_id String
+  from_asset String
+  to_asset String
+  amount Float
+  created_at String
+  id String
+  wallet_id String
+  address String
+  network String
+}
+

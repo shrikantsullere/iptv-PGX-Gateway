@@ -1,28 +1,49 @@
-import { useState } from 'react';
-import { UserCog, Plus, Shield, Check, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { UserCog, Plus, Shield, Check, X, Loader2 } from 'lucide-react';
+import apiClient from '../../../utils/apiClient';
 
 export default function Roles() {
-  const [roles, setRoles] = useState([
-    { name: 'Super Administrator', users: 2, access: 'Full System Access', risk: 'Critical' },
-    { name: 'Financial Controller', users: 5, access: 'Read-only + Settlements + Reports', risk: 'High' },
-    { name: 'Support Agent', users: 14, access: 'Tickets + Basic Merchant Data', risk: 'Low' },
-    { name: 'Compliance Officer', users: 3, access: 'KYC/AML Modules Only', risk: 'Medium' },
-  ]);
+  const [roles, setRoles] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleCreateRole = (e) => {
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+
+  const fetchRoles = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/roles');
+      if (res.success) {
+        setRoles(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch roles');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateRole = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     
-    const newRole = {
-      name: formData.get('name'),
-      access: formData.get('access'),
-      risk: formData.get('risk'),
-      users: 0
+    const payload = {
+      roleName: formData.get('name'),
+      description: formData.get('access'),
+      permissions: ['read', 'write'] // Default mock permissions
     };
     
-    setRoles([...roles, newRole]);
-    setIsModalOpen(false);
+    try {
+      const res = await apiClient.post('/admin/roles', payload);
+      if (res.success) {
+        setRoles([...roles, res.data]);
+        setIsModalOpen(false);
+      }
+    } catch (error) {
+      alert('Failed to create role');
+    }
   };
 
   return (
@@ -39,27 +60,31 @@ export default function Roles() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {roles.map((r, i) => (
-          <div key={i} className="bg-[#13131A] border border-white/5 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-            <div>
-              <h3 className="text-lg font-black text-white mb-2">{r.name}</h3>
-              <p className="text-xs text-gray-400 font-medium leading-relaxed">{r.access}</p>
+      {loading ? (
+        <div className="flex flex-col items-center justify-center h-48 space-y-4">
+          <Loader2 className="w-8 h-8 text-[#7C3AED] animate-spin" />
+          <p className="text-gray-400 font-bold">Fetching Access Rules...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {roles.length === 0 ? (
+             <div className="col-span-4 text-center text-gray-500 py-10">No custom roles defined.</div>
+          ) : roles.map((r) => (
+            <div key={r.roleId} className="bg-[#13131A] border border-white/5 rounded-2xl p-6 shadow-xl flex flex-col justify-between hover:border-white/10 transition-colors cursor-pointer group">
+              <div>
+                <h3 className="text-lg font-black text-white mb-2 group-hover:text-[#7C3AED] transition-colors">{r.roleName}</h3>
+                <p className="text-xs text-gray-400 font-medium leading-relaxed">{r.description || 'No description provided'}</p>
+              </div>
+              <div className="mt-6 pt-4 border-t border-white/5 flex justify-between items-center">
+                <span className="text-sm font-bold text-gray-300">Active</span>
+                <span className="px-2 py-1 rounded text-[10px] uppercase font-bold border border-green-500/50 text-green-500 bg-green-500/10">
+                  Secure
+                </span>
+              </div>
             </div>
-            <div className="mt-6 pt-4 border-t border-white/5 flex justify-between items-center">
-              <span className="text-sm font-bold text-gray-300">{r.users} Users</span>
-              <span className={`px-2 py-1 rounded text-[10px] uppercase font-bold border ${
-                r.risk === 'Critical' ? 'border-red-500/50 text-red-500 bg-red-500/10' :
-                r.risk === 'High' ? 'border-orange-500/50 text-orange-500 bg-orange-500/10' :
-                r.risk === 'Medium' ? 'border-yellow-500/50 text-yellow-500 bg-yellow-500/10' :
-                'border-green-500/50 text-green-500 bg-green-500/10'
-              }`}>
-                {r.risk} Risk
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">

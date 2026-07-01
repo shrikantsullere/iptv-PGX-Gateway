@@ -1,17 +1,68 @@
-import { useState } from 'react';
-import { Settings as SettingsIcon, Save, Server, Shield, Globe, Mail, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Settings as SettingsIcon, Save, Server, Shield, Globe, Mail, Check, Loader2 } from 'lucide-react';
+import apiClient from '../../../utils/apiClient';
 
 export default function Settings() {
   const [isSaved, setIsSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  // Settings State
   const [maintenance, setMaintenance] = useState(false);
   const [sandbox, setSandbox] = useState(true);
   const [twoFa, setTwoFa] = useState(true);
   const [ipWhite, setIpWhite] = useState(false);
 
-  const handleSave = () => {
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2000);
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/settings');
+      if (res.success && res.data) {
+        // Map backend schema
+        const mMode = res.data.find(s => s.settingKey === 'maintenance_mode');
+        const sMode = res.data.find(s => s.settingKey === 'sandbox_enabled');
+        const tMode = res.data.find(s => s.settingKey === 'force_2fa');
+        const iMode = res.data.find(s => s.settingKey === 'ip_whitelist');
+
+        if (mMode) setMaintenance(mMode.settingValue === 'true');
+        if (sMode) setSandbox(sMode.settingValue === 'true');
+        if (tMode) setTwoFa(tMode.settingValue === 'true');
+        if (iMode) setIpWhite(iMode.settingValue === 'true');
+      }
+    } catch (err) {
+      console.error('Failed to load settings');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleSave = async () => {
+    try {
+      // Mock update to the backend endpoint
+      await apiClient.put('/admin/settings', {
+        maintenance_mode: maintenance.toString(),
+        sandbox_enabled: sandbox.toString(),
+        force_2fa: twoFa.toString(),
+        ip_whitelist: ipWhite.toString()
+      });
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 2000);
+    } catch (err) {
+      alert('Failed to save settings');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-48 space-y-4">
+        <Loader2 className="w-8 h-8 text-[#7C3AED] animate-spin" />
+        <p className="text-gray-400 font-bold">Loading System Config...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">

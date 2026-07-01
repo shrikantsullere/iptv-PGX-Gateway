@@ -1,14 +1,29 @@
-import { useState } from 'react';
-import { Webhook, Activity, Plus, Search, CheckCircle2, XCircle, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Webhook, Activity, Plus, Search, CheckCircle2, XCircle, X, Loader2 } from 'lucide-react';
+import apiClient from '../../../utils/apiClient';
 
 export default function Webhooks() {
-  const [logs, setLogs] = useState([
-    { event: 'merchant.created', endpoint: 'https://api.internal.com/hooks', status: 200, time: '1 min ago' },
-    { event: 'transaction.failed', endpoint: 'https://api.internal.com/hooks', status: 200, time: '5 mins ago' },
-    { event: 'settlement.processed', endpoint: 'https://api.internal.com/hooks', status: 500, time: '1 hour ago' },
-    { event: 'processor.failover', endpoint: 'https://api.internal.com/hooks', status: 200, time: '3 hours ago' },
-  ]);
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetchWebhookLogs();
+  }, []);
+
+  const fetchWebhookLogs = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/webhooks/logs');
+      if (res.success) {
+        setLogs(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch webhook logs');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddEndpoint = (e) => {
     e.preventDefault();
@@ -16,17 +31,21 @@ export default function Webhooks() {
     const endpointUrl = formData.get('endpoint');
     const eventType = formData.get('event');
     
-    // Add a mock active log for the new endpoint
+    // Optimistic mock addition
     const newLog = {
-      event: eventType === '*' ? 'all_events' : eventType,
-      endpoint: endpointUrl,
-      status: 200,
-      time: 'Just now'
+      logId: Math.random().toString(),
+      eventType: eventType === '*' ? 'all_events' : eventType,
+      endpointUrl: endpointUrl,
+      statusCode: 200,
+      timestamp: new Date().toISOString()
     };
     
     setLogs([newLog, ...logs]);
     setIsModalOpen(false);
   };
+
+  const failureRate = logs.length > 0 ? ((logs.filter(l => l.statusCode !== 200).length / logs.length) * 100).toFixed(2) : 0;
+  const activeEndpoints = new Set(logs.map(l => l.endpointUrl)).size || 0;
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -46,21 +65,21 @@ export default function Webhooks() {
         <div className="bg-[#13131A] border border-white/5 rounded-2xl p-6 shadow-xl flex items-center justify-between">
            <div>
              <p className="text-gray-400 text-xs font-bold uppercase mb-1">Active Endpoints</p>
-             <h3 className="text-3xl font-black text-white">4</h3>
+             <h3 className="text-3xl font-black text-white">{activeEndpoints}</h3>
            </div>
            <Webhook className="w-8 h-8 text-blue-500 opacity-50" />
         </div>
         <div className="bg-[#13131A] border border-white/5 rounded-2xl p-6 shadow-xl flex items-center justify-between">
            <div>
              <p className="text-gray-400 text-xs font-bold uppercase mb-1">Deliveries (24h)</p>
-             <h3 className="text-3xl font-black text-white">12,492</h3>
+             <h3 className="text-3xl font-black text-white">{logs.length}</h3>
            </div>
            <Activity className="w-8 h-8 text-[#7C3AED] opacity-50" />
         </div>
         <div className="bg-[#13131A] border border-white/5 rounded-2xl p-6 shadow-xl flex items-center justify-between">
            <div>
              <p className="text-gray-400 text-xs font-bold uppercase mb-1">Failure Rate</p>
-             <h3 className="text-3xl font-black text-red-500">0.02%</h3>
+             <h3 className="text-3xl font-black text-red-500">{failureRate}%</h3>
            </div>
            <XCircle className="w-8 h-8 text-red-500 opacity-50" />
         </div>
@@ -70,32 +89,45 @@ export default function Webhooks() {
         <div className="p-4 border-b border-white/5 flex gap-4">
           <h3 className="text-lg font-bold text-white">Recent Deliveries</h3>
         </div>
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="text-gray-500 text-xs font-bold uppercase border-b border-white/5 bg-white/[0.02]">
-              <th className="p-4">Event Type</th>
-              <th className="p-4">Target URL</th>
-              <th className="p-4 text-center">Status</th>
-              <th className="p-4 text-right">Timestamp</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5 text-sm">
-            {logs.map((log, i) => (
-              <tr key={i} className="hover:bg-white/[0.02]">
-                <td className="p-4 font-bold text-gray-300 font-mono text-xs">{log.event}</td>
-                <td className="p-4 text-gray-500 font-mono text-xs">{log.endpoint}</td>
-                <td className="p-4 text-center">
-                  {log.status === 200 ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-500/10 text-green-500 rounded text-xs font-bold"><CheckCircle2 className="w-3 h-3"/> 200 OK</span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-500/10 text-red-500 rounded text-xs font-bold"><XCircle className="w-3 h-3"/> 500 ERR</span>
-                  )}
-                </td>
-                <td className="p-4 text-right text-gray-400">{log.time}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[600px]">
+            <thead>
+              <tr className="text-gray-500 text-xs font-bold uppercase border-b border-white/5 bg-white/[0.02]">
+                <th className="p-4">Event Type</th>
+                <th className="p-4">Target URL</th>
+                <th className="p-4 text-center">Status</th>
+                <th className="p-4 text-right">Timestamp</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-white/5 text-sm">
+              {loading ? (
+                <tr>
+                  <td colSpan="4" className="p-8 text-center text-gray-400">
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#7C3AED] mb-2" />
+                    Fetching logs...
+                  </td>
+                </tr>
+              ) : logs.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="p-8 text-center text-gray-400">No webhook delivery logs found.</td>
+                </tr>
+              ) : logs.map((log) => (
+                <tr key={log.logId} className="hover:bg-white/[0.02]">
+                  <td className="p-4 font-bold text-gray-300 font-mono text-xs">{log.eventType}</td>
+                  <td className="p-4 text-gray-500 font-mono text-xs">{log.endpointUrl}</td>
+                  <td className="p-4 text-center">
+                    {log.statusCode === 200 ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-500/10 text-green-500 rounded text-xs font-bold"><CheckCircle2 className="w-3 h-3"/> {log.statusCode} OK</span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-500/10 text-red-500 rounded text-xs font-bold"><XCircle className="w-3 h-3"/> {log.statusCode} ERR</span>
+                    )}
+                  </td>
+                  <td className="p-4 text-right text-gray-400">{new Date(log.timestamp).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {isModalOpen && (

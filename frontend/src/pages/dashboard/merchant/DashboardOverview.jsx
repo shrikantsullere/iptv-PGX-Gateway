@@ -1,24 +1,63 @@
+import { useState, useEffect } from 'react';
 import { 
   DollarSign, Activity, Users, CreditCard, ArrowUpRight, Wallet,
-  Receipt, Landmark
+  Receipt, Landmark, Loader2
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import apiClient from '../../../utils/apiClient';
 
 const DashboardOverview = () => {
-  const revenueData = [
-    { name: 'Mon', value: 4000 }, { name: 'Tue', value: 3000 }, { name: 'Wed', value: 5000 },
-    { name: 'Thu', value: 8000 }, { name: 'Fri', value: 6500 }, { name: 'Sat', value: 9000 }, { name: 'Sun', value: 12000 },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [overview, setOverview] = useState(null);
+  const [revenueData, setRevenueData] = useState([]);
+
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  const fetchDashboard = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/dashboard/overview');
+      if (res.success && res.data) {
+        setOverview(res.data);
+        // Generate mock revenue chart based on the volume
+        const baseVol = (res.data.totalVolume || 400000) / 100;
+        setRevenueData([
+          { name: 'Mon', value: baseVol * 0.4 }, 
+          { name: 'Tue', value: baseVol * 0.3 }, 
+          { name: 'Wed', value: baseVol * 0.5 },
+          { name: 'Thu', value: baseVol * 0.8 }, 
+          { name: 'Fri', value: baseVol * 0.65 }, 
+          { name: 'Sat', value: baseVol * 0.9 }, 
+          { name: 'Sun', value: baseVol * 1.2 },
+        ]);
+      }
+    } catch (err) {
+      console.error('Failed to fetch dashboard', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const transactionData = [
     { name: 'Crypto', value: 6000 }, { name: 'Card', value: 4000 }, { name: 'Bank', value: 2000 }
   ];
 
+  if (loading || !overview) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96 space-y-4">
+        <Loader2 className="w-12 h-12 text-[#7C3AED] animate-spin" />
+        <p className="text-gray-400 font-bold">Loading Your Merchant Metrics...</p>
+      </div>
+    );
+  }
+
   const stats = [
-    { label: 'Total Revenue', value: '$1.2M', inc: true, pct: '+24.5%', icon: DollarSign },
-    { label: 'Wallet Balance', value: '$124,500', inc: true, pct: '+5.2%', icon: Wallet },
-    { label: "Today's Revenue", value: '$45,200', inc: true, pct: '+12%', icon: Activity },
-    { label: "Today's Transactions", value: '842', inc: true, pct: '+18%', icon: CreditCard },
+    { label: 'Total Volume Processed', value: `$${(overview.totalVolume || 0).toLocaleString()}`, inc: true, pct: '+24.5%', icon: DollarSign },
+    { label: 'Wallet Balance', value: `$${(overview.totalRevenue || 0).toLocaleString()}`, inc: true, pct: '+5.2%', icon: Wallet },
+    { label: "Today's Volume", value: `$${(overview.todayVolume || 0).toLocaleString()}`, inc: true, pct: '+12%', icon: Activity },
+    { label: "Total Transactions", value: (overview.totalTransactions || 0).toLocaleString(), inc: true, pct: '+18%', icon: CreditCard },
   ];
 
   const secondaryStats = [
