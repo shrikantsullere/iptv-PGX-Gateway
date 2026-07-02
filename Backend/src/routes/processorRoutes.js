@@ -26,6 +26,9 @@ router.get('/failover-monitor/triggers', processorController.getFailoverTriggers
 router.put('/failover-monitor/triggers/:id', processorController.updateTriggerSettings);
 router.post('/failover-monitor/manual-failover', processorController.triggerManualFailover);
 router.post('/failover-monitor/recovery', processorController.triggerRecovery);
+router.get('/failover-monitor/logs', processorController.getFailoverLogs);
+router.get('/failover-monitor/alert-settings', processorController.getAlertSettings);
+router.put('/failover-monitor/alert-settings', processorController.updateAlertSettings);
 
 // Fee Split Routes
 router.get('/fee-split', feeSplitController.getFeeSplit);

@@ -32,7 +32,7 @@ const getDashboardSummary = async (req, res, next) => {
             if (m.processorName === 'MoonPay') timeMap[m.reportingPeriod].moonpay = m.transactionVolume;
             if (m.processorName === 'Coinbase') timeMap[m.reportingPeriod].coinbase = m.transactionVolume;
         });
-
+        
         // Sort the volume data by time
         const volumeData = Object.values(timeMap).sort((a, b) => a.time.localeCompare(b.time));
 
@@ -63,9 +63,9 @@ const getProcessorHealth = async (req, res, next) => {
  */
 const getProcessingNodes = async (req, res, next) => {
     try {
-        // Mock query for nodes, could be fetched from processor_monitors or a specific nodes table
+        // Fetch nodes from processor_monitors
         const nodes = await prisma.processor_monitors.findMany({
-            where: { isHealthy: true }
+            orderBy: { createdAt: 'desc' }
         });
         return sendResponse(res, 200, true, 'Active nodes fetched', nodes);
     } catch (error) {
@@ -95,7 +95,7 @@ const getAlerts = async (req, res, next) => {
     try {
         const alerts = await prisma.failover_events.findMany({
             where: { status: 'Triggered' },
-            orderBy: { timestamp: 'desc' }
+            orderBy: { failoverAt: 'desc' }
         });
         return sendResponse(res, 200, true, 'Critical alerts fetched', alerts);
     } catch (error) {
@@ -143,7 +143,7 @@ const getFailoverMonitor = async (req, res, next) => {
 const getFailoverEvents = async (req, res, next) => {
     try {
         const events = await prisma.failover_events.findMany({
-            orderBy: { timestamp: 'desc' }
+            orderBy: { failoverAt: 'desc' }
         });
         return sendResponse(res, 200, true, 'Failover events fetched', events);
     } catch (error) {
@@ -164,7 +164,7 @@ const updateTriggerSettings = async (req, res, next) => {
     try {
         const { id } = req.params;
         const payload = req.body;
-
+        
         const updated = await prisma.failover_triggers.update({
             where: { triggerId: id },
             data: { ...payload }
@@ -192,6 +192,49 @@ const triggerRecovery = async (req, res, next) => {
     }
 };
 
+const getFailoverLogs = async (req, res, next) => {
+    try {
+        const logs = await prisma.processor_logs.findMany({
+            orderBy: { createdAt: 'desc' },
+            take: 50
+        });
+        return sendResponse(res, 200, true, 'Failover logs fetched', logs);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getAlertSettings = async (req, res, next) => {
+    try {
+        const settings = await prisma.alert_settings.findFirst();
+        return sendResponse(res, 200, true, 'Alert settings fetched', settings || {});
+    } catch (error) {
+        next(error);
+    }
+};
+
+const updateAlertSettings = async (req, res, next) => {
+    try {
+        const payload = req.body;
+        
+        let settings = await prisma.alert_settings.findFirst();
+        if (settings) {
+            settings = await prisma.alert_settings.update({
+                where: { id: settings.id },
+                data: { ...payload }
+            });
+        } else {
+            settings = await prisma.alert_settings.create({
+                data: { ...payload }
+            });
+        }
+        
+        return sendResponse(res, 200, true, 'Alert settings updated', settings);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getDashboardSummary,
     getProcessorHealth,
@@ -205,5 +248,8 @@ module.exports = {
     getFailoverTriggers,
     updateTriggerSettings,
     triggerManualFailover,
-    triggerRecovery
+    triggerRecovery,
+    getFailoverLogs,
+    getAlertSettings,
+    updateAlertSettings
 };

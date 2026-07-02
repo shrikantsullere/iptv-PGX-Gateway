@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AlertTriangle, Activity, Server, Zap, Settings2, RefreshCw, CheckCircle2, ArrowUpRight, X, Mail, Bell, BellOff, Loader2, Save } from 'lucide-react';
+import apiClient from '../../../../utils/apiClient';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const initialLatencyData = Array.from({ length: 20 }).map((_, i) => ({
@@ -22,7 +23,12 @@ const activeNodes = [
 ];
 
 export default function FailoverMonitor() {
-  const [latencyData, setLatencyData] = useState(initialLatencyData);
+  const [latencyData, setLatencyData] = useState(Array.from({ length: 20 }).map((_, i) => ({ time: `${i}s`, stripe: 0, moonpay: 0, coinbase: 0 })));
+  const [activeNodes, setActiveNodes] = useState([]);
+  const [failoverEvents, setFailoverEvents] = useState([]);
+  const [triggers, setTriggers] = useState([]);
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isLogsModalOpen, setIsLogsModalOpen] = useState(false);
   const [isRoutingModalOpen, setIsRoutingModalOpen] = useState(false);
 
@@ -122,7 +128,7 @@ export default function FailoverMonitor() {
             {activeNodes.map((node, i) => (
               <div key={i} className="bg-black/40 border border-white/5 rounded-2xl p-4">
                 <div className="flex justify-between items-start mb-2">
-                  <div className="font-bold text-white text-sm">{node.name}</div>
+                  <div className="font-bold text-white text-sm">{node.processorName}</div>
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${node.status === 'Healthy' ? 'bg-green-500/10 text-green-500' : 'bg-orange-500/10 text-orange-500'}`}>
                     {node.status}
                   </span>
@@ -130,11 +136,11 @@ export default function FailoverMonitor() {
                 <div className="flex justify-between items-end">
                   <div>
                     <div className="text-xs text-gray-500 mb-0.5">Ping</div>
-                    <div className={`font-mono text-lg font-black ${parseInt(node.ping) > 200 ? 'text-orange-500' : 'text-white'}`}>{node.ping}</div>
+                    <div className={`font-mono text-lg font-black ${node.pingMs > 200 ? 'text-orange-500' : 'text-white'}`}>{node.pingMs}ms</div>
                   </div>
                   <div className="text-right">
                     <div className="text-xs text-gray-500 mb-0.5">Load</div>
-                    <div className="font-bold text-gray-300">{node.load}</div>
+                    <div className="font-bold text-gray-300">{node.loadPercentage}%</div>
                   </div>
                 </div>
               </div>
@@ -193,17 +199,17 @@ export default function FailoverMonitor() {
                 {failoverEvents.map((ev, i) => (
                   <tr key={i} className="hover:bg-white/[0.02] transition-colors">
                     <td className="p-4">
-                      <div className="font-mono text-xs font-bold text-white">{ev.id}</div>
-                      <div className="text-[10px] text-gray-500 mt-1">{ev.time}</div>
+                      <div className="font-mono text-xs font-bold text-white">{ev.eventId}</div>
+                      <div className="text-[10px] text-gray-500 mt-1">{new Date(ev.failoverAt).toLocaleString()}</div>
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-red-400 font-medium text-xs line-through">{ev.original}</span>
+                        <span className="text-red-400 font-medium text-xs line-through">{ev.sourceProcessor}</span>
                         <ArrowUpRight className="w-3 h-3 text-gray-500" />
-                        <span className="text-green-400 font-bold text-xs">{ev.fallback}</span>
+                        <span className="text-green-400 font-bold text-xs">{ev.targetProcessor}</span>
                       </div>
                     </td>
-                    <td className="p-4 text-xs font-mono text-orange-300 bg-orange-500/5 rounded px-2">{ev.trigger}</td>
+                    <td className="p-4 text-xs font-mono text-orange-300 bg-orange-500/5 rounded px-2">{ev.triggerReason}</td>
                     <td className="p-4 text-right">
                       <span className="inline-flex items-center gap-1 bg-green-500/10 text-green-500 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">
                         <CheckCircle2 className="w-3 h-3" /> {ev.status}
