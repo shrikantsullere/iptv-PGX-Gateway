@@ -1,27 +1,65 @@
-import { useState } from 'react';
-import { Bell, Search, Plus, Megaphone, AlertTriangle, ShieldCheck, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Bell, Search, Plus, Megaphone, AlertTriangle, ShieldCheck, X, Loader2 } from 'lucide-react';
+import apiClient from '../../../utils/apiClient';
 
 export default function Notifications() {
-  const [announcements, setAnnouncements] = useState([
-    { title: 'Scheduled Maintenance: EU Servers', type: 'Warning', target: 'All Merchants', date: 'Upcoming (Tomorrow)' },
-    { title: 'New Payment Processor Added: Stripe', type: 'Feature', target: 'Enterprise Only', date: '2 days ago' },
-    { title: 'API Rate Limits Updated', type: 'System', target: 'All Merchants', date: '1 week ago' },
-  ]);
+  const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sending, setSending] = useState(false);
 
-  const handleSendBroadcast = (e) => {
+  useEffect(() => {
+    fetchBroadcasts();
+  }, []);
+
+  const fetchBroadcasts = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/notifications');
+      if (res.success && res.data) {
+        setAnnouncements(res.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch broadcasts', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendBroadcast = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    
-    const newBroadcast = {
+    const payload = {
       title: formData.get('title'),
+      body: formData.get('body'),
       type: formData.get('type'),
-      target: formData.get('target'),
-      date: 'Just now'
+      target: formData.get('target')
     };
     
-    setAnnouncements([newBroadcast, ...announcements]);
-    setIsModalOpen(false);
+    try {
+      setSending(true);
+      await apiClient.post('/admin/notifications', payload);
+      await fetchBroadcasts();
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Failed to send broadcast', error);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const timeAgo = (date) => {
+    if (!date) return 'Never';
+    const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+    if (seconds < 60) return `${seconds} secs ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} mins ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hrs ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days} days ago`;
+    const months = Math.floor(days / 30);
+    return `${months} months ago`;
   };
 
   return (
@@ -52,26 +90,41 @@ export default function Notifications() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5 text-sm">
-            {announcements.map((a, i) => (
-              <tr key={i} className="hover:bg-white/[0.02]">
-                <td className="p-4 font-bold text-white flex items-center gap-3">
-                  {a.type === 'Warning' ? <AlertTriangle className="w-4 h-4 text-yellow-500" /> : 
-                   a.type === 'Feature' ? <Megaphone className="w-4 h-4 text-green-500" /> : 
-                   <ShieldCheck className="w-4 h-4 text-blue-500" />}
-                  {a.title}
+            {loading ? (
+              <tr>
+                <td colSpan="4" className="p-8 text-center text-gray-400">
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#7C3AED] mb-2" />
+                  Loading broadcasts...
                 </td>
-                <td className="p-4">
-                  <span className={`px-2 py-1 rounded text-xs font-bold ${
-                    a.type === 'Warning' ? 'bg-yellow-500/10 text-yellow-500' :
-                    a.type === 'Feature' ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'
-                  }`}>
-                    {a.type}
-                  </span>
-                </td>
-                <td className="p-4 text-gray-400 font-medium">{a.target}</td>
-                <td className="p-4 text-right text-gray-500">{a.date}</td>
               </tr>
-            ))}
+            ) : announcements.length === 0 ? (
+              <tr>
+                <td colSpan="4" className="p-8 text-center text-gray-500">
+                  No broadcast history found. Click 'New Broadcast' to create one.
+                </td>
+              </tr>
+            ) : (
+              announcements.map((a) => (
+                <tr key={a.broadcastId} className="hover:bg-white/[0.02]">
+                  <td className="p-4 font-bold text-white flex items-center gap-3">
+                    {a.category === 'Warning' ? <AlertTriangle className="w-4 h-4 text-yellow-500" /> : 
+                     a.category === 'Feature' ? <Megaphone className="w-4 h-4 text-green-500" /> : 
+                     <ShieldCheck className="w-4 h-4 text-blue-500" />}
+                    {a.title}
+                  </td>
+                  <td className="p-4">
+                    <span className={`px-2 py-1 rounded text-xs font-bold ${
+                      a.category === 'Warning' ? 'bg-yellow-500/10 text-yellow-500' :
+                      a.category === 'Feature' ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'
+                    }`}>
+                      {a.category}
+                    </span>
+                  </td>
+                  <td className="p-4 text-gray-400 font-medium">{a.targetAudience}</td>
+                  <td className="p-4 text-right text-gray-500">{timeAgo(a.createdAt)}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -117,8 +170,9 @@ export default function Notifications() {
                 <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg font-bold transition-colors">
                   Cancel
                 </button>
-                <button type="submit" className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors">
-                  Send Broadcast
+                <button type="submit" disabled={sending} className="flex-1 flex justify-center items-center gap-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors disabled:opacity-50">
+                  {sending ? <Loader2 className="w-4 h-4 animate-spin"/> : null}
+                  {sending ? 'Sending...' : 'Send Broadcast'}
                 </button>
               </div>
             </form>

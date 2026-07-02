@@ -18,6 +18,10 @@ const roleRoutes = require('./routes/roleRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const authRoutes = require('./routes/authRoutes');
+const whitelabelRoutes = require('./routes/whitelabelRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const supportRoutes = require('./routes/supportRoutes');
+const auditLogRoutes = require('./routes/auditLogRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -47,6 +51,10 @@ app.use('/api/admin/settings', settingsRoutes);
 app.use('/api/admin/roles', roleRoutes);
 app.use('/api/admin/webhooks', webhookRoutes);
 app.use('/api/admin/reports', reportRoutes);
+app.use('/api/admin/whitelabel', whitelabelRoutes);
+app.use('/api/admin/notifications', notificationRoutes);
+app.use('/api/admin/support', supportRoutes);
+app.use('/api/admin/audit-logs', auditLogRoutes);
 
 // Merchant Portal Routes (Reusing same controllers for simplicity in this integration)
 app.use('/api/merchant/dashboard', dashboardRoutes);

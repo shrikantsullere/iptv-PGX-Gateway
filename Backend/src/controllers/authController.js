@@ -9,38 +9,37 @@ const login = async (req, res, next) => {
             return sendResponse(res, 400, false, 'Email and password are required');
         }
 
-        // Since there is no global 'Users' table in the current schema (users are tied to merchants or other entities),
-        // we will handle authentication based on hardcoded demo users for this gateway phase.
-        
-        let role = 'User';
-        let name = 'Demo User';
+        // Query the real Users table from the database
+        const user = await prisma.users.findUnique({
+            where: { email: email.toLowerCase() }
+        });
 
-        if (email === 'superadmin@pgx.com') {
-            role = 'Super Admin';
-            name = 'System Admin';
-        } else if (email === 'merchant@pgx.com') {
-            role = 'Merchant';
-            name = 'Test Merchant';
-        } else if (email === 'user@pgx.com') {
-            role = 'User';
-            name = 'Playground Player';
-        } else {
+        if (!user) {
             return sendResponse(res, 401, false, 'Invalid credentials');
         }
 
-        if (password !== 'admin123' && password !== 'password123') {
+        const bcrypt = require('bcryptjs');
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
             return sendResponse(res, 401, false, 'Invalid credentials');
         }
 
-        // Generate a mock JWT for now
-        const token = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock_token_${Date.now()}`;
+        const jwt = require('jsonwebtoken');
+        // Generate a real JWT
+        const token = jwt.sign(
+            { id: user.id, email: user.email, role: user.role },
+            process.env.JWT_SECRET || 'fallback_secret_key_123',
+            { expiresIn: '24h' }
+        );
 
         return sendResponse(res, 200, true, 'Login successful', {
             token,
             user: {
-                name,
-                email,
-                role
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role: user.role
             }
         });
     } catch (error) {

@@ -8,6 +8,13 @@ const SuperAdminRevenue = () => {
   const [stats, setStats] = useState([]);
   const [revenueData, setRevenueData] = useState([]);
 
+  const [sourcesData, setSourcesData] = useState([
+    { name: 'Gateway Transaction Fees', percent: 0, color: 'bg-[#7C3AED]' },
+    { name: 'Enterprise Subscriptions', percent: 0, color: 'bg-cyan-500' },
+    { name: 'White-Label Setup Fees', percent: 0, color: 'bg-pink-500' },
+    { name: 'FX Conversion Fees', percent: 0, color: 'bg-green-500' },
+  ]);
+
   useEffect(() => {
     fetchRevenueData();
   }, []);
@@ -15,9 +22,10 @@ const SuperAdminRevenue = () => {
   const fetchRevenueData = async () => {
     try {
       setLoading(true);
-      const [overviewRes, growthRes] = await Promise.all([
+      const [overviewRes, growthRes, sourcesRes] = await Promise.all([
         apiClient.get('/admin/revenue/overview'),
-        apiClient.get('/admin/revenue/growth')
+        apiClient.get('/admin/revenue/growth'),
+        apiClient.get('/admin/revenue/sources')
       ]);
 
       if (overviewRes.success && overviewRes.data) {
@@ -29,7 +37,6 @@ const SuperAdminRevenue = () => {
           { title: "Pending Settlements", amount: "$0", change: "0%", trend: "down" }
         ]);
       } else {
-        // Fallback zeroes
         setStats([
           { title: "Total Processing Volume", amount: "$0", change: "0%", trend: "up" },
           { title: "Gateway Fee Revenue", amount: "$0", change: "0%", trend: "up" },
@@ -41,17 +48,22 @@ const SuperAdminRevenue = () => {
       if (growthRes.success && growthRes.data && growthRes.data.length > 0) {
         const mappedData = growthRes.data.map(item => ({
           name: new Date(item.year, item.month - 1).toLocaleString('default', { month: 'short' }),
-          revenue: item.gatewayFeeRevenue || Math.floor(Math.random() * 20000 + 5000),
-          volume: item.processingVolume || Math.floor(Math.random() * 100000 + 50000)
+          revenue: item.gatewayFeeRevenue || 0,
+          volume: item.processingVolume || 0
         }));
         setRevenueData(mappedData);
       } else {
-        // Default dummy layout to retain UI aesthetics if DB is empty
-        setRevenueData([
-          { name: 'Jan', revenue: 45000, volume: 1200000 },
-          { name: 'Feb', revenue: 52000, volume: 1400000 },
-          { name: 'Mar', revenue: 48000, volume: 1300000 }
-        ]);
+        setRevenueData([]);
+      }
+
+      if (sourcesRes.success && sourcesRes.data) {
+        const colors = ['bg-[#7C3AED]', 'bg-cyan-500', 'bg-pink-500', 'bg-green-500'];
+        const mappedSources = sourcesRes.data.map((s, i) => ({
+          name: s.source,
+          percent: s.percent || 0,
+          color: colors[i] || 'bg-gray-500'
+        }));
+        setSourcesData(mappedSources);
       }
 
     } catch (error) {
@@ -124,12 +136,7 @@ const SuperAdminRevenue = () => {
         <div className="bg-[#13131A] border border-white/5 rounded-2xl shadow-xl p-6">
            <h3 className="text-lg font-bold text-white mb-6">Revenue by Source</h3>
            <div className="space-y-6">
-              {[
-                { name: 'Gateway Transaction Fees', percent: 65, color: 'bg-[#7C3AED]' },
-                { name: 'Enterprise Subscriptions', percent: 20, color: 'bg-cyan-500' },
-                { name: 'White-Label Setup Fees', percent: 10, color: 'bg-pink-500' },
-                { name: 'FX Conversion Fees', percent: 5, color: 'bg-green-500' },
-              ].map((item, i) => (
+              {sourcesData.map((item, i) => (
                 <div key={i}>
                   <div className="flex justify-between text-sm mb-2">
                     <span className="font-bold text-gray-300">{item.name}</span>

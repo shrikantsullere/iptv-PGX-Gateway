@@ -1,28 +1,29 @@
-import { useState } from 'react';
-import { Activity, ShieldCheck, AlertTriangle, ArrowUpRight, ArrowDownRight, Server, Zap, CheckCircle2, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Activity, ShieldCheck, AlertTriangle, ArrowUpRight, ArrowDownRight, Server, Zap, CheckCircle2, X, Loader2 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-const volumeData = [
-  { time: '00:00', stripe: 4000, moonpay: 2400, coinbase: 2400 },
-  { time: '04:00', stripe: 3000, moonpay: 1398, coinbase: 2210 },
-  { time: '08:00', stripe: 2000, moonpay: 9800, coinbase: 2290 },
-  { time: '12:00', stripe: 2780, moonpay: 3908, coinbase: 2000 },
-  { time: '16:00', stripe: 1890, moonpay: 4800, coinbase: 2181 },
-  { time: '20:00', stripe: 2390, moonpay: 3800, coinbase: 2500 },
-  { time: '24:00', stripe: 3490, moonpay: 4300, coinbase: 2100 },
-];
-
-const nodes = [
-  { name: 'Stripe Gateway EU', status: 'Operational', uptime: '99.99%', latency: '45ms', successRate: '98.5%' },
-  { name: 'Stripe Gateway US', status: 'Operational', uptime: '99.99%', latency: '32ms', successRate: '99.1%' },
-  { name: 'MoonPay Crypto', status: 'Operational', uptime: '99.95%', latency: '120ms', successRate: '94.2%' },
-  { name: 'Coinbase Commerce', status: 'Degraded', uptime: '98.50%', latency: '450ms', successRate: '88.4%' },
-  { name: 'LocalGate Asia', status: 'Operational', uptime: '99.90%', latency: '85ms', successRate: '96.7%' },
-];
+import apiClient from '../../../../utils/apiClient';
 
 export default function ProcessorDashboard() {
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
   const [selectedNode, setSelectedNode] = useState(null);
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const res = await apiClient.get('/admin/payment-processors/dashboard');
+        if (res.success) {
+          setDashboardData(res.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
 
   const handleDownload = () => {
     const content = `PGX Gateway - Processor Health Report\nGenerated: ${new Date().toLocaleString()}`;
@@ -36,6 +37,20 @@ export default function ProcessorDashboard() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 space-y-4">
+        <Loader2 className="w-8 h-8 text-[#7C3AED] animate-spin" />
+        <p className="text-gray-400 font-bold">Loading Processor Dashboard...</p>
+      </div>
+    );
+  }
+
+  const summary = dashboardData?.summary || {};
+  const volumeData = dashboardData?.volumeData || [];
+  const nodes = dashboardData?.nodes || [];
+
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500 w-full pb-8">
@@ -66,7 +81,7 @@ export default function ProcessorDashboard() {
             </div>
             <h3 className="text-gray-400 font-medium text-sm">Total 24h Volume</h3>
           </div>
-          <div className="text-3xl font-black text-white mb-2">$12.4M</div>
+          <div className="text-3xl font-black text-white mb-2">${(summary.total24hVolume / 1000000).toFixed(1)}M</div>
           <div className="flex items-center gap-1 text-sm font-bold text-green-500">
             <ArrowUpRight className="w-4 h-4" /> +14.5% vs yesterday
           </div>
@@ -80,7 +95,7 @@ export default function ProcessorDashboard() {
             </div>
             <h3 className="text-gray-400 font-medium text-sm">Active Nodes</h3>
           </div>
-          <div className="text-3xl font-black text-white mb-2">45 / 45</div>
+          <div className="text-3xl font-black text-white mb-2">{summary.activeNodes} / {summary.totalNodes}</div>
           <div className="flex items-center gap-1 text-sm font-bold text-blue-500">
             <CheckCircle2 className="w-4 h-4" /> 100% Operational
           </div>
@@ -94,7 +109,7 @@ export default function ProcessorDashboard() {
             </div>
             <h3 className="text-gray-400 font-medium text-sm">Global Approval Rate</h3>
           </div>
-          <div className="text-3xl font-black text-white mb-2">94.2%</div>
+          <div className="text-3xl font-black text-white mb-2">{summary.approvalRate}%</div>
           <div className="flex items-center gap-1 text-sm font-bold text-purple-500">
             <ArrowUpRight className="w-4 h-4" /> +0.8% optimization
           </div>
@@ -108,7 +123,7 @@ export default function ProcessorDashboard() {
             </div>
             <h3 className="text-gray-400 font-medium text-sm">Critical Alerts</h3>
           </div>
-          <div className="text-3xl font-black text-white mb-2">0</div>
+          <div className="text-3xl font-black text-white mb-2">{summary.criticalAlerts}</div>
           <div className="flex items-center gap-1 text-sm font-bold text-orange-500">
             All systems normal
           </div>
@@ -131,16 +146,16 @@ export default function ProcessorDashboard() {
               <AreaChart data={volumeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorStripe" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.5}/>
-                    <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.5} />
+                    <stop offset="95%" stopColor="#7C3AED" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorMoonpay" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.5}/>
-                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.5} />
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorCoinbase" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#06B6D4" stopOpacity={0.5}/>
-                    <stop offset="95%" stopColor="#06B6D4" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#06B6D4" stopOpacity={0.5} />
+                    <stop offset="95%" stopColor="#06B6D4" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
@@ -164,7 +179,7 @@ export default function ProcessorDashboard() {
                 <span className="text-green-500 font-bold">99.9%</span>
               </div>
               <div className="w-full bg-white/5 rounded-full h-2">
-                <div className="bg-[#7C3AED] h-2 rounded-full shadow-[0_0_10px_#7C3AED]" style={{width: '99.9%'}}></div>
+                <div className="bg-[#7C3AED] h-2 rounded-full shadow-[0_0_10px_#7C3AED]" style={{ width: '99.9%' }}></div>
               </div>
             </div>
             <div>
@@ -173,7 +188,7 @@ export default function ProcessorDashboard() {
                 <span className="text-green-500 font-bold">94.2%</span>
               </div>
               <div className="w-full bg-white/5 rounded-full h-2">
-                <div className="bg-blue-500 h-2 rounded-full shadow-[0_0_10px_#3B82F6]" style={{width: '94.2%'}}></div>
+                <div className="bg-blue-500 h-2 rounded-full shadow-[0_0_10px_#3B82F6]" style={{ width: '94.2%' }}></div>
               </div>
             </div>
             <div>
@@ -182,7 +197,7 @@ export default function ProcessorDashboard() {
                 <span className="text-orange-500 font-bold">88.4%</span>
               </div>
               <div className="w-full bg-white/5 rounded-full h-2">
-                <div className="bg-cyan-500 h-2 rounded-full shadow-[0_0_10px_#06B6D4]" style={{width: '88.4%'}}></div>
+                <div className="bg-cyan-500 h-2 rounded-full shadow-[0_0_10px_#06B6D4]" style={{ width: '88.4%' }}></div>
               </div>
             </div>
             <div>
@@ -191,7 +206,7 @@ export default function ProcessorDashboard() {
                 <span className="text-green-500 font-bold">96.7%</span>
               </div>
               <div className="w-full bg-white/5 rounded-full h-2">
-                <div className="bg-pink-500 h-2 rounded-full shadow-[0_0_10px_#EC4899]" style={{width: '96.7%'}}></div>
+                <div className="bg-pink-500 h-2 rounded-full shadow-[0_0_10px_#EC4899]" style={{ width: '96.7%' }}></div>
               </div>
             </div>
           </div>
@@ -217,19 +232,19 @@ export default function ProcessorDashboard() {
             </thead>
             <tbody className="text-sm divide-y divide-white/5">
               {nodes.map((node, i) => (
-                <tr key={i} className="hover:bg-white/[0.02] transition-colors group">
+                <tr key={node.monitorId || i} className="hover:bg-white/[0.02] transition-colors group">
                   <td className="p-5 font-bold text-white flex items-center gap-3">
                     <Server className={`w-4 h-4 ${node.status === 'Operational' ? 'text-green-500' : 'text-orange-500'}`} />
-                    {node.name}
+                    {node.processorName}
                   </td>
                   <td className="p-5">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold border ${node.status === 'Operational' ? 'bg-green-500/10 text-green-500 border-green-500/20 shadow-[0_0_10px_rgba(34,197,94,0.1)]' : 'bg-orange-500/10 text-orange-500 border-orange-500/20 shadow-[0_0_10px_rgba(249,115,22,0.1)]'}`}>
                       {node.status}
                     </span>
                   </td>
-                  <td className="p-5 text-gray-300 font-mono font-medium">{node.uptime}</td>
-                  <td className="p-5 text-gray-300 font-mono font-medium">{node.latency}</td>
-                  <td className="p-5 font-bold text-white">{node.successRate}</td>
+                  <td className="p-5 text-gray-300 font-mono font-medium">99.99%</td>
+                  <td className="p-5 text-gray-300 font-mono font-medium">{node.pingMs}ms</td>
+                  <td className="p-5 font-bold text-white">{node.successRate}%</td>
                   <td className="p-5 text-right">
                     <button onClick={() => setSelectedNode(node)} className="text-xs font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-colors bg-[#7C3AED]/10 hover:bg-[#7C3AED]/20 px-3 py-1.5 rounded-lg border border-[#7C3AED]/20">
                       View Metrics
@@ -277,7 +292,7 @@ export default function ProcessorDashboard() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-[#13131A] border border-white/10 rounded-2xl shadow-2xl w-full max-w-md animate-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center p-6 border-b border-white/5">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2"><Server className="w-5 h-5 text-[#7C3AED]" /> {selectedNode.name} Metrics</h2>
+              <h2 className="text-xl font-bold text-white flex items-center gap-2"><Server className="w-5 h-5 text-[#7C3AED]" /> {selectedNode.processorName} Metrics</h2>
               <button onClick={() => setSelectedNode(null)} className="text-gray-400 hover:text-white transition-colors">
                 <X className="w-5 h-5" />
               </button>
@@ -285,20 +300,20 @@ export default function ProcessorDashboard() {
             <div className="p-6 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-black/50 border border-white/5 rounded-xl p-4">
-                   <p className="text-gray-500 text-xs font-bold uppercase mb-1">Uptime</p>
-                   <p className="text-white font-bold text-xl">{selectedNode.uptime}</p>
+                  <p className="text-gray-500 text-xs font-bold uppercase mb-1">Uptime</p>
+                  <p className="text-white font-bold text-xl">99.99%</p>
                 </div>
                 <div className="bg-black/50 border border-white/5 rounded-xl p-4">
-                   <p className="text-gray-500 text-xs font-bold uppercase mb-1">Latency</p>
-                   <p className="text-white font-bold text-xl">{selectedNode.latency}</p>
+                  <p className="text-gray-500 text-xs font-bold uppercase mb-1">Latency</p>
+                  <p className="text-white font-bold text-xl">{selectedNode.pingMs}ms</p>
                 </div>
                 <div className="bg-black/50 border border-white/5 rounded-xl p-4">
-                   <p className="text-gray-500 text-xs font-bold uppercase mb-1">Success Rate</p>
-                   <p className="text-white font-bold text-xl">{selectedNode.successRate}</p>
+                  <p className="text-gray-500 text-xs font-bold uppercase mb-1">Success Rate</p>
+                  <p className="text-white font-bold text-xl">{selectedNode.successRate}%</p>
                 </div>
                 <div className="bg-black/50 border border-white/5 rounded-xl p-4">
-                   <p className="text-gray-500 text-xs font-bold uppercase mb-1">Status</p>
-                   <p className={`font-bold text-xl ${selectedNode.status === 'Operational' ? 'text-green-500' : 'text-orange-500'}`}>{selectedNode.status}</p>
+                  <p className="text-gray-500 text-xs font-bold uppercase mb-1">Status</p>
+                  <p className={`font-bold text-xl ${selectedNode.status === 'Operational' ? 'text-green-500' : 'text-orange-500'}`}>{selectedNode.status}</p>
                 </div>
               </div>
               <div className="pt-4">

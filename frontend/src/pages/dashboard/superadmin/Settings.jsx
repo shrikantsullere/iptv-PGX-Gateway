@@ -21,16 +21,13 @@ export default function Settings() {
       setLoading(true);
       const res = await apiClient.get('/admin/settings');
       if (res.success && res.data) {
-        // Map backend schema
-        const mMode = res.data.find(s => s.settingKey === 'maintenance_mode');
-        const sMode = res.data.find(s => s.settingKey === 'sandbox_enabled');
-        const tMode = res.data.find(s => s.settingKey === 'force_2fa');
-        const iMode = res.data.find(s => s.settingKey === 'ip_whitelist');
-
-        if (mMode) setMaintenance(mMode.settingValue === 'true');
-        if (sMode) setSandbox(sMode.settingValue === 'true');
-        if (tMode) setTwoFa(tMode.settingValue === 'true');
-        if (iMode) setIpWhite(iMode.settingValue === 'true');
+        const data = res.data;
+        if (data) {
+          setMaintenance(Boolean(data.maintenanceMode));
+          setSandbox(Boolean(data.sandboxEnvironment));
+          setTwoFa(Boolean(data.force2FA));
+          setIpWhite(Boolean(data.strictIPWhitelisting));
+        }
       }
     } catch (err) {
       console.error('Failed to load settings');
@@ -43,10 +40,10 @@ export default function Settings() {
     try {
       // Mock update to the backend endpoint
       await apiClient.put('/admin/settings', {
-        maintenance_mode: maintenance.toString(),
-        sandbox_enabled: sandbox.toString(),
-        force_2fa: twoFa.toString(),
-        ip_whitelist: ipWhite.toString()
+        maintenanceMode: maintenance,
+        sandboxEnvironment: sandbox,
+        force2FA: twoFa,
+        strictIPWhitelisting: ipWhite
       });
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 2000);

@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Receipt, Save, Plus, X, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Receipt, Save, Plus, X, CheckCircle2, Loader2 } from 'lucide-react';
+import apiClient from '../../../utils/apiClient';
 
 const Fees = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -7,24 +8,117 @@ const Fees = () => {
   const [processorSaving, setProcessorSaving] = useState(false);
   const [ruleCreating, setRuleCreating] = useState(false);
   
-  const handleSaveGateway = () => {
-    setGatewaySaving(true);
-    setTimeout(() => setGatewaySaving(false), 2000);
+  const [loading, setLoading] = useState(true);
+  
+  const [gatewayFees, setGatewayFees] = useState({
+    basePlatformFee: '',
+    fixedTransactionFee: '',
+    whiteLabelMarkup: ''
+  });
+  
+  const [processorFees, setProcessorFees] = useState([
+    { name: 'MoonPay', fee: '' },
+    { name: 'Banxa', fee: '' },
+    { name: 'Transak', fee: '' }
+  ]);
+  
+  const [ruleForm, setRuleForm] = useState({
+    ruleName: '',
+    merchantScope: 'All Merchants',
+    feePercentage: '',
+    fixedFee: ''
+  });
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [gwRes, procRes] = await Promise.all([
+        apiClient.get('/admin/settings/gateway-fees'),
+        apiClient.get('/admin/settings/processor-fees')
+      ]);
+
+      if (gwRes.success && gwRes.data) {
+        setGatewayFees({
+          basePlatformFee: gwRes.data.basePlatformFee ? (gwRes.data.basePlatformFee / 100).toString() : '0.0',
+          fixedTransactionFee: gwRes.data.fixedTransactionFee ? (gwRes.data.fixedTransactionFee / 100).toString() : '0.0',
+          whiteLabelMarkup: gwRes.data.whiteLabelMarkup ? (gwRes.data.whiteLabelMarkup / 100).toString() : '0.0'
+        });
+      }
+
+      if (procRes.success && procRes.data && procRes.data.length > 0) {
+        // Map saved processor fees
+        const savedProcs = procRes.data;
+        setProcessorFees(prev => prev.map(p => {
+          const found = savedProcs.find(s => s.processorName === p.name);
+          return found ? { ...p, fee: (found.feePercentage / 100).toString() } : { ...p, fee: '0.0' };
+        }));
+      } else {
+        // If empty DB
+        setProcessorFees(prev => prev.map(p => ({ ...p, fee: '0.0' })));
+      }
+    } catch (error) {
+      console.error('Failed to fetch fees data', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSaveProcessor = () => {
-    setProcessorSaving(true);
-    setTimeout(() => setProcessorSaving(false), 2000);
+  const handleSaveGateway = async () => {
+    try {
+      setGatewaySaving(true);
+      await apiClient.put('/admin/settings/gateway-fees', gatewayFees);
+      setTimeout(() => setGatewaySaving(false), 2000);
+    } catch (error) {
+      console.error('Failed to save gateway fees');
+      setGatewaySaving(false);
+    }
   };
 
-  const handleCreateRule = (e) => {
+  const handleSaveProcessor = async () => {
+    try {
+      setProcessorSaving(true);
+      await apiClient.put('/admin/settings/processor-fees', { processors: processorFees });
+      setTimeout(() => setProcessorSaving(false), 2000);
+    } catch (error) {
+      console.error('Failed to save processor fees');
+      setProcessorSaving(false);
+    }
+  };
+
+  const handleCreateRule = async (e) => {
     e.preventDefault();
-    setRuleCreating(true);
-    setTimeout(() => {
+    try {
+      setRuleCreating(true);
+      await apiClient.post('/admin/settings/fee-rules', ruleForm);
+      setTimeout(() => {
+        setRuleCreating(false);
+        setIsCreateModalOpen(false);
+        setRuleForm({ ruleName: '', merchantScope: 'All Merchants', feePercentage: '', fixedFee: '' });
+      }, 1000);
+    } catch (error) {
+      console.error('Failed to create fee rule');
       setRuleCreating(false);
-      setIsCreateModalOpen(false);
-    }, 1000);
+    }
   };
+
+  const handleProcessorFeeChange = (index, value) => {
+    const updated = [...processorFees];
+    updated[index].fee = value;
+    setProcessorFees(updated);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full w-full py-20">
+        <Loader2 className="w-8 h-8 text-[#7C3AED] animate-spin mb-4" />
+        <p className="text-gray-400 font-bold">Syncing Configuration...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -53,17 +147,17 @@ const Fees = () => {
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Base Platform Fee (%)</label>
-              <input type="text" defaultValue="0.5" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-[#7C3AED] outline-none font-mono" />
+              <input type="text" value={gatewayFees.basePlatformFee} onChange={e => setGatewayFees({...gatewayFees, basePlatformFee: e.target.value})} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-[#7C3AED] outline-none font-mono" />
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Fixed Transaction Fee ($)</label>
-              <input type="text" defaultValue="0.30" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-[#7C3AED] outline-none font-mono" />
+              <input type="text" value={gatewayFees.fixedTransactionFee} onChange={e => setGatewayFees({...gatewayFees, fixedTransactionFee: e.target.value})} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-[#7C3AED] outline-none font-mono" />
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">White Label Markup (%)</label>
-              <input type="text" defaultValue="1.0" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-[#7C3AED] outline-none font-mono" />
+              <input type="text" value={gatewayFees.whiteLabelMarkup} onChange={e => setGatewayFees({...gatewayFees, whiteLabelMarkup: e.target.value})} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:border-[#7C3AED] outline-none font-mono" />
             </div>
-            <button onClick={handleSaveGateway} className="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-2.5 rounded-lg border border-white/10 transition-colors flex items-center justify-center gap-2 mt-4">
+            <button onClick={handleSaveGateway} disabled={gatewaySaving} className="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-2.5 rounded-lg border border-white/10 transition-colors flex items-center justify-center gap-2 mt-4">
               {gatewaySaving ? <CheckCircle2 className="w-4 h-4 text-green-500" /> : <Save className="w-4 h-4" />} 
               {gatewaySaving ? <span className="text-green-500">Saved Successfully!</span> : "Save Gateway Fees"}
             </button>
@@ -80,25 +174,15 @@ const Fees = () => {
           </div>
           
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
-               <span className="font-bold text-sm text-white">MoonPay</span>
-               <div className="flex items-center gap-2">
-                 <input type="text" defaultValue="4.5" className="w-16 bg-black border border-white/10 rounded text-center py-1 text-sm text-white outline-none" /> %
-               </div>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
-               <span className="font-bold text-sm text-white">Banxa</span>
-               <div className="flex items-center gap-2">
-                 <input type="text" defaultValue="3.9" className="w-16 bg-black border border-white/10 rounded text-center py-1 text-sm text-white outline-none" /> %
-               </div>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
-               <span className="font-bold text-sm text-white">Transak</span>
-               <div className="flex items-center gap-2">
-                 <input type="text" defaultValue="4.0" className="w-16 bg-black border border-white/10 rounded text-center py-1 text-sm text-white outline-none" /> %
-               </div>
-            </div>
-            <button onClick={handleSaveProcessor} className="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-2.5 rounded-lg border border-white/10 transition-colors flex items-center justify-center gap-2 mt-4">
+            {processorFees.map((proc, index) => (
+              <div key={proc.name} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+                 <span className="font-bold text-sm text-white">{proc.name}</span>
+                 <div className="flex items-center gap-2">
+                   <input type="text" value={proc.fee} onChange={e => handleProcessorFeeChange(index, e.target.value)} className="w-16 bg-black border border-white/10 rounded text-center py-1 text-sm text-white outline-none" /> %
+                 </div>
+              </div>
+            ))}
+            <button onClick={handleSaveProcessor} disabled={processorSaving} className="w-full bg-white/5 hover:bg-white/10 text-white font-bold py-2.5 rounded-lg border border-white/10 transition-colors flex items-center justify-center gap-2 mt-4">
               {processorSaving ? <CheckCircle2 className="w-4 h-4 text-green-500" /> : <Save className="w-4 h-4" />} 
               {processorSaving ? <span className="text-green-500">Saved Successfully!</span> : "Save Processor Fees"}
             </button>
@@ -120,11 +204,11 @@ const Fees = () => {
             <form onSubmit={handleCreateRule} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-bold text-gray-400 mb-1">Rule Name</label>
-                <input type="text" required placeholder="e.g. VIP Merchant Discount" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none" />
+                <input type="text" required value={ruleForm.ruleName} onChange={e => setRuleForm({...ruleForm, ruleName: e.target.value})} placeholder="e.g. VIP Merchant Discount" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none" />
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-400 mb-1">Applicable Merchant</label>
-                <select className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none appearance-none">
+                <select value={ruleForm.merchantScope} onChange={e => setRuleForm({...ruleForm, merchantScope: e.target.value})} className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none appearance-none">
                   <option>All Merchants</option>
                   <option>Acme Corp</option>
                   <option>Global Tech</option>
@@ -133,11 +217,11 @@ const Fees = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-400 mb-1">Fee %</label>
-                  <input type="text" required placeholder="0.5" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none font-mono" />
+                  <input type="text" required value={ruleForm.feePercentage} onChange={e => setRuleForm({...ruleForm, feePercentage: e.target.value})} placeholder="0.5" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none font-mono" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-400 mb-1">Fixed Fee $</label>
-                  <input type="text" required placeholder="0.30" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none font-mono" />
+                  <input type="text" required value={ruleForm.fixedFee} onChange={e => setRuleForm({...ruleForm, fixedFee: e.target.value})} placeholder="0.30" className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:border-[#7C3AED] outline-none font-mono" />
                 </div>
               </div>
               <div className="pt-4 flex gap-3">

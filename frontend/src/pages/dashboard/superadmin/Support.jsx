@@ -1,19 +1,49 @@
-import { useState } from 'react';
-import { Ticket, Search, CheckCircle2, MessageSquare, AlertCircle, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Ticket, Search, CheckCircle2, MessageSquare, AlertCircle, Clock, Loader2 } from 'lucide-react';
+import apiClient from '../../../utils/apiClient';
 
 export default function Support() {
-  const [tickets] = useState([
-    { id: 'TKT-8921', merchant: 'Acme Digital', subject: 'API Rate Limit Increase', status: 'Open', priority: 'High', time: '10 mins ago' },
-    { id: 'TKT-8920', merchant: 'Global Tech', subject: 'Failed Settlement (Bank Error)', status: 'In Progress', priority: 'Critical', time: '1 hour ago' },
-    { id: 'TKT-8919', merchant: 'Web3 Gaming', subject: 'Custom Domain SSL Pending', status: 'Resolved', priority: 'Medium', time: '5 hours ago' },
-    { id: 'TKT-8918', merchant: 'SaaS Connect', subject: 'Change Billing Email', status: 'Resolved', priority: 'Low', time: '1 day ago' },
-  ]);
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        setLoading(true);
+        const res = await apiClient.get('/admin/support');
+        if (res.success && res.data) {
+          setTickets(res.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch support tickets', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTickets();
+  }, []);
+
   const filteredTickets = tickets.filter(t => 
-    t.merchant.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.id.toLowerCase().includes(searchQuery.toLowerCase())
+    t.merchantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    t.ticketId.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const openTicketsCount = tickets.filter(t => t.status === 'Open').length;
+  const inProgressCount = tickets.filter(t => t.status === 'In Progress').length;
+  const resolved24hCount = tickets.filter(t => t.status === 'Resolved').length; // Assuming all resolved for now or you could filter by last 24h
+
+  const timeAgo = (date) => {
+    if (!date) return 'Never';
+    const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+    if (seconds < 60) return `${seconds} secs ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} mins ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hrs ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} days ago`;
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -28,9 +58,9 @@ export default function Support() {
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { title: 'Open Tickets', value: '12', icon: AlertCircle, color: 'text-yellow-500' },
-          { title: 'In Progress', value: '5', icon: Clock, color: 'text-blue-500' },
-          { title: 'Resolved (24h)', value: '84', icon: CheckCircle2, color: 'text-green-500' },
+          { title: 'Open Tickets', value: openTicketsCount.toString(), icon: AlertCircle, color: 'text-yellow-500' },
+          { title: 'In Progress', value: inProgressCount.toString(), icon: Clock, color: 'text-blue-500' },
+          { title: 'Resolved (24h)', value: resolved24hCount.toString(), icon: CheckCircle2, color: 'text-green-500' },
           { title: 'Avg Response', value: '14m', icon: MessageSquare, color: 'text-[#7C3AED]' },
         ].map((stat, i) => (
           <div key={i} className="bg-[#13131A] border border-white/5 rounded-2xl p-6 shadow-xl flex flex-col items-center justify-center text-center">
@@ -66,31 +96,46 @@ export default function Support() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5 text-sm">
-            {filteredTickets.map((t, i) => (
-              <tr key={i} className="hover:bg-white/[0.02] cursor-pointer">
-                <td className="p-4 font-mono font-bold text-gray-400">{t.id}</td>
-                <td className="p-4 font-bold text-white">{t.merchant}</td>
-                <td className="p-4 text-gray-300">{t.subject}</td>
-                <td className="p-4">
-                  <span className={`px-2 py-1 rounded text-[10px] uppercase font-bold ${
-                    t.status === 'Open' ? 'bg-yellow-500/10 text-yellow-500' :
-                    t.status === 'In Progress' ? 'bg-blue-500/10 text-blue-500' : 'bg-green-500/10 text-green-500'
-                  }`}>
-                    {t.status}
-                  </span>
+            {loading ? (
+              <tr>
+                <td colSpan="6" className="p-8 text-center text-gray-400">
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#7C3AED] mb-2" />
+                  Loading tickets...
                 </td>
-                <td className="p-4">
-                  <span className={`px-2 py-1 rounded text-[10px] uppercase font-bold border ${
-                    t.priority === 'Critical' ? 'border-red-500/50 text-red-500 bg-red-500/10' :
-                    t.priority === 'High' ? 'border-orange-500/50 text-orange-500 bg-orange-500/10' :
-                    'border-gray-500/50 text-gray-400'
-                  }`}>
-                    {t.priority}
-                  </span>
-                </td>
-                <td className="p-4 text-right text-gray-500">{t.time}</td>
               </tr>
-            ))}
+            ) : filteredTickets.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="p-8 text-center text-gray-500">
+                  No support tickets found.
+                </td>
+              </tr>
+            ) : (
+              filteredTickets.map((t) => (
+                <tr key={t.ticketId} className="hover:bg-white/[0.02] cursor-pointer">
+                  <td className="p-4 font-mono font-bold text-gray-400">{t.ticketId.substring(0, 18)}...</td>
+                  <td className="p-4 font-bold text-white">{t.merchantName}</td>
+                  <td className="p-4 text-gray-300">{t.subject}</td>
+                  <td className="p-4">
+                    <span className={`px-2 py-1 rounded text-[10px] uppercase font-bold ${
+                      t.status === 'Open' ? 'bg-yellow-500/10 text-yellow-500' :
+                      t.status === 'In Progress' ? 'bg-blue-500/10 text-blue-500' : 'bg-green-500/10 text-green-500'
+                    }`}>
+                      {t.status}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <span className={`px-2 py-1 rounded text-[10px] uppercase font-bold border ${
+                      t.priority === 'Critical' ? 'border-red-500/50 text-red-500 bg-red-500/10' :
+                      t.priority === 'High' ? 'border-orange-500/50 text-orange-500 bg-orange-500/10' :
+                      'border-gray-500/50 text-gray-400'
+                    }`}>
+                      {t.priority}
+                    </span>
+                  </td>
+                  <td className="p-4 text-right text-gray-500">{timeAgo(t.lastUpdated)}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

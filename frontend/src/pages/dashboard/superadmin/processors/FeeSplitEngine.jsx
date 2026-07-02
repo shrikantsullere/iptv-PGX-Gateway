@@ -1,65 +1,114 @@
-import { useState } from 'react';
-import { Percent, PieChart, Plus, Save, ChevronDown, ArrowUpRight, Check, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Percent, PieChart, Plus, Save, ChevronDown, ArrowUpRight, Check, X, Loader2 } from 'lucide-react';
 import { PieChart as RechartsPieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-
-const feeDistribution = [
-  { name: 'Gateway Revenue', value: 1.2, color: '#7C3AED' },
-  { name: 'Processor Fee', value: 2.9, color: '#3B82F6' },
-  { name: 'Network Fee', value: 0.3, color: '#06B6D4' },
-  { name: 'Merchant Share', value: 95.6, color: '#22C55E' },
-];
-
-const markupRules = [
-  { type: 'Crypto Transactions', base: '1.9%', markup: '+1.5%', total: '3.4%', status: 'Active' },
-  { type: 'Fiat - International', base: '2.9%', markup: '+0.8%', total: '3.7%', status: 'Active' },
-  { type: 'Fiat - Domestic', base: '2.2%', markup: '+0.5%', total: '2.7%', status: 'Active' },
-  { type: 'High Risk Merchants', base: '3.5%', markup: '+2.0%', total: '5.5%', status: 'Active' },
-  { type: 'Chargebacks', base: '$15.00', markup: '+$5.00', total: '$20.00', status: 'Active' },
-];
-
-const barData = [
-  { name: 'Stripe', fee: 2.9 }, { name: 'MoonPay', fee: 3.4 }, { name: 'Coinbase', fee: 1.9 },
-  { name: 'LocalGate', fee: 2.5 }, { name: 'Adyen', fee: 3.1 },
-];
+import apiClient from '../../../../utils/apiClient';
 
 export default function FeeSplitEngine() {
-  const [rules, setRules] = useState(markupRules);
+  const [rules, setRules] = useState([]);
+  const [feeDistribution, setFeeDistribution] = useState([]);
+  const [barData, setBarData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
   const [isSaved, setIsSaved] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editRule, setEditRule] = useState(null);
+  
+  const [savingRule, setSavingRule] = useState(false);
+
+  useEffect(() => {
+    fetchFeeSplitData();
+  }, []);
+
+  const fetchFeeSplitData = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/payment-processors/fee-split');
+      if (res.success && res.data) {
+        setRules(res.data.rules || []);
+        setFeeDistribution(res.data.feeDistribution || []);
+        setBarData(res.data.barData || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch fee split data', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSave = () => {
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2000);
   };
 
-  const handleAddRule = (e) => {
+  const formatPercent = (val) => {
+    // Check if it's supposed to be a dollar amount or percentage based on value magnitude or type
+    // If it's 1500 for chargebacks, we assume it's $15.00
+    // This is a bit hacky, but handles the exact format the dummy data had.
+    if (val >= 1000) return `$${(val / 100).toFixed(2)}`;
+    return `${(val / 100).toFixed(1)}%`;
+  };
+
+  const formatMarkup = (val) => {
+    if (val >= 1000) return `+$${(val / 100).toFixed(2)}`;
+    return `+${(val / 100).toFixed(1)}%`;
+  };
+
+  const handleAddRule = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const newRule = {
       type: formData.get('type'),
       base: formData.get('base'),
       markup: formData.get('markup'),
-      total: formData.get('total'),
-      status: 'Active'
+      total: formData.get('total')
     };
-    setRules([...rules, newRule]);
-    setShowAddModal(false);
+    
+    try {
+      setSavingRule(true);
+      const res = await apiClient.post('/admin/payment-processors/fee-split/rules', newRule);
+      if (res.success) {
+        await fetchFeeSplitData();
+        setShowAddModal(false);
+      }
+    } catch (error) {
+      alert('Failed to add markup rule');
+    } finally {
+      setSavingRule(false);
+    }
   };
 
-  const handleEditRule = (e) => {
+  const handleEditRule = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const updated = {
-      ...editRule,
       type: formData.get('type'),
       base: formData.get('base'),
       markup: formData.get('markup'),
-      total: formData.get('total'),
+      total: formData.get('total')
     };
-    setRules(rules.map(r => r.type === editRule.type ? updated : r));
-    setEditRule(null);
+    
+    try {
+      setSavingRule(true);
+      const res = await apiClient.put(`/admin/payment-processors/fee-split/rules/${editRule.ruleId}`, updated);
+      if (res.success) {
+        await fetchFeeSplitData();
+        setEditRule(null);
+      }
+    } catch (error) {
+      alert('Failed to update markup rule');
+    } finally {
+      setSavingRule(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 space-y-4">
+        <Loader2 className="w-8 h-8 text-green-500 animate-spin" />
+        <p className="text-gray-400 font-bold">Loading Engine Config...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500 w-full pb-8">
@@ -155,12 +204,16 @@ export default function FeeSplitEngine() {
               </tr>
             </thead>
             <tbody className="text-sm divide-y divide-white/5">
-              {rules.map((rule, i) => (
-                <tr key={i} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="p-5 font-bold text-white">{rule.type}</td>
-                  <td className="p-5 text-gray-300 font-mono">{rule.base}</td>
-                  <td className="p-5 font-mono text-green-400 font-bold">{rule.markup}</td>
-                  <td className="p-5 font-black text-white font-mono">{rule.total}</td>
+              {rules.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="p-8 text-center text-gray-500">No markup rules defined.</td>
+                </tr>
+              ) : rules.map((rule, i) => (
+                <tr key={rule.ruleId} className="hover:bg-white/[0.02] transition-colors">
+                  <td className="p-5 font-bold text-white">{rule.transactionType}</td>
+                  <td className="p-5 text-gray-300 font-mono">{formatPercent(rule.processorBase)}</td>
+                  <td className="p-5 font-mono text-green-400 font-bold">{formatMarkup(rule.gatewayMarkup)}</td>
+                  <td className="p-5 font-black text-white font-mono">{formatPercent(rule.totalFee)}</td>
                   <td className="p-5 text-right">
                     <button onClick={() => setEditRule(rule)} className="text-xs font-bold text-[#7C3AED] hover:text-[#6D28D9] transition-colors bg-[#7C3AED]/10 hover:bg-[#7C3AED]/20 px-3 py-1.5 rounded-lg border border-[#7C3AED]/20">
                       Edit Rule
@@ -221,19 +274,19 @@ export default function FeeSplitEngine() {
             <form onSubmit={handleEditRule} className="p-6 space-y-4">
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Transaction Type</label>
-                <input name="type" defaultValue={editRule.type} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm" placeholder="e.g. AMEX Cards" />
+                <input name="type" defaultValue={editRule.transactionType} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm" placeholder="e.g. AMEX Cards" />
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Processor Base</label>
-                <input name="base" defaultValue={editRule.base} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm font-mono" placeholder="e.g. 2.9%" />
+                <input name="base" defaultValue={formatPercent(editRule.processorBase)} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm font-mono" placeholder="e.g. 2.9%" />
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Gateway Markup</label>
-                <input name="markup" defaultValue={editRule.markup} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm font-mono" placeholder="e.g. +1.0%" />
+                <input name="markup" defaultValue={formatMarkup(editRule.gatewayMarkup)} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm font-mono" placeholder="e.g. +1.0%" />
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Total Fee</label>
-                <input name="total" defaultValue={editRule.total} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm font-mono" placeholder="e.g. 3.9%" />
+                <input name="total" defaultValue={formatPercent(editRule.totalFee)} required className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-green-500 transition-colors text-sm font-mono" placeholder="e.g. 3.9%" />
               </div>
               <button type="submit" className="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl mt-2 transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)]">
                 Save Changes

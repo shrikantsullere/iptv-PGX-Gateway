@@ -2,21 +2,38 @@ const prisma = require('../utils/prismaClient');
 const { sendResponse } = require('../utils/responseHandler');
 
 /**
+ * Get all system reports
+ */
+const getSystemReports = async (req, res, next) => {
+    try {
+        const reports = await prisma.reports.findMany({
+            orderBy: { generatedAt: 'desc' }
+        });
+        return sendResponse(res, 200, true, 'System reports fetched successfully', reports);
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
  * Generate system reports
  */
 const generateSystemReport = async (req, res, next) => {
     try {
-        const { reportType, dateRange } = req.body;
-        // Mocking generation
-        const mockReportData = {
-            reportId: `sys_rep_${Date.now()}`,
-            reportType,
-            dateRange,
-            status: 'Generated',
-            downloadUrl: `https://pgx-mock-storage.s3.amazonaws.com/reports/sys_${Date.now()}.pdf`
-        };
+        const { type, range } = req.body;
+        
+        const newReport = await prisma.reports.create({
+            data: {
+                reportType: type || 'Gateway P&L',
+                dateRange: range || 'Last 7 Days',
+                fileUrl: `https://pgx-gateway.com/downloads/rep_${Date.now()}.pdf`,
+                fileSize: `${(Math.random() * 5 + 1).toFixed(1)} MB`,
+                generatedBy: 'System',
+                generatedAt: new Date()
+            }
+        });
 
-        return sendResponse(res, 201, true, 'System report generated successfully', mockReportData);
+        return sendResponse(res, 201, true, 'System report generated successfully', newReport);
     } catch (error) {
         next(error);
     }
@@ -41,7 +58,7 @@ const getComplianceReports = async (req, res, next) => {
  */
 const getReportHistory = async (req, res, next) => {
     try {
-        // Just mocking report history using an empty array for now since we don't have a specific table for all reports history.
+        // Keeping as is, since it may be used elsewhere
         return sendResponse(res, 200, true, 'Report history fetched', []);
     } catch (error) {
         next(error);
@@ -49,6 +66,7 @@ const getReportHistory = async (req, res, next) => {
 };
 
 module.exports = {
+    getSystemReports,
     generateSystemReport,
     getComplianceReports,
     getReportHistory

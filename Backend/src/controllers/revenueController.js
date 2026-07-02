@@ -21,9 +21,19 @@ const getRevenueDashboard = async (req, res, next) => {
  */
 const getRevenueOverview = async (req, res, next) => {
     try {
-        const stats = await prisma.revenues.aggregate({
-            _sum: { amount: true, pgxFee: true, netRevenue: true }
+        const dbStats = await prisma.revenues.aggregate({
+            _sum: { processingVolume: true, gatewayFeeRevenue: true, totalRevenue: true }
         });
+        
+        // Map to what the frontend expects without changing frontend code
+        const stats = {
+            _sum: {
+                amount: dbStats._sum.processingVolume || 0,
+                pgxFee: dbStats._sum.gatewayFeeRevenue || 0,
+                netRevenue: dbStats._sum.totalRevenue || 0
+            }
+        };
+
         return sendResponse(res, 200, true, 'Revenue overview fetched successfully', stats);
     } catch (error) {
         next(error);
@@ -35,9 +45,9 @@ const getRevenueOverview = async (req, res, next) => {
  */
 const getRevenueGrowth = async (req, res, next) => {
     try {
-        const growth = await prisma.monthly_revenue_history.findMany({
+        const growth = await prisma.revenues.findMany({
             take: 12,
-            orderBy: { year: 'asc', month: 'asc' }
+            orderBy: [{ year: 'asc' }, { month: 'asc' }]
         });
         return sendResponse(res, 200, true, 'Revenue growth fetched successfully', growth);
     } catch (error) {
@@ -50,11 +60,22 @@ const getRevenueGrowth = async (req, res, next) => {
  */
 const getRevenueSources = async (req, res, next) => {
     try {
-        // Grouping by source (e.g. processor fees, setup fees)
-        const sources = await prisma.revenues.groupBy({
-            by: ['source'],
-            _sum: { netRevenue: true }
+        // Calculate real-time totals from the Revenues table
+        const stats = await prisma.revenues.aggregate({
+            _sum: { gatewayFeeRevenue: true, subscriptionRevenue: true }
         });
+
+        const totalGateway = stats._sum.gatewayFeeRevenue || 0;
+        const totalSub = stats._sum.subscriptionRevenue || 0;
+        const total = totalGateway + totalSub || 1; // Prevent division by zero
+
+        const sources = [
+            { source: 'Gateway Transaction Fees', percent: Math.round((totalGateway / total) * 100) },
+            { source: 'Enterprise Subscriptions', percent: Math.round((totalSub / total) * 100) },
+            { source: 'White-Label Setup Fees', percent: 0 },
+            { source: 'FX Conversion Fees', percent: 0 }
+        ];
+
         return sendResponse(res, 200, true, 'Revenue sources fetched successfully', sources);
     } catch (error) {
         next(error);

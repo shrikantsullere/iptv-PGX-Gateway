@@ -6,7 +6,9 @@ const { sendResponse } = require('../utils/responseHandler');
  */
 const getRoles = async (req, res, next) => {
     try {
-        const roles = await prisma.roles.findMany();
+        const roles = await prisma.roles.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
         return sendResponse(res, 200, true, 'Roles fetched', roles);
     } catch (error) {
         next(error);
@@ -18,17 +20,19 @@ const getRoles = async (req, res, next) => {
  */
 const createRole = async (req, res, next) => {
     try {
-        const { roleName, description, permissions } = req.body;
+        const { roleName, description, permissions, riskProfile } = req.body;
         
         if (!roleName) return sendResponse(res, 400, false, 'Role name is required');
 
         const newRole = await prisma.roles.create({
             data: {
                 roleName,
-                description,
-                permissions: JSON.stringify(permissions || []),
-                createdAt: new Date(),
-                updatedAt: new Date()
+                description: description || '',
+                riskProfile: riskProfile || 'Low',
+                permissions: permissions || ['read'],
+                status: 'Active',
+                createdBy: 'System',
+                createdAt: new Date()
             }
         });
 
@@ -46,13 +50,9 @@ const updateRole = async (req, res, next) => {
         const { roleId } = req.params;
         const payload = req.body;
 
-        if (payload.permissions) {
-            payload.permissions = JSON.stringify(payload.permissions);
-        }
-
         const updated = await prisma.roles.update({
             where: { roleId },
-            data: { ...payload, updatedAt: new Date() }
+            data: { ...payload }
         });
 
         return sendResponse(res, 200, true, 'Role updated successfully', updated);

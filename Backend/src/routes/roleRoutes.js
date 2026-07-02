@@ -5,7 +5,7 @@ const { verifyToken } = require('../middlewares/authMiddleware');
 const { requireRole } = require('../middlewares/roleMiddleware');
 
 router.use(verifyToken);
-router.use(requireRole(['Super Admin'])); // Only Super Admin can manage roles
+router.use(requireRole(['Super Admin', 'Owner']));
 
 router.get('/', roleController.getRoles);
 router.post('/', roleController.createRole);

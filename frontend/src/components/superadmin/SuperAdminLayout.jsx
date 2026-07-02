@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import apiClient from '../../utils/apiClient';
 import {
   LayoutDashboard, Users, CreditCard, DollarSign, Landmark, Wallet,
   Network, Receipt, Package, ShieldAlert, Globe2,
   Coins, Code, Webhook, BarChart3, Palette, Bell, Ticket,
   ClipboardList, UserCog, Settings, Sun, Moon, LogOut, ChevronLeft, ChevronRight, CheckCircle2,
-  ChevronDown, Activity, Map, Percent, FileText, Database, Shield, FileCheck, Eye, AlertTriangle, UserX, Gavel, CalendarClock, Menu, X
+  ChevronDown, Activity, Map, Percent, FileText, Database, Shield, FileCheck, Eye, AlertTriangle, UserX, Gavel, CalendarClock, Menu, X, Megaphone, ShieldCheck
 } from 'lucide-react';
 
 const SuperAdminLayout = () => {
@@ -21,6 +22,21 @@ const SuperAdminLayout = () => {
   const [isRiskOpen, setIsRiskOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [topNotifications, setTopNotifications] = useState([]);
+
+  useEffect(() => {
+    const fetchTopNotifications = async () => {
+      try {
+        const res = await apiClient.get('/admin/notifications');
+        if (res.success && res.data) {
+          setTopNotifications(res.data.slice(0, 5)); // Show latest 5
+        }
+      } catch (err) {
+        console.error('Failed to fetch top notifications', err);
+      }
+    };
+    fetchTopNotifications();
+  }, [location.pathname, isNotificationOpen]); // Refresh on route change or when opened
 
   // Detect resize
   useEffect(() => {
@@ -351,33 +367,49 @@ const SuperAdminLayout = () => {
                 <div className={`absolute right-0 mt-2 w-72 sm:w-80 rounded-xl shadow-2xl border ${isDarkMode ? 'bg-[#13131A] border-white/10' : 'bg-white border-gray-200'} z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200`}>
                   <div className={`p-4 border-b ${isDarkMode ? 'border-white/5' : 'border-gray-100'} flex justify-between items-center`}>
                     <h3 className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Notifications</h3>
-                    <span className="text-xs bg-[#7C3AED] text-white px-2 py-0.5 rounded-full font-bold">1 New</span>
+                    <span className="text-xs bg-[#7C3AED] text-white px-2 py-0.5 rounded-full font-bold">{topNotifications.length > 0 ? `${topNotifications.length} New` : '0 New'}</span>
                   </div>
                   <div className="max-h-[280px] overflow-y-auto custom-scrollbar">
-                    <div className={`p-4 border-b ${isDarkMode ? 'border-white/5 hover:bg-white/[0.02]' : 'border-gray-50 hover:bg-gray-50'} cursor-pointer transition-colors`} onClick={() => { setIsNotificationOpen(false); navigate('/super-admin/notifications'); }}>
-                      <div className="flex gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#7C3AED]/20 flex items-center justify-center shrink-0">
-                          <Bell className="w-4 h-4 text-[#7C3AED]" />
-                        </div>
-                        <div>
-                          <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>System Update</p>
-                          <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Platform maintenance scheduled for tonight at 2 AM EST.</p>
-                          <p className="text-[10px] mt-2 font-medium text-[#7C3AED]">2 hours ago</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className={`p-4 border-b ${isDarkMode ? 'border-white/5 hover:bg-white/[0.02]' : 'border-gray-50 hover:bg-gray-50'} cursor-pointer transition-colors`}>
-                      <div className="flex gap-3">
-                        <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center shrink-0">
-                          <AlertTriangle className="w-4 h-4 text-orange-500" />
-                        </div>
-                        <div>
-                          <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>New Merchant KYC</p>
-                          <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Global Trade Inc submitted KYC docs for review.</p>
-                          <p className="text-[10px] mt-2 font-medium text-orange-500">10 mins ago</p>
-                        </div>
-                      </div>
-                    </div>
+                    {topNotifications.length === 0 ? (
+                       <div className="p-4 text-center text-sm text-gray-500">No new notifications</div>
+                    ) : (
+                      topNotifications.map((notif) => {
+                        const timeAgo = (date) => {
+                          if (!date) return 'Never';
+                          const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+                          if (seconds < 60) return `${seconds} secs ago`;
+                          const minutes = Math.floor(seconds / 60);
+                          if (minutes < 60) return `${minutes} mins ago`;
+                          const hours = Math.floor(minutes / 60);
+                          if (hours < 24) return `${hours} hrs ago`;
+                          const days = Math.floor(hours / 24);
+                          if (days < 30) return `${days} days ago`;
+                          return `${Math.floor(days / 30)} months ago`;
+                        };
+                        return (
+                          <div key={notif.broadcastId} className={`p-4 border-b ${isDarkMode ? 'border-white/5 hover:bg-white/[0.02]' : 'border-gray-50 hover:bg-gray-50'} cursor-pointer transition-colors`} onClick={() => { setIsNotificationOpen(false); navigate('/super-admin/notifications'); }}>
+                            <div className="flex gap-3">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                                notif.category === 'Warning' ? 'bg-yellow-500/20' :
+                                notif.category === 'Feature' ? 'bg-green-500/20' : 'bg-[#7C3AED]/20'
+                              }`}>
+                                {notif.category === 'Warning' ? <AlertTriangle className="w-4 h-4 text-yellow-500" /> : 
+                                 notif.category === 'Feature' ? <Megaphone className="w-4 h-4 text-green-500" /> : 
+                                 <ShieldCheck className="w-4 h-4 text-[#7C3AED]" />}
+                              </div>
+                              <div>
+                                <p className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{notif.title}</p>
+                                <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{notif.message.length > 50 ? notif.message.substring(0, 50) + '...' : notif.message}</p>
+                                <p className={`text-[10px] mt-2 font-medium ${
+                                  notif.category === 'Warning' ? 'text-yellow-500' :
+                                  notif.category === 'Feature' ? 'text-green-500' : 'text-[#7C3AED]'
+                                }`}>{timeAgo(notif.createdAt)}</p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
                   <div className={`p-3 text-center ${isDarkMode ? 'bg-black/20 hover:bg-black/40' : 'bg-gray-50 hover:bg-gray-100'} cursor-pointer transition-colors`} onClick={() => { setIsNotificationOpen(false); navigate('/super-admin/notifications'); }}>
                     <span className="text-sm font-bold text-[#7C3AED]">View All Notifications</span>

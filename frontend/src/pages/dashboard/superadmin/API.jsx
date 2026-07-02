@@ -1,30 +1,89 @@
-import { useState } from 'react';
-import { Code, Key, Copy, RefreshCw, ShieldAlert, Zap, X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Code, Key, Copy, RefreshCw, ShieldAlert, Zap, X, Loader2 } from 'lucide-react';
+import apiClient from '../../../utils/apiClient';
 
 export default function API() {
-  const [keys, setKeys] = useState([
-    { name: 'Gateway Production Key', key: 'pk_live_8f92j...x92j', env: 'Production', created: '2023-10-12', lastUsed: '2 mins ago' },
-    { name: 'Sandbox Testing Key', key: 'pk_test_3m9k2...k20m', env: 'Sandbox', created: '2023-10-12', lastUsed: '5 hrs ago' },
-  ]);
+  const [keys, setKeys] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [revoking, setRevoking] = useState(null);
 
-  const handleGenerate = (e) => {
+  useEffect(() => {
+    fetchKeys();
+  }, []);
+
+  const fetchKeys = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/settings/apikeys');
+      if (res.success && res.data) {
+        setKeys(res.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch API keys', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerate = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const env = formData.get('environment');
-    const newKeyStr = env === 'Production' ? `pk_live_${Math.random().toString(36).substr(2, 9)}...` : `pk_test_${Math.random().toString(36).substr(2, 9)}...`;
-    
-    const newKey = {
-      name: formData.get('name'),
-      key: newKeyStr,
-      env: env,
-      created: new Date().toISOString().split('T')[0],
-      lastUsed: 'Never'
+    const payload = {
+      keyName: formData.get('name'),
+      environment: formData.get('environment')
     };
-    
-    setKeys([newKey, ...keys]);
-    setIsModalOpen(false);
+
+    try {
+      setGenerating(true);
+      await apiClient.post('/admin/settings/apikeys', payload);
+      await fetchKeys();
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Failed to generate key', error);
+    } finally {
+      setGenerating(false);
+    }
   };
+
+  const handleRevoke = async (keyId) => {
+    try {
+      setRevoking(keyId);
+      await apiClient.put(`/admin/settings/apikeys/${keyId}/revoke`);
+      await fetchKeys();
+    } catch (error) {
+      console.error('Failed to revoke key', error);
+    } finally {
+      setRevoking(null);
+    }
+  };
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    alert('API Key copied to clipboard!');
+  };
+
+  const timeAgo = (date) => {
+    if (!date) return 'Never';
+    const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+    if (seconds < 60) return `${seconds} secs ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} mins ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hrs ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} days ago`;
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[50vh] w-full">
+        <Loader2 className="w-8 h-8 text-[#7C3AED] animate-spin mb-4" />
+        <p className="text-gray-400 font-bold">Loading API Keys...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -72,26 +131,38 @@ export default function API() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5 text-sm">
-            {keys.map((k, i) => (
-              <tr key={i} className="hover:bg-white/[0.02]">
-                <td className="p-4 font-bold text-white">{k.name}</td>
-                <td className="p-4">
-                  <span className={`px-2 py-1 rounded text-xs font-bold ${k.env === 'Production' ? 'bg-red-500/10 text-red-500' : 'bg-blue-500/10 text-blue-500'}`}>
-                    {k.env}
-                  </span>
-                </td>
-                <td className="p-4">
-                  <div className="flex items-center gap-2 bg-[#09090B] px-3 py-1.5 rounded-lg border border-white/10 w-fit">
-                    <span className="font-mono text-gray-400">{k.key}</span>
-                    <button className="text-gray-500 hover:text-white"><Copy className="w-4 h-4" /></button>
-                  </div>
-                </td>
-                <td className="p-4 text-gray-400">{k.lastUsed}</td>
-                <td className="p-4 flex justify-center gap-2">
-                  <button className="p-2 text-gray-500 hover:text-red-500 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"><RefreshCw className="w-4 h-4" /></button>
+            {keys.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="p-8 text-center text-gray-500">
+                  No active API keys found. Click 'Generate New Key' to create one.
                 </td>
               </tr>
-            ))}
+            ) : (
+              keys.map((k) => (
+                <tr key={k.keyId} className="hover:bg-white/[0.02]">
+                  <td className="p-4 font-bold text-white">{k.keyName}</td>
+                  <td className="p-4">
+                    <span className={`px-2 py-1 rounded text-xs font-bold ${k.environment === 'Production' ? 'bg-red-500/10 text-red-500' : 'bg-blue-500/10 text-blue-500'}`}>
+                      {k.environment}
+                    </span>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center gap-2 bg-[#09090B] px-3 py-1.5 rounded-lg border border-white/10 w-fit">
+                      <span className="font-mono text-gray-400">
+                        {k.apiToken.substring(0, 15)}...{k.apiToken.substring(k.apiToken.length - 4)}
+                      </span>
+                      <button onClick={() => copyToClipboard(k.apiToken)} className="text-gray-500 hover:text-white transition-colors"><Copy className="w-4 h-4" /></button>
+                    </div>
+                  </td>
+                  <td className="p-4 text-gray-400">{timeAgo(k.lastUsedAt)}</td>
+                  <td className="p-4 flex justify-center gap-2">
+                    <button onClick={() => handleRevoke(k.keyId)} disabled={revoking === k.keyId} title="Revoke Key" className="p-2 text-gray-500 hover:text-red-500 bg-white/5 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50">
+                      {revoking === k.keyId ? <Loader2 className="w-4 h-4 animate-spin"/> : <RefreshCw className="w-4 h-4" />}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -123,8 +194,9 @@ export default function API() {
                 <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg font-bold transition-colors">
                   Cancel
                 </button>
-                <button type="submit" className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors">
-                  Generate Key
+                <button type="submit" disabled={generating} className="flex-1 flex items-center justify-center gap-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors disabled:opacity-70">
+                  {generating ? <Loader2 className="w-4 h-4 animate-spin"/> : null}
+                  {generating ? 'Generating...' : 'Generate Key'}
                 </button>
               </div>
             </form>

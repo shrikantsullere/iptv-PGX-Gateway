@@ -1,17 +1,46 @@
-import { useState } from 'react';
-import { Palette, Search, Globe, CheckCircle2, XCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Palette, Search, Globe, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import apiClient from '../../../utils/apiClient';
 
 export default function WhiteLabel() {
-  const [requests] = useState([
-    { merchant: 'Acme Digital', domain: 'pay.acme.com', ssl: 'Active', status: 'Approved' },
-    { merchant: 'Global Tech', domain: 'checkout.globaltech.io', ssl: 'Provisioning', status: 'Pending Review' },
-    { merchant: 'Scam Casino', domain: 'pay.fakesite.net', ssl: 'Failed', status: 'Rejected' },
-  ]);
+  const [requests, setRequests] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(null);
+
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  const fetchRequests = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/whitelabel');
+      if (res.success && res.data) {
+        setRequests(res.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch white-label requests', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAction = async (id, action) => {
+    try {
+      setActionLoading(id);
+      await apiClient.put(`/admin/whitelabel/${id}/${action}`);
+      await fetchRequests();
+    } catch (error) {
+      console.error(`Failed to ${action} request`, error);
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   const filteredRequests = requests.filter(r => 
-    r.merchant.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    r.domain.toLowerCase().includes(searchQuery.toLowerCase())
+    r.merchantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.requestedDomain.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -49,33 +78,48 @@ export default function WhiteLabel() {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5 text-sm">
-            {filteredRequests.map((r, i) => (
-              <tr key={i} className="hover:bg-white/[0.02]">
-                <td className="p-4 font-bold text-white">{r.merchant}</td>
+            {loading ? (
+              <tr>
+                <td colSpan="5" className="p-8 text-center text-gray-400">
+                  <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#7C3AED] mb-2" />
+                  Loading requests...
+                </td>
+              </tr>
+            ) : filteredRequests.length === 0 ? (
+              <tr>
+                <td colSpan="5" className="p-8 text-center text-gray-500">No white-label requests found.</td>
+              </tr>
+            ) : filteredRequests.map((r) => (
+              <tr key={r.requestId} className="hover:bg-white/[0.02]">
+                <td className="p-4 font-bold text-white">{r.merchantName}</td>
                 <td className="p-4 text-cyan-500 font-mono flex items-center gap-2">
-                  <Globe className="w-4 h-4" /> {r.domain}
+                  <Globe className="w-4 h-4" /> {r.requestedDomain}
                 </td>
                 <td className="p-4">
                   <span className={`px-2 py-1 rounded text-xs font-bold ${
-                    r.ssl === 'Active' ? 'bg-green-500/10 text-green-500' :
-                    r.ssl === 'Provisioning' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-red-500/10 text-red-500'
+                    r.sslStatus === 'Active' ? 'bg-green-500/10 text-green-500' :
+                    r.sslStatus === 'Provisioning' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-red-500/10 text-red-500'
                   }`}>
-                    {r.ssl}
+                    {r.sslStatus}
                   </span>
                 </td>
                 <td className="p-4">
                   <span className={`px-2 py-1 rounded text-[10px] uppercase font-bold border ${
-                    r.status === 'Approved' ? 'border-green-500/30 text-green-500' :
-                    r.status === 'Pending Review' ? 'border-yellow-500/30 text-yellow-500' : 'border-red-500/30 text-red-500'
+                    r.approvalStatus === 'APPROVED' ? 'border-green-500/30 text-green-500' :
+                    r.approvalStatus === 'PENDING REVIEW' ? 'border-yellow-500/30 text-yellow-500' : 'border-red-500/30 text-red-500'
                   }`}>
-                    {r.status}
+                    {r.approvalStatus}
                   </span>
                 </td>
                 <td className="p-4 flex justify-end gap-2">
-                  {r.status === 'Pending Review' && (
+                  {r.approvalStatus === 'PENDING REVIEW' && (
                     <>
-                      <button className="p-1.5 text-green-500 hover:bg-green-500/10 rounded-lg"><CheckCircle2 className="w-5 h-5" /></button>
-                      <button className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg"><XCircle className="w-5 h-5" /></button>
+                      <button onClick={() => handleAction(r.requestId, 'approve')} disabled={actionLoading === r.requestId} className="p-1.5 text-green-500 hover:bg-green-500/10 rounded-lg transition-colors disabled:opacity-50">
+                        {actionLoading === r.requestId ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
+                      </button>
+                      <button onClick={() => handleAction(r.requestId, 'reject')} disabled={actionLoading === r.requestId} className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors disabled:opacity-50">
+                         {actionLoading === r.requestId ? <Loader2 className="w-5 h-5 animate-spin" /> : <XCircle className="w-5 h-5" />}
+                      </button>
                     </>
                   )}
                 </td>

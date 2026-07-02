@@ -103,7 +103,7 @@ export default function FailoverMonitor() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
                 <XAxis dataKey="time" stroke="rgba(255,255,255,0.2)" fontSize={12} tickLine={false} axisLine={false} dy={10} />
                 <YAxis stroke="rgba(255,255,255,0.2)" fontSize={12} tickLine={false} axisLine={false} dx={-10} />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ backgroundColor: '#09090B', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}
                   itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
                 />
@@ -277,11 +277,10 @@ export default function FailoverMonitor() {
           </div>
           <button
             onClick={handleSaveNotif}
-            className={`shrink-0 px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
-              notifSaved
+            className={`shrink-0 px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${notifSaved
                 ? 'bg-green-600 text-white shadow-[0_0_15px_rgba(34,197,94,0.3)]'
                 : 'bg-cyan-600 hover:bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)]'
-            }`}
+              }`}
           >
             {notifSaving ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -339,20 +338,17 @@ export default function FailoverMonitor() {
                 <div
                   key={item.key}
                   onClick={() => toggleNotif(item.key)}
-                  className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
-                    notifToggles[item.key] ? item.bg : 'bg-white/[0.02] border-white/5 hover:border-white/10'
-                  }`}
+                  className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${notifToggles[item.key] ? item.bg : 'bg-white/[0.02] border-white/5 hover:border-white/10'
+                    }`}
                 >
                   <div className="flex-1 min-w-0 pr-3">
                     <div className={`text-sm font-bold ${notifToggles[item.key] ? item.color : 'text-gray-300'}`}>{item.label}</div>
                     <div className="text-xs text-gray-500 mt-0.5 truncate">{item.desc}</div>
                   </div>
-                  <div className={`w-10 h-6 rounded-full transition-all duration-300 relative shrink-0 ${
-                    notifToggles[item.key] ? 'bg-cyan-500' : 'bg-white/10'
-                  }`}>
-                    <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all duration-300 ${
-                      notifToggles[item.key] ? 'left-5' : 'left-1'
-                    }`} />
+                  <div className={`w-10 h-6 rounded-full transition-all duration-300 relative shrink-0 ${notifToggles[item.key] ? 'bg-cyan-500' : 'bg-white/10'
+                    }`}>
+                    <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all duration-300 ${notifToggles[item.key] ? 'left-5' : 'left-1'
+                      }`} />
                   </div>
                 </div>
               ))}

@@ -9,7 +9,14 @@ const getAllSettlements = async (req, res, next) => {
         const settlements = await prisma.settlements.findMany({
             orderBy: { createdAt: 'desc' }
         });
-        return sendResponse(res, 200, true, 'Settlements fetched successfully', settlements);
+        
+        // Map fields to match frontend expectations
+        const mappedSettlements = settlements.map(s => ({
+            ...s,
+            payoutMethod: s.settlementMethod
+        }));
+
+        return sendResponse(res, 200, true, 'Settlements fetched successfully', mappedSettlements);
     } catch (error) {
         next(error);
     }
@@ -37,7 +44,7 @@ const getSettlementById = async (req, res, next) => {
  */
 const createSettlement = async (req, res, next) => {
     try {
-        const { merchantId, amount, currency, bankDetails } = req.body;
+        const { merchantId, amount, currency, destinationDetails } = req.body;
         
         if (!merchantId || !amount) {
             return sendResponse(res, 400, false, 'Merchant ID and amount are required');
@@ -46,12 +53,16 @@ const createSettlement = async (req, res, next) => {
         const newSettlement = await prisma.settlements.create({
             data: {
                 merchantId,
-                amount,
+                merchantName: 'Current Merchant', // Default mapping
+                amount: Number(amount),
                 currency: currency || 'USD',
-                fee: amount * 0.01, // Example mock 1% fee
-                netAmount: amount - (amount * 0.01),
+                settlementMethod: 'Crypto',
+                settlementType: 'Manual',
                 status: 'Pending',
-                bankDetails: bankDetails || 'Standard Bank Info',
+                transactionHash: 'Pending Hash',
+                bankReference: destinationDetails || 'N/A',
+                initiatedAt: new Date(),
+                completedAt: new Date(),
                 createdAt: new Date(),
                 updatedAt: new Date()
             }

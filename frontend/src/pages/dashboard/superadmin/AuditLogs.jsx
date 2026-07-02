@@ -14,28 +14,32 @@ export default function AuditLogs() {
   const fetchAuditLogs = async () => {
     try {
       setLoading(true);
-      const res = await apiClient.get('/admin/reports/history');
-      if (res.success && res.data.length > 0) {
+      const res = await apiClient.get('/admin/audit-logs');
+      if (res.success && res.data) {
         setLogs(res.data);
-      } else {
-        // Fallback since backend doesn't have an audit log table yet
-        setLogs([
-          { action: 'Disabled Merchant Account (MER-1092)', admin: 'superadmin@pgx.com', ip: '192.168.1.1', time: '10 mins ago', type: 'Security' },
-          { action: 'Updated Global API Rate Limit', admin: 'devops@pgx.com', ip: '10.0.0.4', time: '2 hours ago', type: 'Config' },
-          { action: 'Approved White-Label Domain', admin: 'support@pgx.com', ip: '192.168.1.5', time: '5 hours ago', type: 'Operation' },
-          { action: 'Admin Login', admin: 'superadmin@pgx.com', ip: '192.168.1.1', time: '1 day ago', type: 'Access' },
-        ]);
       }
     } catch (err) {
-      console.error('Failed to fetch audit logs');
+      console.error('Failed to fetch audit logs', err);
     } finally {
       setLoading(false);
     }
   };
 
   const filteredLogs = logs.filter(l => 
-    l.action.toLowerCase().includes(searchQuery.toLowerCase())
+    l.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const timeAgo = (date) => {
+    if (!date) return 'Never';
+    const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+    if (seconds < 60) return `${seconds} secs ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} mins ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hrs ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} days ago`;
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -80,22 +84,28 @@ export default function AuditLogs() {
                      Fetching Secure Ledger...
                    </td>
                  </tr>
-              ) : filteredLogs.map((log, i) => (
-                <tr key={i} className="hover:bg-white/[0.02]">
+              ) : filteredLogs.length === 0 ? (
+                 <tr>
+                   <td colSpan="5" className="p-8 text-center text-gray-500">
+                     No audit logs found.
+                   </td>
+                 </tr>
+              ) : filteredLogs.map((log) => (
+                <tr key={log.auditId} className="hover:bg-white/[0.02]">
                   <td className="p-4">
                     <span className={`px-2 py-1 rounded text-[10px] uppercase font-bold border ${
-                      log.type === 'Security' ? 'border-red-500/50 text-red-500 bg-red-500/10' :
-                      log.type === 'Config' ? 'border-purple-500/50 text-purple-500 bg-purple-500/10' :
-                      log.type === 'Access' ? 'border-green-500/50 text-green-500 bg-green-500/10' :
+                      log.actionType === 'Security' ? 'border-red-500/50 text-red-500 bg-red-500/10' :
+                      log.actionType === 'Config' ? 'border-purple-500/50 text-purple-500 bg-purple-500/10' :
+                      log.actionType === 'Access' ? 'border-green-500/50 text-green-500 bg-green-500/10' :
                       'border-blue-500/50 text-blue-500 bg-blue-500/10'
                     }`}>
-                      {log.type}
+                      {log.actionType}
                     </span>
                   </td>
-                  <td className="p-4 font-bold text-white">{log.action}</td>
-                  <td className="p-4 text-gray-300 flex items-center gap-2"><UserCheck className="w-4 h-4 text-gray-500"/> {log.admin}</td>
-                  <td className="p-4 font-mono text-gray-500 text-xs">{log.ip}</td>
-                  <td className="p-4 text-right text-gray-400">{log.time}</td>
+                  <td className="p-4 font-bold text-white">{log.description}</td>
+                  <td className="p-4 text-gray-300 flex items-center gap-2"><UserCheck className="w-4 h-4 text-gray-500"/> {log.administratorEmail}</td>
+                  <td className="p-4 font-mono text-gray-500 text-xs">{log.ipAddress}</td>
+                  <td className="p-4 text-right text-gray-400">{timeAgo(log.timestamp)}</td>
                 </tr>
               ))}
             </tbody>

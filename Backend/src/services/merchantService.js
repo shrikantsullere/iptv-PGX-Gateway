@@ -26,6 +26,12 @@ const searchMerchants = async (query) => {
 const createMerchant = async (data) => {
     return await prisma.merchants.create({
         data: {
+            phone: '',
+            subscriptionPlan: 'Basic',
+            revenue: 0,
+            status: 'Active',
+            website: '',
+            apiKey: `pk_${Date.now()}`,
             ...data,
             merchantId: `MER_${Date.now()}`,
             createdAt: new Date(),

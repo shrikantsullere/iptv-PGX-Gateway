@@ -7,6 +7,7 @@ const { requireRole } = require('../middlewares/roleMiddleware');
 router.use(verifyToken);
 router.use(requireRole(['Super Admin', 'Owner']));
 
+router.get('/system', reportController.getSystemReports);
 router.post('/system', reportController.generateSystemReport);
 router.get('/compliance', reportController.getComplianceReports);
 router.get('/history', reportController.getReportHistory);

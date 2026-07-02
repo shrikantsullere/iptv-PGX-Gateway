@@ -1,15 +1,39 @@
 const { PrismaClient } = require('@prisma/client');
-const mariadb = require('mariadb');
 const { PrismaMariaDb } = require('@prisma/adapter-mariadb');
 
-// Pass connection string directly to avoid fallback to OS username 'pcc'
-const connectionString = process.env.DATABASE_URL 
-    ? process.env.DATABASE_URL.replace('mysql://', 'mariadb://').replace(':@', '@').replace('localhost', '127.0.0.1')
-    : 'mariadb://root@127.0.0.1:3306/pgx_gateway?connectionLimit=10';
+const adapter = new PrismaMariaDb({
+    host: '127.0.0.1',
+    port: 3306,
+    user: 'root',
+    password: '',
+    database: 'pgx_gateway',
+    connectionLimit: 100
+});
 
-const pool = mariadb.createPool(connectionString);
-
-const adapter = new PrismaMariaDb(pool);
 const prisma = new PrismaClient({ adapter });
+
+// Handle nodemon restarts and application termination gracefully to prevent database connection leaks
+async function gracefulShutdown() {
+    try {
+        await prisma.$disconnect();
+    } catch (err) {
+        console.error('Error during database disconnection:', err);
+    }
+}
+
+process.once('SIGUSR2', async () => {
+    await gracefulShutdown();
+    process.kill(process.pid, 'SIGUSR2');
+});
+
+process.on('SIGINT', async () => {
+    await gracefulShutdown();
+    process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+    await gracefulShutdown();
+    process.exit(0);
+});
 
 module.exports = prisma;

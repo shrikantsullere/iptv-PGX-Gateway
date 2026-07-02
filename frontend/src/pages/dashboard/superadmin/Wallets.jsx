@@ -24,10 +24,9 @@ export default function Wallets() {
     }
   };
 
-  const totalBalance = wallets.reduce((acc, curr) => acc + Number(curr.balance), 0);
-  // Simulating hot vs cold split since schema might not have type, we'll just show mock aggregate data for the cards, but list the real wallets below.
-  const coldStorage = totalBalance * 0.8 || 12450000; 
-  const hotLiquidity = totalBalance * 0.2 || 2050000;
+  const totalBalance = wallets.reduce((acc, curr) => acc + Number(curr.balance || 0), 0);
+  const coldStorage = totalBalance * 0.8; 
+  const hotLiquidity = totalBalance * 0.2;
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">

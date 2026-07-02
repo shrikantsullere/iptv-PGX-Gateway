@@ -16,6 +16,8 @@ router.get('/alerts', processorController.getAlerts);
 router.post('/configure-node', processorController.configureNode);
 router.get('/report', processorController.downloadReport);
 
+const feeSplitController = require('../controllers/feeSplitController');
+
 // Failover Monitor Routes
 router.get('/failover-monitor', processorController.getFailoverMonitor);
 router.get('/failover-monitor/nodes', processorController.getProcessingNodes); // Resuing nodes logic
@@ -24,5 +26,10 @@ router.get('/failover-monitor/triggers', processorController.getFailoverTriggers
 router.put('/failover-monitor/triggers/:id', processorController.updateTriggerSettings);
 router.post('/failover-monitor/manual-failover', processorController.triggerManualFailover);
 router.post('/failover-monitor/recovery', processorController.triggerRecovery);
+
+// Fee Split Routes
+router.get('/fee-split', feeSplitController.getFeeSplit);
+router.post('/fee-split/rules', feeSplitController.createMarkupRule);
+router.put('/fee-split/rules/:id', feeSplitController.updateMarkupRule);
 
 module.exports = router;

@@ -10,7 +10,37 @@ const getDashboardSummary = async (req, res, next) => {
             take: 1,
             orderBy: { generatedAt: 'desc' }
         });
-        return sendResponse(res, 200, true, 'Processor dashboard summary fetched', summary[0] || {});
+
+        const nodes = await prisma.processor_monitors.findMany({
+            orderBy: { createdAt: 'desc' },
+            take: 5
+        });
+
+        const metrics = await prisma.processor_metrics.findMany({
+            orderBy: { createdAt: 'desc' },
+            take: 21 // 7 timestamps * 3 processors
+        });
+
+        // Group metrics into volumeData for frontend chart
+        // Example volumeData: { time: '00:00', stripe: 4000, moonpay: 2400, coinbase: 2400 }
+        const timeMap = {};
+        metrics.forEach(m => {
+            if (!timeMap[m.reportingPeriod]) {
+                timeMap[m.reportingPeriod] = { time: m.reportingPeriod };
+            }
+            if (m.processorName === 'Stripe') timeMap[m.reportingPeriod].stripe = m.transactionVolume;
+            if (m.processorName === 'MoonPay') timeMap[m.reportingPeriod].moonpay = m.transactionVolume;
+            if (m.processorName === 'Coinbase') timeMap[m.reportingPeriod].coinbase = m.transactionVolume;
+        });
+
+        // Sort the volume data by time
+        const volumeData = Object.values(timeMap).sort((a, b) => a.time.localeCompare(b.time));
+
+        return sendResponse(res, 200, true, 'Processor dashboard summary fetched', {
+            summary: summary[0] || {},
+            nodes: nodes,
+            volumeData: volumeData
+        });
     } catch (error) {
         next(error);
     }
@@ -134,7 +164,7 @@ const updateTriggerSettings = async (req, res, next) => {
     try {
         const { id } = req.params;
         const payload = req.body;
-        
+
         const updated = await prisma.failover_triggers.update({
             where: { triggerId: id },
             data: { ...payload }

@@ -4,48 +4,60 @@ import apiClient from '../../../utils/apiClient';
 
 export default function Webhooks() {
   const [logs, setLogs] = useState([]);
+  const [endpoints, setEndpoints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetchWebhookLogs();
+    fetchData();
   }, []);
 
-  const fetchWebhookLogs = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await apiClient.get('/admin/webhooks/logs');
-      if (res.success) {
-        setLogs(res.data);
-      }
+      const [endpointsRes, deliveriesRes] = await Promise.all([
+        apiClient.get('/admin/settings/webhooks'),
+        apiClient.get('/admin/settings/webhooks/deliveries')
+      ]);
+      
+      if (endpointsRes.success) setEndpoints(endpointsRes.data || []);
+      if (deliveriesRes.success) setLogs(deliveriesRes.data || []);
     } catch (err) {
-      console.error('Failed to fetch webhook logs');
+      console.error('Failed to fetch webhook data', err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddEndpoint = (e) => {
+  const handleAddEndpoint = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const endpointUrl = formData.get('endpoint');
-    const eventType = formData.get('event');
-    
-    // Optimistic mock addition
-    const newLog = {
-      logId: Math.random().toString(),
-      eventType: eventType === '*' ? 'all_events' : eventType,
-      endpointUrl: endpointUrl,
-      statusCode: 200,
-      timestamp: new Date().toISOString()
+    const payload = {
+      endpoint: formData.get('endpoint'),
+      event: formData.get('event'),
+      secret: formData.get('secret')
     };
     
-    setLogs([newLog, ...logs]);
-    setIsModalOpen(false);
+    try {
+      setSaving(true);
+      await apiClient.post('/admin/settings/webhooks', payload);
+      await fetchData();
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error('Failed to add webhook endpoint', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const failureRate = logs.length > 0 ? ((logs.filter(l => l.statusCode !== 200).length / logs.length) * 100).toFixed(2) : 0;
-  const activeEndpoints = new Set(logs.map(l => l.endpointUrl)).size || 0;
+  const failureRate = logs.length > 0 ? ((logs.filter(l => l.responseCode !== 200).length / logs.length) * 100).toFixed(2) : 0;
+  const activeEndpoints = endpoints.length;
+
+  const getEndpointUrl = (endpointId) => {
+    const ep = endpoints.find(e => e.endpointId === endpointId);
+    return ep ? ep.endpointUrl : endpointId;
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -104,7 +116,7 @@ export default function Webhooks() {
                 <tr>
                   <td colSpan="4" className="p-8 text-center text-gray-400">
                     <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#7C3AED] mb-2" />
-                    Fetching logs...
+                    Fetching data...
                   </td>
                 </tr>
               ) : logs.length === 0 ? (
@@ -112,17 +124,17 @@ export default function Webhooks() {
                   <td colSpan="4" className="p-8 text-center text-gray-400">No webhook delivery logs found.</td>
                 </tr>
               ) : logs.map((log) => (
-                <tr key={log.logId} className="hover:bg-white/[0.02]">
+                <tr key={log.deliveryId} className="hover:bg-white/[0.02]">
                   <td className="p-4 font-bold text-gray-300 font-mono text-xs">{log.eventType}</td>
-                  <td className="p-4 text-gray-500 font-mono text-xs">{log.endpointUrl}</td>
+                  <td className="p-4 text-gray-500 font-mono text-xs">{getEndpointUrl(log.endpointId)}</td>
                   <td className="p-4 text-center">
-                    {log.statusCode === 200 ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-500/10 text-green-500 rounded text-xs font-bold"><CheckCircle2 className="w-3 h-3"/> {log.statusCode} OK</span>
+                    {log.responseCode === 200 ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-500/10 text-green-500 rounded text-xs font-bold"><CheckCircle2 className="w-3 h-3"/> {log.responseCode} OK</span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-500/10 text-red-500 rounded text-xs font-bold"><XCircle className="w-3 h-3"/> {log.statusCode} ERR</span>
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-500/10 text-red-500 rounded text-xs font-bold"><XCircle className="w-3 h-3"/> {log.responseCode || 'ERR'}</span>
                     )}
                   </td>
-                  <td className="p-4 text-right text-gray-400">{new Date(log.timestamp).toLocaleString()}</td>
+                  <td className="p-4 text-right text-gray-400">{new Date(log.deliveredAt).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -162,8 +174,9 @@ export default function Webhooks() {
                 <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg font-bold transition-colors">
                   Cancel
                 </button>
-                <button type="submit" className="flex-1 bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors">
-                  Save Endpoint
+                <button type="submit" disabled={saving} className="flex-1 flex justify-center items-center gap-2 bg-[#7C3AED] hover:bg-[#6D28D9] text-white py-2 rounded-lg font-bold shadow-[0_0_15px_rgba(124,58,237,0.3)] transition-colors disabled:opacity-50">
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin"/> : null}
+                  {saving ? 'Saving...' : 'Save Endpoint'}
                 </button>
               </div>
             </form>

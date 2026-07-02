@@ -9,7 +9,15 @@ const getAllTransactions = async (req, res, next) => {
         const transactions = await prisma.transactions.findMany({
             orderBy: { createdAt: 'desc' }
         });
-        return sendResponse(res, 200, true, 'Transactions fetched successfully', transactions);
+        
+        // Map Prisma schema fields to what the frontend specifically expects
+        const mappedTransactions = transactions.map(tx => ({
+            ...tx,
+            processorName: tx.processor,
+            paymentHash: tx.transactionHash
+        }));
+
+        return sendResponse(res, 200, true, 'Transactions fetched successfully', mappedTransactions);
     } catch (error) {
         next(error);
     }
