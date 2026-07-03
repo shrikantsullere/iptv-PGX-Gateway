@@ -1,32 +1,71 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Wallet as WalletIcon, ArrowDownToLine, ArrowUpFromLine, 
   Search, ExternalLink, QrCode, Copy, ChevronLeft, CheckCircle2,
-  Clock, XCircle, ArrowRightCircle, Plus
+  Clock, XCircle, ArrowRightCircle, Plus, Loader2
 } from 'lucide-react';
+import apiClient from '../../utils/apiClient';
 
-const initialAssets = [
-  { id: 'USDC', name: 'USD Coin', balance: '124,500.50', fiat: '$124,500.50', color: 'bg-blue-500', trend: '+2.4%', network: 'ERC-20' },
-  { id: 'USDT', name: 'Tether', balance: '45,200.00', fiat: '$45,200.00', color: 'bg-teal-500', trend: '+1.1%', network: 'TRC-20' },
-  { id: 'BTC', name: 'Bitcoin', balance: '2.45600', fiat: '$158,400.20', color: 'bg-orange-500', trend: '-0.5%', network: 'Bitcoin' },
-  { id: 'ETH', name: 'Ethereum', balance: '18.500', fiat: '$64,200.50', color: 'bg-purple-500', trend: '+5.2%', network: 'ERC-20' },
-];
-
-const mockTransactions = [
-  { id: 'TX-9821', type: 'Deposit', amount: '+ 5,000.00', status: 'Completed', time: '10 mins ago', hash: '0x123...abc' },
-  { id: 'TX-9820', type: 'Withdrawal', amount: '- 1,200.00', status: 'Pending', time: '2 hours ago', hash: '0x456...def' },
-  { id: 'TX-9819', type: 'Payment', amount: '+ 250.00', status: 'Completed', time: '5 hours ago', hash: '0x789...ghi' },
-  { id: 'TX-9818', type: 'Refund', amount: '- 50.00', status: 'Failed', time: '1 day ago', hash: '0xabc...123' },
-  { id: 'TX-9817', type: 'Deposit', amount: '+ 10,000.00', status: 'Completed', time: '2 days ago', hash: '0xdef...456' },
-];
+// mockTransactions removed as it will be fetched from API
 
 const Wallets = () => {
-  const [assetsList, setAssetsList] = useState(initialAssets);
+  const [assetsList, setAssetsList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [modalType, setModalType] = useState(null); // 'deposit' or 'withdraw'
   const [copied, setCopied] = useState(false);
+  const [addingAsset, setAddingAsset] = useState(false);
+  const [transactions, setTransactions] = useState([]);
+  const [loadingTx, setLoadingTx] = useState(false);
 
-  const handleAddAsset = (coinString) => {
+  useEffect(() => {
+    fetchWallets();
+  }, []);
+
+  useEffect(() => {
+    if (selectedAsset) {
+      fetchTransactions();
+    }
+  }, [selectedAsset]);
+
+  const fetchTransactions = async () => {
+    try {
+      setLoadingTx(true);
+      const res = await apiClient.get('/admin/transactions');
+      if (res.success && res.data) {
+        // Map to match frontend format
+        const mapped = res.data.map(tx => ({
+          id: tx.transactionId.substring(0, 8),
+          type: tx.paymentMethod === 'Crypto' ? 'Deposit' : 'Payment', // Simple mapping
+          amount: (tx.paymentMethod === 'Crypto' ? '+ ' : '- ') + tx.amount,
+          status: tx.status,
+          time: new Date(tx.createdAt).toLocaleString(),
+          hash: tx.transactionHash
+        }));
+        setTransactions(mapped);
+      }
+    } catch (err) {
+      console.error('Failed to fetch transactions');
+    } finally {
+      setLoadingTx(false);
+    }
+  };
+
+  const fetchWallets = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/wallets');
+      if (res.success && res.data) {
+        setAssetsList(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch wallets');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddAsset = async (coinString) => {
     const parts = coinString.split(' ');
     const id = parts[0];
     const name = parts.slice(1).join(' ').replace(/[()]/g, '');
@@ -36,20 +75,18 @@ const Wallets = () => {
       return;
     }
 
-    const colors = ['bg-blue-500', 'bg-teal-500', 'bg-orange-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-green-500'];
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-
-    const newAsset = {
-      id,
-      name,
-      balance: '0.00',
-      fiat: '$0.00',
-      color: randomColor,
-      trend: '+0.0%',
-      network: 'Mainnet'
-    };
-    setAssetsList([...assetsList, newAsset]);
-    setModalType(null);
+    try {
+      setAddingAsset(true);
+      const res = await apiClient.post('/admin/wallets', { id, name, network: 'Mainnet' });
+      if (res.success) {
+        fetchWallets();
+        setModalType(null);
+      }
+    } catch (error) {
+      alert('Failed to add asset');
+    } finally {
+      setAddingAsset(false);
+    }
   };
 
   const handleCopy = () => {
@@ -85,7 +122,13 @@ const Wallets = () => {
       {/* Asset Cards */}
       <h3 className="text-xl font-bold text-white mb-6">Your Assets</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        {assetsList.map((asset) => (
+        {loading ? (
+          <div className="col-span-full py-12 flex justify-center text-primary">
+            <Loader2 className="w-8 h-8 animate-spin" />
+          </div>
+        ) : assetsList.length === 0 ? (
+          <div className="col-span-full py-12 text-center text-gray-500">No assets found. Add an asset to get started.</div>
+        ) : assetsList.map((asset) => (
           <div 
             key={asset.id}
             onClick={() => setSelectedAsset(asset)}
@@ -187,7 +230,17 @@ const Wallets = () => {
               </tr>
             </thead>
             <tbody className="text-sm divide-y divide-white/5">
-              {mockTransactions.map((tx, i) => (
+              {loadingTx ? (
+                <tr>
+                  <td colSpan="6" className="py-8 text-center text-primary">
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" /> Loading...
+                  </td>
+                </tr>
+              ) : transactions.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="py-8 text-center text-gray-500">No transactions found.</td>
+                </tr>
+              ) : transactions.map((tx, i) => (
                 <tr key={i} className="hover:bg-white/[0.02] transition-colors">
                   <td className="py-4 text-gray-400 font-mono text-xs">{tx.id}</td>
                   <td className="py-4">

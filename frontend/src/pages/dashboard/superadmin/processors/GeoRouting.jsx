@@ -1,52 +1,85 @@
 import { useState } from 'react';
+import apiClient from '../../../../utils/apiClient';
+import { useEffect } from 'react';
 import { Globe, Plus, Trash2, Edit, ChevronRight, Flag, Shield, ArrowRight, X } from 'lucide-react';
-
-const routingRules = [
-  { id: 1, region: 'North America', countries: 'US, CA, MX', processor: 'Stripe Gateway US', priority: 1, status: 'Active', color: 'bg-[#7C3AED]' },
-  { id: 2, region: 'Europe', countries: 'DE, FR, GB, ES, IT', processor: 'Stripe Gateway EU', priority: 1, status: 'Active', color: 'bg-blue-600' },
-  { id: 3, region: 'Asia Pacific', countries: 'JP, SG, KR, AU', processor: 'LocalGate Asia', priority: 1, status: 'Active', color: 'bg-cyan-600' },
-  { id: 4, region: 'Middle East', countries: 'AE, SA, QA', processor: 'MoonPay Crypto', priority: 2, status: 'Active', color: 'bg-amber-600' },
-  { id: 5, region: 'Latin America', countries: 'BR, AR, CL, CO', processor: 'Stripe Gateway US', priority: 2, status: 'Draft', color: 'bg-pink-600' },
-  { id: 6, region: 'Africa', countries: 'NG, ZA, KE, GH', processor: 'MoonPay Crypto', priority: 3, status: 'Draft', color: 'bg-green-600' },
-];
 
 const processorOptions = ['Stripe Gateway US', 'Stripe Gateway EU', 'MoonPay Crypto', 'Coinbase Commerce', 'LocalGate Asia'];
 
 export default function GeoRouting() {
   const [showAddModal, setShowAddModal] = useState(false);
-  const [rules, setRules] = useState(routingRules);
+  const [rules, setRules] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchRules = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/payment-processors/geo-routing/rules');
+      if (res.success) {
+        setRules(res.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch geo routing rules', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRules();
+  }, []);
   const [editRule, setEditRule] = useState(null);
 
-  const deleteRule = (id) => setRules(r => r.filter(x => x.id !== id));
+  const deleteRule = async (id) => {
+    try {
+      const res = await apiClient.delete(`/admin/payment-processors/geo-routing/rules/${id}`);
+      if (res.success) {
+        setRules(r => r.filter(x => x.ruleId !== id));
+      }
+    } catch (error) {
+      alert('Failed to delete rule');
+    }
+  };
 
-  const handleAddRule = (e) => {
+  const handleAddRule = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const newRule = {
-      id: Date.now(),
       region: formData.get('region'),
       countries: formData.get('countries'),
       processor: formData.get('processor'),
       priority: parseInt(formData.get('priority')),
-      status: 'Active',
-      color: 'bg-blue-600'
     };
-    setRules([...rules, newRule]);
-    setShowAddModal(false);
+    
+    try {
+      const res = await apiClient.post('/admin/payment-processors/geo-routing/rules', newRule);
+      if (res.success) {
+        await fetchRules();
+        setShowAddModal(false);
+      }
+    } catch (error) {
+      alert('Failed to add rule');
+    }
   };
   
-  const handleEditRule = (e) => {
+  const handleEditRule = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const updated = {
-      ...editRule,
       region: formData.get('region'),
       countries: formData.get('countries'),
       processor: formData.get('processor'),
       priority: parseInt(formData.get('priority')),
     };
-    setRules(rules.map(r => r.id === editRule.id ? updated : r));
-    setEditRule(null);
+    
+    try {
+      const res = await apiClient.put(`/admin/payment-processors/geo-routing/rules/${editRule.ruleId}`, updated);
+      if (res.success) {
+        await fetchRules();
+        setEditRule(null);
+      }
+    } catch (error) {
+      alert('Failed to update rule');
+    }
   };
 
   return (
@@ -71,7 +104,7 @@ export default function GeoRouting() {
         {[
           { label: 'Active Regions', value: rules.filter(r => r.status === 'Active').length, color: 'text-green-500', bg: 'bg-green-500/10' },
           { label: 'Draft Rules', value: rules.filter(r => r.status === 'Draft').length, color: 'text-orange-500', bg: 'bg-orange-500/10' },
-          { label: 'Processors Used', value: new Set(rules.map(r => r.processor)).size, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+          { label: 'Processors Used', value: new Set(rules.map(r => r.processorName)).size, color: 'text-blue-500', bg: 'bg-blue-500/10' },
           { label: 'Countries Covered', value: '140+', color: 'text-purple-500', bg: 'bg-purple-500/10' },
         ].map((s, i) => (
           <div key={i} className="bg-[#13131A] border border-white/5 rounded-2xl p-5 flex flex-col items-center text-center shadow-xl">
@@ -84,13 +117,13 @@ export default function GeoRouting() {
       {/* Rules Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         {rules.map((rule) => (
-          <div key={rule.id} className="bg-[#13131A] border border-white/5 rounded-3xl p-6 shadow-xl hover:border-white/10 transition-colors group relative overflow-hidden">
-            <div className={`absolute top-0 left-0 w-1 h-full ${rule.color}`}></div>
+          <div key={rule.ruleId} className="bg-[#13131A] border border-white/5 rounded-3xl p-6 shadow-xl hover:border-white/10 transition-colors group relative overflow-hidden">
+            <div className={`absolute top-0 left-0 w-1 h-full $bg-blue-600`}></div>
             <div className="pl-4">
               <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center gap-2">
                   <Globe className="w-5 h-5 text-gray-400" />
-                  <h4 className="font-black text-white">{rule.region}</h4>
+                  <h4 className="font-black text-white">{rule.regionName}</h4>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${rule.status === 'Active' ? 'bg-green-500/10 text-green-500 border border-green-500/20' : 'bg-orange-500/10 text-orange-500 border border-orange-500/20'}`}>
@@ -100,11 +133,11 @@ export default function GeoRouting() {
               </div>
               <div className="flex items-center gap-2 mb-3">
                 <Flag className="w-3 h-3 text-gray-500 shrink-0" />
-                <p className="text-xs text-gray-400 font-medium">{rule.countries}</p>
+                <p className="text-xs text-gray-400 font-medium">{(() => { try { return JSON.parse(rule.countries) } catch(e) { return rule.countries } })()}</p>
               </div>
               <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2.5 mb-4 border border-white/5">
                 <ArrowRight className="w-4 h-4 text-[#7C3AED] shrink-0" />
-                <span className="text-sm font-bold text-white">{rule.processor}</span>
+                <span className="text-sm font-bold text-white">{rule.processorName}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-xs text-gray-500">
@@ -115,7 +148,7 @@ export default function GeoRouting() {
                   <button onClick={() => setEditRule(rule)} className="text-gray-400 hover:text-[#7C3AED] transition-colors p-1.5 rounded-lg hover:bg-[#7C3AED]/10">
                     <Edit className="w-4 h-4" />
                   </button>
-                  <button onClick={() => deleteRule(rule.id)} className="text-gray-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-500/10">
+                  <button onClick={() => deleteRule(rule.ruleId)} className="text-gray-400 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-500/10">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>

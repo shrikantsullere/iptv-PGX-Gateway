@@ -1,19 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import apiClient from '../../../../utils/apiClient';
 import { Landmark, Settings, Clock, ArrowDownToLine, CheckCircle2, Loader2, X, TrendingDown } from 'lucide-react';
-
-const balances = [
-  { processor: 'Stripe Gateway US', available: '$48,240.00', pending: '$12,180.00', settled: '$824,500.00', currency: 'USD' },
-  { processor: 'Stripe Gateway EU', available: '€22,880.00', pending: '€8,400.00', settled: '€410,200.00', currency: 'EUR' },
-  { processor: 'MoonPay Crypto', available: '$9,120.00', pending: '$3,400.00', settled: '$180,000.00', currency: 'USD' },
-  { processor: 'Coinbase Commerce', available: '$4,560.00', pending: '$1,800.00', settled: '$95,000.00', currency: 'USD' },
-];
-
-const recentSettlements = [
-  { id: 'SET-8821', processor: 'Stripe US', amount: '$82,400.00', date: 'Jun 29, 2025', method: 'Wire Transfer', status: 'Completed' },
-  { id: 'SET-8820', processor: 'Stripe EU', amount: '€41,200.00', date: 'Jun 28, 2025', method: 'SEPA', status: 'Completed' },
-  { id: 'SET-8819', processor: 'MoonPay', amount: '$18,900.00', date: 'Jun 27, 2025', method: 'Wire Transfer', status: 'Completed' },
-  { id: 'SET-8818', processor: 'Coinbase', amount: '$9,500.00', date: 'Jun 26, 2025', method: 'Crypto', status: 'Completed' },
-];
 
 export default function SettlementEngine() {
   const [showSettleModal, setShowSettleModal] = useState(false);
@@ -21,14 +8,89 @@ export default function SettlementEngine() {
   const [settled, setSettled] = useState(false);
   const [isAutoSettleEnabled, setIsAutoSettleEnabled] = useState(true);
   const [showModifyModal, setShowModifyModal] = useState(false);
+  
+  const [balances, setBalances] = useState([]);
+  const [recentSettlements, setRecentSettlements] = useState([]);
+  const [autoSettleRule, setAutoSettleRule] = useState({ frequency: 'Daily at 00:00 UTC', minimumThreshold: 500000 });
 
-  const handleSettle = () => {
+  const fetchData = async () => {
+    try {
+      const res = await apiClient.get('/admin/payment-processors/settlement-engine');
+      if (res.success) {
+        const { balances, recentSettlements, autoSettle } = res.data;
+        setBalances(balances.map(b => ({
+          processor: b.processorName,
+          available: (b.currency === 'USD' ? '$' : '€') + (b.availableBalance / 100).toLocaleString(undefined, {minimumFractionDigits: 2}),
+          pending: (b.currency === 'USD' ? '$' : '€') + (b.pendingBalance / 100).toLocaleString(undefined, {minimumFractionDigits: 2}),
+          settled: (b.currency === 'USD' ? '$' : '€') + (b.totalSettled / 100).toLocaleString(undefined, {minimumFractionDigits: 2}),
+          currency: b.currency
+        })));
+        
+        setRecentSettlements(recentSettlements.map((s, i) => ({
+          id: 'SET-' + (8821 - i),
+          processor: s.processorId === '1' ? 'Stripe US' : s.processorId === '2' ? 'Stripe EU' : s.processorId === '3' ? 'MoonPay' : s.processorId,
+          amount: '$' + (s.amount / 100).toLocaleString(undefined, {minimumFractionDigits: 2}),
+          date: new Date(s.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          method: s.settlementMethod,
+          status: s.status
+        })));
+        
+        setAutoSettleRule(autoSettle);
+        setIsAutoSettleEnabled(autoSettle.enabled);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleSettle = async () => {
     setSettling(true);
-    setTimeout(() => {
-      setSettling(false);
-      setSettled(true);
-      setTimeout(() => { setSettled(false); setShowSettleModal(false); }, 2000);
-    }, 1800);
+    const amount = document.getElementById('settleAmount').value;
+    const processor = document.getElementById('settleProcessor').value;
+    const destination = document.getElementById('settleDestination').value;
+    
+    try {
+        const res = await apiClient.post('/admin/payment-processors/settlement-engine/settle', { amount, processor, destination });
+        if (res.success) {
+            await fetchData();
+            setSettled(true);
+            setTimeout(() => { setSettled(false); setShowSettleModal(false); }, 2000);
+        }
+    } catch(e) {
+        alert('Failed to settle');
+    } finally {
+        setSettling(false);
+    }
+  };
+  
+  const handleSaveAutoSettle = async () => {
+    const frequency = document.getElementById('autoFreq').value;
+    const threshold = document.getElementById('autoThresh').value;
+    const processors = document.getElementById('autoProc').value;
+    
+    try {
+        const res = await apiClient.put('/admin/payment-processors/settlement-engine/auto-settle', { frequency, threshold, processors });
+        if (res.success) {
+            await fetchData();
+            setShowModifyModal(false);
+        }
+    } catch(e) {
+        alert('Failed to save rules');
+    }
+  };
+  
+  const toggleAutoSettle = async () => {
+    const newState = !isAutoSettleEnabled;
+    setIsAutoSettleEnabled(newState);
+    try {
+        await apiClient.put('/admin/payment-processors/settlement-engine/auto-settle', { enabled: newState });
+    } catch(e) {
+        setIsAutoSettleEnabled(!newState);
+    }
   };
 
   return (
@@ -61,12 +123,12 @@ export default function SettlementEngine() {
           </div>
           <div>
             <div className="text-sm font-bold text-white">Auto-Settle Active</div>
-            <div className="text-xs text-gray-400">Scheduled: Daily at <strong className="text-white">00:00 UTC</strong> | Minimum threshold: <strong className="text-white">$5,000</strong></div>
+            <div className="text-xs text-gray-400">Scheduled: <strong className="text-white">{autoSettleRule.frequency}</strong> | Minimum threshold: <strong className="text-white">${autoSettleRule.minimumThreshold / 100}</strong></div>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button 
-            onClick={() => setIsAutoSettleEnabled(!isAutoSettleEnabled)}
+            onClick={toggleAutoSettle}
             className={`text-xs px-3 py-1 rounded-full font-bold border transition-colors ${isAutoSettleEnabled ? 'bg-green-500/10 text-green-500 border-green-500/20 hover:bg-green-500/20' : 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500/20'}`}
           >
             {isAutoSettleEnabled ? 'Enabled' : 'Disabled'}
@@ -89,7 +151,7 @@ export default function SettlementEngine() {
                   <div className="text-xs text-gray-500">{b.currency}</div>
                 </div>
               </div>
-              <button className="text-xs font-bold text-cyan-500 hover:text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20 px-3 py-1.5 rounded-lg border border-cyan-500/20 transition-colors">
+              <button onClick={() => setShowSettleModal(true)} className="text-xs font-bold text-cyan-500 hover:text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20 px-3 py-1.5 rounded-lg border border-cyan-500/20 transition-colors">
                 Settle
               </button>
             </div>
@@ -171,21 +233,21 @@ export default function SettlementEngine() {
                 <div className="space-y-5">
                   <div>
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Select Processor</label>
-                    <select className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm">
+                    <select id="settleProcessor" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm">
                       <option>All Processors</option>
-                      {balances.map(b => <option key={b.processor}>{b.processor}</option>)}
+                      {balances.map(b => <option key={b.processor} value={b.processor}>{b.processor}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Settlement Amount</label>
                     <div className="relative">
                       <span className="absolute left-4 top-3 text-gray-400 font-bold">$</span>
-                      <input className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 pl-8 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm font-mono" placeholder="e.g. 48000.00" />
+                      <input id="settleAmount" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 pl-8 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm font-mono" placeholder="e.g. 48000.00" />
                     </div>
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Destination</label>
-                    <select className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm">
+                    <select id="settleDestination" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm">
                       <option>Primary Bank Account (****4421)</option>
                       <option>Reserve Account (****8821)</option>
                     </select>
@@ -216,7 +278,7 @@ export default function SettlementEngine() {
             <div className="p-6 space-y-4">
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Schedule Frequency</label>
-                <select className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm appearance-none">
+                <select id="autoFreq" defaultValue={autoSettleRule.frequency || 'Daily at 00:00 UTC'} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm appearance-none">
                   <option>Daily at 00:00 UTC</option>
                   <option>Weekly (Mondays)</option>
                   <option>Monthly (1st of Month)</option>
@@ -226,12 +288,12 @@ export default function SettlementEngine() {
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Minimum Threshold</label>
                 <div className="relative">
                   <span className="absolute left-4 top-3 text-gray-400 font-bold">$</span>
-                  <input type="number" defaultValue="5000" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 pl-8 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm font-mono" />
+                  <input id="autoThresh" type="number" defaultValue={autoSettleRule.minimumThreshold ? autoSettleRule.minimumThreshold / 100 : 5000} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 pl-8 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm font-mono" />
                 </div>
               </div>
               <div>
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Include Processors</label>
-                <select className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm appearance-none">
+                <select id="autoProc" defaultValue={autoSettleRule.includedProcessors ? JSON.parse(autoSettleRule.includedProcessors)[0] : 'All Active Processors'} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-500 transition-colors text-sm appearance-none">
                   <option>All Active Processors</option>
                   <option>Stripe US & EU Only</option>
                   <option>Crypto Only</option>
@@ -239,7 +301,7 @@ export default function SettlementEngine() {
               </div>
               <div className="pt-4 flex gap-3">
                 <button onClick={() => setShowModifyModal(false)} className="flex-1 bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg font-bold transition-colors">Cancel</button>
-                <button onClick={() => setShowModifyModal(false)} className="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                <button onClick={handleSaveAutoSettle} className="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(6,182,212,0.3)]">
                   Save Rules
                 </button>
               </div>

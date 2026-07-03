@@ -29,7 +29,7 @@ const Sidebar = ({ role = "MERCHANT" }) => {
         <Link to="/" className="flex items-center gap-2 mb-8">
           <div className="text-xl font-bold tracking-tighter flex items-center">
             <span className="text-primary font-black">PGX</span>
-            <span className="text-white font-medium ml-1">GATEWAY</span>
+            <span className="text-white font-medium ml-1">SPORTS</span>
           </div>
         </Link>
         <div className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-4">

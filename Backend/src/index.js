@@ -22,6 +22,7 @@ const whitelabelRoutes = require('./routes/whitelabelRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const supportRoutes = require('./routes/supportRoutes');
 const auditLogRoutes = require('./routes/auditLogRoutes');
+const customerRoutes = require('./routes/customerRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -55,11 +56,23 @@ app.use('/api/admin/whitelabel', whitelabelRoutes);
 app.use('/api/admin/notifications', notificationRoutes);
 app.use('/api/admin/support', supportRoutes);
 app.use('/api/admin/audit-logs', auditLogRoutes);
+app.use('/api/admin/customers', customerRoutes);
 
 // Merchant Portal Routes (Reusing same controllers for simplicity in this integration)
+const depositsRoutes = require('./routes/depositsRoutes');
+const merchantRevenueRoutes = require('./routes/merchantRevenueRoutes');
+const merchantReportRoutes = require('./routes/merchantReportRoutes');
+const merchantWebhookRoutes = require('./routes/merchantWebhookRoutes');
+const merchantWhiteLabelRoutes = require('./routes/merchantWhiteLabelRoutes');
+
 app.use('/api/merchant/dashboard', dashboardRoutes);
 app.use('/api/merchant/transactions', transactionRoutes);
 app.use('/api/merchant/settings', settingsRoutes);
+app.use('/api/merchant/deposits', depositsRoutes);
+app.use('/api/merchant/revenue', merchantRevenueRoutes);
+app.use('/api/merchant/reports', merchantReportRoutes);
+app.use('/api/merchant/webhooks', merchantWebhookRoutes);
+app.use('/api/merchant/whitelabel', merchantWhiteLabelRoutes);
 
 // Global Error Handler (must be the last middleware)
 app.use(errorHandler);
@@ -68,3 +81,7 @@ app.use(errorHandler);
 app.listen(PORT, () => {
     console.log(`[Server] PGX Gateway API is running on port ${PORT}`);
 });
+
+// Trigger nodemon
+
+// Trigger nodemon for customer update fix

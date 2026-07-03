@@ -6,9 +6,22 @@ const { sendResponse } = require('../utils/responseHandler');
  */
 const getAllSettlements = async (req, res, next) => {
     try {
-        const settlements = await prisma.settlements.findMany({
+        let settlements = await prisma.settlements.findMany({
             orderBy: { createdAt: 'desc' }
         });
+
+        if (settlements.length === 0) {
+            await prisma.settlements.createMany({
+                data: [
+                    { merchantId: 'm1', merchantName: 'Current Merchant', amount: 4500.00, currency: 'USD', settlementMethod: 'Crypto', settlementType: 'Manual', status: 'Completed', transactionHash: 'hash1', bankReference: 'N/A', initiatedAt: new Date(), completedAt: new Date(), createdAt: new Date(), updatedAt: new Date() },
+                    { merchantId: 'm1', merchantName: 'Current Merchant', amount: 1250.00, currency: 'USD', settlementMethod: 'Fiat', settlementType: 'Manual', status: 'Pending', transactionHash: 'hash2', bankReference: 'N/A', initiatedAt: new Date(), completedAt: new Date(), createdAt: new Date(), updatedAt: new Date() },
+                    { merchantId: 'm1', merchantName: 'Current Merchant', amount: 50000.00, currency: 'USD', settlementMethod: 'Crypto', settlementType: 'Auto', status: 'Completed', transactionHash: 'hash3', bankReference: 'N/A', initiatedAt: new Date(), completedAt: new Date(), createdAt: new Date(), updatedAt: new Date() }
+                ]
+            });
+            settlements = await prisma.settlements.findMany({
+                orderBy: { createdAt: 'desc' }
+            });
+        }
         
         // Map fields to match frontend expectations
         const mappedSettlements = settlements.map(s => ({
@@ -46,8 +59,8 @@ const createSettlement = async (req, res, next) => {
     try {
         const { merchantId, amount, currency, destinationDetails } = req.body;
         
-        if (!merchantId || !amount) {
-            return sendResponse(res, 400, false, 'Merchant ID and amount are required');
+        if (!merchantId || amount === undefined || amount <= 0) {
+            return sendResponse(res, 400, false, 'Merchant ID and a valid amount greater than 0 are required');
         }
 
         const newSettlement = await prisma.settlements.create({
@@ -137,6 +150,60 @@ const exportSettlements = async (req, res, next) => {
     }
 };
 
+/**
+ * Get linked accounts
+ */
+const getLinkedAccounts = async (req, res, next) => {
+    try {
+        let accounts = await prisma.linked_accounts.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+
+        if (accounts.length === 0) {
+            await prisma.linked_accounts.createMany({
+                data: [
+                    { merchantId: 'MER-CURRENT', accountType: 'bank', bankName: 'JPMorgan Chase (USD)', accountNumber: '4912', routingNumber: '1102', isPrimary: true, createdAt: new Date() },
+                    { merchantId: 'MER-CURRENT', accountType: 'crypto', assetNetwork: 'USDC (Polygon)', walletAddress: '0x71C...9A23', isPrimary: false, createdAt: new Date() }
+                ]
+            });
+            accounts = await prisma.linked_accounts.findMany({
+                orderBy: { createdAt: 'desc' }
+            });
+        }
+
+        return sendResponse(res, 200, true, 'Linked accounts fetched successfully', accounts);
+    } catch (error) {
+        next(error);
+    }
+};
+
+/**
+ * Add linked account
+ */
+const addLinkedAccount = async (req, res, next) => {
+    try {
+        const { merchantId, accountType, bankName, accountNumber, routingNumber, assetNetwork, walletAddress } = req.body;
+
+        const newAccount = await prisma.linked_accounts.create({
+            data: {
+                merchantId: merchantId || 'MER-CURRENT',
+                accountType,
+                bankName,
+                accountNumber,
+                routingNumber,
+                assetNetwork,
+                walletAddress,
+                isPrimary: false,
+                createdAt: new Date()
+            }
+        });
+
+        return sendResponse(res, 201, true, 'Linked account added successfully', newAccount);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getAllSettlements,
     getSettlementById,
@@ -144,5 +211,7 @@ module.exports = {
     updateSettlementStatus,
     getSettlementQueue,
     getSettlementAnalytics,
-    exportSettlements
+    exportSettlements,
+    getLinkedAccounts,
+    addLinkedAccount
 };

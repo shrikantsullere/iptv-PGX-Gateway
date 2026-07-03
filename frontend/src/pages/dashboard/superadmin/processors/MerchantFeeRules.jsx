@@ -1,33 +1,60 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import apiClient from '../../../../utils/apiClient';
 import { Shield, Search, Edit, Plus, X, Loader2, CheckCircle2, Building2 } from 'lucide-react';
-
-const merchantData = [
-  { id: 'MER-1092', name: 'Acme Corp', type: 'Enterprise', globalFee: '2.9% + $0.30', customFee: '1.9% + $0.25', status: 'Custom', volume: '$245,000' },
-  { id: 'MER-1093', name: 'Global Trade Inc', type: 'Pro', globalFee: '2.9% + $0.30', customFee: '—', status: 'Standard', volume: '$89,400' },
-  { id: 'MER-1094', name: 'TechVentures LLC', type: 'Enterprise', globalFee: '2.9% + $0.30', customFee: '2.2% + $0.20', status: 'Custom', volume: '$412,000' },
-  { id: 'MER-1095', name: 'Digital Goods Co', type: 'Starter', globalFee: '2.9% + $0.30', customFee: '—', status: 'Standard', volume: '$12,200' },
-  { id: 'MER-1096', name: 'StreamBox Inc', type: 'Pro', globalFee: '2.9% + $0.30', customFee: '2.5% + $0.28', status: 'Custom', volume: '$134,800' },
-  { id: 'MER-1097', name: 'Novo Payments', type: 'Enterprise', globalFee: '2.9% + $0.30', customFee: '1.5% + $0.15', status: 'Custom', volume: '$890,200' },
-];
 
 export default function MerchantFeeRules() {
   const [search, setSearch] = useState('');
   const [editMerchant, setEditMerchant] = useState(null);
+  const [merchants, setMerchants] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchMerchants = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/payment-processors/merchant-rules');
+      if (res.success) {
+        setMerchants(res.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch merchant rules', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMerchants();
+  }, []);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const filtered = merchantData.filter(m =>
+  const filtered = merchants.filter(m =>
     m.name.toLowerCase().includes(search.toLowerCase()) ||
     m.id.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSaving(true);
-    setTimeout(() => {
+    const customPct = document.querySelector('input[name="customPct"]').value;
+    const customFixed = document.querySelector('input[name="customFixed"]').value;
+    const reason = document.querySelector('textarea[name="reason"]').value;
+    
+    try {
+      const res = await apiClient.put(`/admin/payment-processors/merchant-rules/${editMerchant.id}`, {
+        customPct,
+        customFixed,
+        reason
+      });
+      if (res.success) {
+        await fetchMerchants();
+        setSaved(true);
+        setTimeout(() => { setSaved(false); setEditMerchant(null); }, 1500);
+      }
+    } catch (error) {
+      alert('Failed to override fee');
+    } finally {
       setSaving(false);
-      setSaved(true);
-      setTimeout(() => { setSaved(false); setEditMerchant(null); }, 1500);
-    }, 1200);
+    }
   };
 
   return (
@@ -44,9 +71,9 @@ export default function MerchantFeeRules() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total Merchants', value: merchantData.length, color: 'text-white' },
-          { label: 'Custom Fee Rules', value: merchantData.filter(m => m.status === 'Custom').length, color: 'text-[#7C3AED]' },
-          { label: 'On Standard Fee', value: merchantData.filter(m => m.status === 'Standard').length, color: 'text-blue-400' },
+          { label: 'Total Merchants', value: merchants.length, color: 'text-white' },
+          { label: 'Custom Fee Rules', value: merchants.filter(m => m.status === 'Custom').length, color: 'text-[#7C3AED]' },
+          { label: 'On Standard Fee', value: merchants.filter(m => m.status === 'Standard').length, color: 'text-blue-400' },
           { label: 'Global Base Fee', value: '2.9% +$0.30', color: 'text-green-400' },
         ].map((s, i) => (
           <div key={i} className="bg-[#13131A] border border-white/5 rounded-2xl p-5 text-center shadow-xl">
@@ -147,14 +174,14 @@ export default function MerchantFeeRules() {
                 <p className="text-gray-400 text-sm">{editMerchant.name}'s custom fee rule has been applied successfully.</p>
               </div>
             ) : (
-              <div className="p-6 space-y-5">
+              <div className="p-6 space-y-5" id="override-modal">
                 <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 text-xs text-orange-300">
                   Merchant ID: <strong className="font-mono">{editMerchant.id}</strong> — Current base fee: <strong>{editMerchant.globalFee}</strong>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Custom Percentage Fee</label>
                   <div className="relative">
-                    <input type="text" placeholder={editMerchant.customFee === '—' ? 'e.g. 2.2%' : editMerchant.customFee.split(' ')[0]} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white focus:outline-none focus:border-orange-500 transition-colors text-sm font-mono" />
+                    <input type="text" name="customPct" defaultValue={editMerchant.customFee !== '—' ? editMerchant.customFee.split('%')[0] : ''} placeholder="e.g. 2.2" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 pr-10 text-white focus:outline-none focus:border-orange-500 transition-colors text-sm font-mono" />
                     <span className="absolute right-4 top-3 text-gray-500 font-bold">%</span>
                   </div>
                 </div>
@@ -162,12 +189,12 @@ export default function MerchantFeeRules() {
                   <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Fixed Fee per Transaction</label>
                   <div className="relative">
                     <span className="absolute left-4 top-3 text-gray-500 font-bold">$</span>
-                    <input type="text" placeholder="e.g. 0.25" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 pl-8 text-white focus:outline-none focus:border-orange-500 transition-colors text-sm font-mono" />
+                    <input type="text" name="customFixed" defaultValue={editMerchant.customFee !== '—' ? editMerchant.customFee.split('$')[1] : ''} placeholder="e.g. 0.25" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 pl-8 text-white focus:outline-none focus:border-orange-500 transition-colors text-sm font-mono" />
                   </div>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Override Reason (Internal)</label>
-                  <textarea rows={2} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors text-sm resize-none" placeholder="e.g. Enterprise contract negotiated Q2 2025..." />
+                  <textarea name="reason" rows={2} className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors text-sm resize-none" placeholder="e.g. Enterprise contract negotiated Q2 2025..." />
                 </div>
                 <button
                   onClick={handleSave}

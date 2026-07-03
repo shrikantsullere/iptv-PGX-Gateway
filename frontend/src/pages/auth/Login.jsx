@@ -28,6 +28,8 @@ const Login = () => {
         // Route based on role
         if (res.data.user.role === 'Merchant' || email.includes('merchant')) {
            navigate('/merchant-dashboard');
+        } else if (res.data.user.role === 'User' || email.includes('user@pgx')) {
+           navigate('/playgroundx');
         } else {
            navigate('/super-admin');
         }

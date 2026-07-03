@@ -1,26 +1,53 @@
-import { useState } from 'react';
-import { BarChart3, Download, Calendar, X, FileText, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { BarChart3, Download, Calendar, X, FileText, CheckCircle2, Loader2 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid } from 'recharts';
-
-const data = [
-  { name: 'Jan', volume: 4000, refunds: 240 },
-  { name: 'Feb', volume: 3000, refunds: 139 },
-  { name: 'Mar', volume: 2000, refunds: 980 },
-  { name: 'Apr', volume: 2780, refunds: 390 },
-  { name: 'May', volume: 1890, refunds: 480 },
-  { name: 'Jun', volume: 2390, refunds: 380 },
-  { name: 'Jul', volume: 3490, refunds: 430 },
-];
+import apiClient from '../../../utils/apiClient';
 
 const Reports = () => {
   const [modalType, setModalType] = useState(null); // 'date', 'export'
   const [isExporting, setIsExporting] = useState(false);
   const [exportComplete, setExportComplete] = useState(false);
   const [dateRange, setDateRange] = useState('YTD 2026');
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchData();
+  }, [dateRange]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get(`/merchant/reports?dateRange=${encodeURIComponent(dateRange)}`);
+      if (res.success && res.data) {
+        setData(res.data);
+      }
+    } catch (err) {
+      console.error('Error fetching reports data', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleExport = () => {
     setIsExporting(true);
     setTimeout(() => {
+      // Export as CSV
+      if (data.length > 0) {
+        const headers = ['Month', 'Volume', 'Refunds'];
+        const rows = data.map(d => [d.name, d.volume, d.refunds].join(','));
+        const csvContent = [headers.join(','), ...rows].join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `merchant_report_${dateRange.replace(/ /g, '_')}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
       setIsExporting(false);
       setExportComplete(true);
       setTimeout(() => {
@@ -58,7 +85,7 @@ const Reports = () => {
                 onClick={() => setModalType('export')}
                 className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-xl transition-all font-bold text-sm shadow-[0_0_15px_rgba(124,58,237,0.3)] hover:-translate-y-0.5"
               >
-                <Download className="w-4 h-4" /> Export PDF
+                <Download className="w-4 h-4" /> Export Report
               </button>
             </div>
           </div>
@@ -66,37 +93,41 @@ const Reports = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <div className="bg-[#13131A] border border-white/5 rounded-2xl p-6">
               <h3 className="text-lg font-bold mb-6">Volume Trend</h3>
-              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorVol" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
-                    <Tooltip contentStyle={{ backgroundColor: '#09090B', borderColor: '#333', borderRadius: '8px' }} />
-                    <Area type="monotone" dataKey="volume" stroke="#7C3AED" strokeWidth={3} fillOpacity={1} fill="url(#colorVol)" />
-                  </AreaChart>
-                </ResponsiveContainer>
+              <div className="h-[300px] w-full flex items-center justify-center">
+                {loading ? <Loader2 className="w-10 h-10 animate-spin text-primary" /> : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="colorVol" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#7C3AED" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
+                      <Tooltip contentStyle={{ backgroundColor: '#09090B', borderColor: '#333', borderRadius: '8px' }} />
+                      <Area type="monotone" dataKey="volume" stroke="#7C3AED" strokeWidth={3} fillOpacity={1} fill="url(#colorVol)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             </div>
 
             <div className="bg-[#13131A] border border-white/5 rounded-2xl p-6">
               <h3 className="text-lg font-bold mb-6">Refunds & Chargebacks</h3>
-              <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
-                    <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{ backgroundColor: '#09090B', borderColor: '#333', borderRadius: '8px' }} />
-                    <Bar dataKey="refunds" fill="#EF4444" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="h-[300px] w-full flex items-center justify-center">
+                {loading ? <Loader2 className="w-10 h-10 animate-spin text-red-500" /> : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#6B7280', fontSize: 12 }} />
+                      <Tooltip cursor={{fill: '#ffffff05'}} contentStyle={{ backgroundColor: '#09090B', borderColor: '#333', borderRadius: '8px' }} />
+                      <Bar dataKey="refunds" fill="#EF4444" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             </div>
           </div>
@@ -203,7 +234,7 @@ const Reports = () => {
                     </span>
                   ) : (
                     <>
-                      <Download className="w-4 h-4" /> Download PDF
+                      <Download className="w-4 h-4" /> Download Report
                     </>
                   )}
                 </button>

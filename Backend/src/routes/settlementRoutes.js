@@ -11,6 +11,8 @@ router.use(requireRole(['Super Admin', 'Owner']));
 router.get('/queue', settlementController.getSettlementQueue);
 router.get('/analytics', settlementController.getSettlementAnalytics);
 router.get('/export', settlementController.exportSettlements);
+router.get('/linked-accounts', settlementController.getLinkedAccounts);
+router.post('/linked-accounts', settlementController.addLinkedAccount);
 
 router.get('/', settlementController.getAllSettlements);
 router.get('/:id', settlementController.getSettlementById);

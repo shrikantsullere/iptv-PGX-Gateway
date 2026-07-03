@@ -33,7 +33,10 @@ const Withdrawals = () => {
   };
 
   const handlePayoutRequest = async () => {
-    if (!amount) return;
+    if (!amount || Number(amount) <= 0) {
+      alert("Please enter a valid amount greater than 0");
+      return;
+    }
     try {
       setSubmitting(true);
       await apiClient.post('/admin/settlements', {
@@ -48,7 +51,7 @@ const Withdrawals = () => {
       setAmount('');
       setDestination('');
     } catch (err) {
-      alert('Failed to submit payout request');
+      alert(err?.response?.data?.message || err?.message || 'Failed to submit payout request');
     } finally {
       setSubmitting(false);
     }
@@ -123,7 +126,7 @@ const Withdrawals = () => {
                       <td className="p-4 text-gray-400 text-xs">{new Date(wd.createdAt).toLocaleString()}</td>
                       <td className="p-4">
                         <span className="bg-white/5 text-gray-300 px-2.5 py-1 rounded-md text-xs font-medium border border-white/5">
-                          {wd.destinationDetails ? 'API Defined' : 'Standard Payout'}
+                          {wd.payoutMethod || 'Standard'}
                         </span>
                       </td>
                       <td className="p-4 text-white font-bold text-right">- ${Number(wd.amount).toLocaleString()}</td>
@@ -266,7 +269,7 @@ const Withdrawals = () => {
               </button>
               <button 
                 onClick={handlePayoutRequest}
-                disabled={submitting || !amount}
+                disabled={submitting || !amount || Number(amount) <= 0}
                 className="flex-1 py-3 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors shadow-[0_0_20px_rgba(37,99,235,0.4)] flex items-center justify-center gap-2 group disabled:opacity-50"
               >
                 {submitting ? 'Processing...' : (

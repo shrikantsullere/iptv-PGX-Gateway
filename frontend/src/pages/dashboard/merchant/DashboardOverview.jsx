@@ -18,10 +18,11 @@ const DashboardOverview = () => {
   const fetchDashboard = async () => {
     try {
       setLoading(true);
-      const res = await apiClient.get('/admin/dashboard/overview');
+      // Connect to the merchant-specific dashboard API to get real DB data
+      const res = await apiClient.get('/merchant/dashboard/overview');
       if (res.success && res.data) {
         setOverview(res.data);
-        // Generate mock revenue chart based on the volume
+        // Generate mock revenue chart based on the real processing volume
         const baseVol = (res.data.totalVolume || 400000) / 100;
         setRevenueData([
           { name: 'Mon', value: baseVol * 0.4 }, 
@@ -40,10 +41,6 @@ const DashboardOverview = () => {
     }
   };
 
-  const transactionData = [
-    { name: 'Crypto', value: 6000 }, { name: 'Card', value: 4000 }, { name: 'Bank', value: 2000 }
-  ];
-
   if (loading || !overview) {
     return (
       <div className="flex flex-col items-center justify-center h-96 space-y-4">
@@ -60,10 +57,16 @@ const DashboardOverview = () => {
     { label: "Total Transactions", value: (overview.totalTransactions || 0).toLocaleString(), inc: true, pct: '+18%', icon: CreditCard },
   ];
 
+  // Map the real DB secondary metrics to the UI cards
   const secondaryStats = [
-    { label: 'Pending Settlement', value: '$12,400', icon: Landmark },
-    { label: 'Gateway Fees Paid', value: '$4,200', icon: Receipt },
-    { label: 'Active Customers', value: '1,204', icon: Users },
+    { label: 'Pending Settlement', value: `$${(overview.pendingSettlement || 0).toLocaleString()}`, icon: Landmark },
+    { label: 'Gateway Fees Paid', value: `$${(overview.gatewayFeesPaid || 0).toLocaleString()}`, icon: Receipt },
+    { label: 'Active Customers', value: (overview.activeCustomers || 0).toLocaleString(), icon: Users },
+  ];
+  
+  // Use transactionData from API or fallback
+  const transactionData = overview.transactionData && overview.transactionData.length > 0 ? overview.transactionData : [
+    { name: 'Crypto', value: 6000 }, { name: 'Card', value: 4000 }, { name: 'Bank', value: 2000 }
   ];
 
   return (

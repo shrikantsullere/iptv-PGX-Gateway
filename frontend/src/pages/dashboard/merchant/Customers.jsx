@@ -1,18 +1,11 @@
-import { useState } from 'react';
-import { Users, Search, Download, ExternalLink, Mail, UserPlus, Eye, Edit2, Trash2, X, Save } from 'lucide-react';
-
-const initialCustomers = Array(15).fill(null).map((_, i) => ({
-  id: `CUST-${1000 + i}`,
-  name: ['John Smith', 'Sarah Jones', 'Michael Brown', 'Emma Wilson', 'David Lee'][Math.floor(Math.random() * 5)],
-  email: `user${1000+i}@example.com`,
-  ltv: (Math.random() * 5000 + 100).toFixed(2),
-  txCount: Math.floor(Math.random() * 50 + 1),
-  risk: ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)],
-  joined: new Date(Date.now() - Math.random() * 50000000000).toLocaleDateString(),
-}));
+import { useState, useEffect } from 'react';
+import { Users, Search, Download, ExternalLink, Mail, UserPlus, Eye, Edit2, Trash2, X, Save, Loader2 } from 'lucide-react';
+import apiClient from '../../../utils/apiClient';
 
 const Customers = () => {
-  const [customers, setCustomers] = useState(initialCustomers);
+  const [customers, setCustomers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
   const [modalType, setModalType] = useState(null); // 'add', 'edit', 'view'
@@ -23,14 +16,39 @@ const Customers = () => {
   });
 
   const filteredCustomers = customers.filter(cust => 
-    cust.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cust.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cust.id.toLowerCase().includes(searchTerm.toLowerCase())
+    cust.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    cust.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    cust.displayId?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleDelete = (id) => {
+  useEffect(() => {
+    fetchCustomers();
+  }, []);
+
+  const fetchCustomers = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/admin/customers');
+      if (res.success && res.data) {
+        setCustomers(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch customers', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
     if(window.confirm('Are you sure you want to delete this customer?')) {
-      setCustomers(customers.filter(c => c.id !== id));
+      try {
+        const res = await apiClient.delete(`/admin/customers/${id}`);
+        if (res.success) {
+          setCustomers(customers.filter(c => c.id !== id));
+        }
+      } catch (err) {
+        alert(err?.response?.data?.message || 'Failed to delete customer');
+      }
     }
   };
 
@@ -50,28 +68,65 @@ const Customers = () => {
     setModalType('view');
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name || !formData.email) return;
 
-    if (modalType === 'add') {
-      const newCust = {
-        id: `CUST-${Math.floor(Math.random() * 9000) + 1000}`,
-        name: formData.name,
-        email: formData.email,
-        risk: formData.risk,
-        ltv: formData.ltv,
-        txCount: formData.txCount,
-        joined: formData.joined,
-      };
-      setCustomers([newCust, ...customers]);
-    } else if (modalType === 'edit') {
-      setCustomers(customers.map(c => 
-        c.id === selectedCustomer.id 
-          ? { ...c, name: formData.name, email: formData.email, risk: formData.risk, ltv: formData.ltv, txCount: formData.txCount, joined: formData.joined }
-          : c
-      ));
+    try {
+      setSaving(true);
+      if (modalType === 'add') {
+        const res = await apiClient.post('/admin/customers', formData);
+        if (res.success) {
+          fetchCustomers();
+          setModalType(null);
+        }
+      } else if (modalType === 'edit') {
+        const res = await apiClient.put(`/admin/customers/${selectedCustomer.id}`, formData);
+        if (res.success) {
+          fetchCustomers();
+          setModalType(null);
+        }
+      }
+    } catch (err) {
+      alert(err?.response?.data?.message || 'Failed to save customer');
+    } finally {
+      setSaving(false);
     }
-    setModalType(null);
+  };
+
+  const handleExport = () => {
+    if (filteredCustomers.length === 0) {
+      alert("No data to export");
+      return;
+    }
+
+    // Prepare CSV header
+    const headers = ['Customer ID', 'Full Name', 'Email Address', 'Joined Date', 'Tx Count', 'Lifetime Value', 'Risk Profile'];
+    
+    // Convert filtered data to CSV rows
+    const csvRows = filteredCustomers.map(cust => {
+      return [
+        cust.displayId,
+        `"${cust.name}"`, // Quote strings to prevent comma issues
+        `"${cust.email}"`,
+        `"${cust.joined}"`,
+        cust.txCount,
+        cust.ltv,
+        cust.risk
+      ].join(',');
+    });
+
+    const csvContent = [headers.join(','), ...csvRows].join('\n');
+    
+    // Create Blob and trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `customers_export_${new Date().getTime()}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -87,7 +142,10 @@ const Customers = () => {
               <p className="text-gray-400">Manage your customers and view their lifetime value.</p>
             </div>
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 px-4 py-2.5 rounded-xl transition-all font-bold text-sm">
+              <button 
+                onClick={handleExport}
+                className="flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white border border-white/10 px-4 py-2.5 rounded-xl transition-all font-bold text-sm"
+              >
                 <Download className="w-4 h-4" /> Export
               </button>
               <button 
@@ -126,7 +184,13 @@ const Customers = () => {
                   </tr>
                 </thead>
                 <tbody className="text-sm divide-y divide-white/5">
-                  {filteredCustomers.length === 0 ? (
+                  {loading ? (
+                    <tr>
+                      <td colSpan="7" className="p-8 text-center text-primary">
+                        <div className="flex justify-center items-center"><Loader2 className="w-6 h-6 animate-spin" /></div>
+                      </td>
+                    </tr>
+                  ) : filteredCustomers.length === 0 ? (
                     <tr>
                       <td colSpan="7" className="p-8 text-center text-gray-500">No customers found.</td>
                     </tr>
@@ -135,11 +199,11 @@ const Customers = () => {
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs shadow-sm border border-primary/20">
-                            {cust.name.charAt(0)}
+                            {cust.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
                             <div className="font-bold text-white">{cust.name}</div>
-                            <div className="text-[10px] text-gray-500 font-mono tracking-wider">{cust.id}</div>
+                            <div className="text-[10px] text-gray-500 font-mono tracking-wider">{cust.displayId}</div>
                           </div>
                         </div>
                       </td>
@@ -211,11 +275,11 @@ const Customers = () => {
                 <div className="space-y-6">
                   <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
                     <div className="w-16 h-16 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-2xl border border-primary/20">
-                      {selectedCustomer.name.charAt(0)}
+                      {selectedCustomer.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
                       <h4 className="text-xl font-bold text-white">{selectedCustomer.name}</h4>
-                      <p className="text-sm text-gray-400 font-mono">{selectedCustomer.id}</p>
+                      <p className="text-sm text-gray-400 font-mono">{selectedCustomer.displayId}</p>
                     </div>
                   </div>
                   
@@ -324,10 +388,10 @@ const Customers = () => {
               {modalType !== 'view' && (
                 <button 
                   onClick={handleSave}
-                  disabled={!formData.name || !formData.email}
+                  disabled={!formData.name || !formData.email || saving}
                   className="flex-1 py-3 rounded-xl font-bold text-white bg-primary hover:bg-primary/90 transition-colors shadow-[0_0_20px_rgba(124,58,237,0.4)] flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Save className="w-4 h-4" /> 
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   {modalType === 'edit' ? 'Save Changes' : 'Add Customer'}
                 </button>
               )}

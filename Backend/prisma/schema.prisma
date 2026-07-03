@@ -916,3 +916,71 @@ model Users {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Deposits {
+  depositId String @id @default(uuid())
+  asset String
+  network String
+  amount Float
+  status String
+  merchantId String
+  createdAt DateTime @default(now())
+}
+
+model Linked_accounts {
+  accountId String @id @default(uuid())
+  merchantId String
+  accountType String
+  bankName String?
+  accountNumber String?
+  routingNumber String?
+  assetNetwork String?
+  walletAddress String?
+  isPrimary Boolean @default(false)
+  createdAt DateTime @default(now())
+}
+
+
+model Customers {
+  id String @id @default(uuid())
+  merchantId String
+  name String
+  email String
+  ltv Float @default(0)
+  txCount Int @default(0)
+  risk String @default("Low")
+  joined DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Merchant_analytics {
+  id String @id @default(uuid())
+  merchantId String
+  month String
+  volume Int
+  refunds Int
+  createdAt DateTime @default(now())
+}
+
+model Merchant_white_label_settings {
+  id                        String   @id @default(uuid())
+  merchantId                String   @unique
+  domain                    String?
+  dnsVerified               Boolean  @default(false)
+  logoUrl                   String?
+  primaryColor              String   @default("#7C3AED")
+  typography                String   @default("Inter (Default)")
+  senderName                String   @default("Acme Digital Billing")
+  replyToAddress            String   @default("support@acme.com")
+  removePoweredBy           Boolean  @default(false)
+  customFooter              Boolean  @default(false)
+  requireBillingAddress     Boolean  @default(false)
+  requirePhoneNumber        Boolean  @default(false)
+  collectCustomerKyc        Boolean  @default(true)
+  showCryptoFeeEstimates    Boolean  @default(false)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+}
+

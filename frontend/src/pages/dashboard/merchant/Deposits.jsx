@@ -1,21 +1,33 @@
-import { useState } from 'react';
-import { ArrowDownToLine, Search, Download, Filter, Clock, Copy, CheckCheck, QrCode, X } from 'lucide-react';
-
-const mockDeposits = Array(12).fill(null).map((_, i) => ({
-  id: `DEP-${9921 + i}`,
-  asset: ['USDC', 'USDT', 'BTC', 'ETH'][Math.floor(Math.random() * 4)],
-  network: ['ERC-20', 'TRC-20', 'Bitcoin', 'Polygon'][Math.floor(Math.random() * 4)],
-  amount: (Math.random() * 5000 + 100).toFixed(2),
-  status: ['Confirmed', 'Confirming', 'Failed'][Math.floor(Math.random() * 3)],
-  date: new Date(Date.now() - Math.random() * 10000000000).toLocaleString(),
-}));
+import { useState, useEffect } from 'react';
+import { ArrowDownToLine, Search, Clock, Copy, CheckCheck, QrCode, X, Loader2 } from 'lucide-react';
+import apiClient from '../../../utils/apiClient';
 
 const Deposits = () => {
+  const [deposits, setDeposits] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState('USDT');
   const [selectedNetwork, setSelectedNetwork] = useState('TRC-20');
   const [isCopied, setIsCopied] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    fetchDeposits();
+  }, []);
+
+  const fetchDeposits = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/merchant/deposits');
+      if (res.success && res.data) {
+        setDeposits(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch deposits', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Mock generated address
   const generatedAddress = "TQa8xMwzH5B8iF1Jp5x2VzL9YkR4jT7w9X";
@@ -26,11 +38,11 @@ const Deposits = () => {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
-  const filteredDeposits = mockDeposits.filter(dep => 
-    dep.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dep.asset.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dep.network.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dep.amount.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredDeposits = deposits.filter(dep => 
+    (dep.depositId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (dep.asset || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (dep.network || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(dep.amount).includes(searchTerm)
   );
 
   return (
@@ -78,19 +90,26 @@ const Deposits = () => {
                   </tr>
                 </thead>
                 <tbody className="text-sm divide-y divide-white/5">
-                  {filteredDeposits.length === 0 ? (
+                  {loading ? (
+                    <tr>
+                      <td colSpan="6" className="p-8 text-center text-gray-500">
+                        <Loader2 className="w-6 h-6 animate-spin mx-auto text-green-500 mb-2" />
+                        Fetching deposits...
+                      </td>
+                    </tr>
+                  ) : filteredDeposits.length === 0 ? (
                     <tr>
                       <td colSpan="6" className="p-8 text-center text-gray-500">No deposits found matching your criteria.</td>
                     </tr>
                   ) : filteredDeposits.map((dep, i) => (
-                    <tr key={i} className="hover:bg-white/[0.02] transition-colors group cursor-pointer">
-                      <td className="p-4 text-gray-300 font-mono text-xs">{dep.id}</td>
-                      <td className="p-4 text-gray-400 text-xs">{dep.date}</td>
+                    <tr key={dep.depositId} className="hover:bg-white/[0.02] transition-colors group cursor-pointer">
+                      <td className="p-4 text-gray-300 font-mono text-xs">{dep.depositId}</td>
+                      <td className="p-4 text-gray-400 text-xs">{new Date(dep.createdAt).toLocaleString()}</td>
                       <td className="p-4 font-bold text-white">{dep.asset}</td>
                       <td className="p-4">
                         <span className="bg-white/5 text-gray-300 px-2 py-1 rounded text-xs">{dep.network}</span>
                       </td>
-                      <td className="p-4 text-green-400 font-bold text-right">+ {dep.amount} {dep.asset}</td>
+                      <td className="p-4 text-green-400 font-bold text-right">+ {Number(dep.amount).toLocaleString()} {dep.asset}</td>
                       <td className="p-4 text-right">
                         <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full ${
                           dep.status === 'Confirmed' ? 'bg-green-500/10 text-green-500' :

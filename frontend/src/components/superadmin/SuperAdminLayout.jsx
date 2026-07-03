@@ -129,7 +129,7 @@ const SuperAdminLayout = () => {
         {sidebarExpanded ? (
           <div className="flex items-center gap-2 group cursor-pointer" onClick={() => navigate('/super-admin')}>
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-blue-600 flex items-center justify-center font-black text-white text-lg shadow-[0_0_15px_rgba(124,58,237,0.5)] group-hover:shadow-[0_0_20px_rgba(124,58,237,0.8)] transition-all shrink-0">P</div>
-            <span className="font-bold text-lg tracking-tight text-white">PGX Gateway</span>
+            <span className="font-bold text-lg tracking-tight text-white">PGX-SPORTS</span>
           </div>
         ) : (
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-blue-600 flex items-center justify-center font-black text-white text-lg shadow-[0_0_15px_rgba(124,58,237,0.5)] cursor-pointer" onClick={() => navigate('/super-admin')}>P</div>
@@ -337,7 +337,7 @@ const SuperAdminLayout = () => {
             {isMobile && (
               <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/super-admin')}>
                 <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#7C3AED] to-blue-600 flex items-center justify-center font-black text-white text-sm shadow-[0_0_10px_rgba(124,58,237,0.5)]">P</div>
-                <span className="font-bold text-sm tracking-tight text-white">PGX Gateway</span>
+                <span className="font-bold text-sm tracking-tight text-white">PGX-SPORTS</span>
               </div>
             )}
           </div>

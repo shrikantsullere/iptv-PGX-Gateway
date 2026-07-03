@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+const fs = require('fs');
+const content = `import { useState, useEffect } from 'react';
 import { Wallet, ArrowUpRight, ArrowDownToLine, TrendingUp, Loader2, CheckCircle2, X, DollarSign } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import apiClient from '../../../../utils/apiClient';
+import apiClient from '../../../../../utils/apiClient';
 
 export default function RevenueWallet() {
   const [wallet, setWallet] = useState(null);
@@ -25,7 +26,7 @@ export default function RevenueWallet() {
         })));
 
         setWithdrawals(res.data.withdrawals.map((w, i) => ({
-          id: `WDR-\${501 - i}`,
+          id: \\\`WDR-\\\${501 - i}\\\`,
           date: new Date(w.withdrawalDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
           amount: '$' + (w.amount / 100).toLocaleString(undefined, {minimumFractionDigits: 2}),
           destination: w.destination,
@@ -71,7 +72,7 @@ export default function RevenueWallet() {
           <h1 className="text-3xl font-black text-white flex items-center gap-3">
             <Wallet className="w-8 h-8 text-[#7C3AED]" /> Revenue Wallet
           </h1>
-          <p className="text-gray-400 mt-1">Your gateway\'s total revenue from processing fee markups.</p>
+          <p className="text-gray-400 mt-1">Your gateway\\'s total revenue from processing fee markups.</p>
         </div>
         <button
           onClick={() => setShowWithdrawModal(true)}
@@ -87,23 +88,23 @@ export default function RevenueWallet() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
               <div className="text-sm text-gray-400 font-medium mb-2">Total Revenue Pool</div>
-              <div className="text-5xl font-black text-white mb-3">$${Math.floor((wallet?.totalRevenuePool || 0) / 100).toLocaleString()}.<span className="text-3xl text-gray-400">{`${String((wallet?.totalRevenuePool || 0) % 100).padStart(2, '0')}`}</span></div>
+              <div className="text-5xl font-black text-white mb-3">$\${Math.floor((wallet?.totalRevenuePool || 0) / 100).toLocaleString()}.<span className="text-3xl text-gray-400">{\`\${String((wallet?.totalRevenuePool || 0) % 100).padStart(2, '0')}\`}</span></div>
               <div className="flex items-center gap-2 text-sm font-bold text-green-500">
-                <ArrowUpRight className="w-4 h-4" /> +$${((wallet?.monthlyRevenue || 0)/100).toLocaleString()} this month (+24.8%)
+                <ArrowUpRight className="w-4 h-4" /> +$\${((wallet?.monthlyRevenue || 0)/100).toLocaleString()} this month (+24.8%)
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
               <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
                 <div className="text-xs text-gray-400 font-medium mb-1">This Month</div>
-                <div className="text-xl font-black text-[#7C3AED]">$${((wallet?.monthlyRevenue || 0)/100).toLocaleString()}</div>
+                <div className="text-xl font-black text-[#7C3AED]">$\${((wallet?.monthlyRevenue || 0)/100).toLocaleString()}</div>
               </div>
               <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
                 <div className="text-xs text-gray-400 font-medium mb-1">Avg. Daily</div>
-                <div className="text-xl font-black text-green-400">$${((wallet?.averageDailyRevenue || 0)/100).toLocaleString()}</div>
+                <div className="text-xl font-black text-green-400">$\${((wallet?.averageDailyRevenue || 0)/100).toLocaleString()}</div>
               </div>
               <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
                 <div className="text-xs text-gray-400 font-medium mb-1">Total Withdrawn</div>
-                <div className="text-xl font-black text-orange-400">$${((wallet?.totalWithdrawn || 0)/100).toLocaleString()}</div>
+                <div className="text-xl font-black text-orange-400">$\${((wallet?.totalWithdrawn || 0)/100).toLocaleString()}</div>
               </div>
               <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
                 <div className="text-xs text-gray-400 font-medium mb-1">Fee Sources</div>
@@ -135,10 +136,10 @@ export default function RevenueWallet() {
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
               <XAxis dataKey="month" stroke="rgba(255,255,255,0.2)" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="rgba(255,255,255,0.2)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={v => `$\${(v/1000).toFixed(0)}k`} />
+              <YAxis stroke="rgba(255,255,255,0.2)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={v => \\\`$\\\${(v/1000).toFixed(0)}k\\\`} />
               <Tooltip
                 contentStyle={{ backgroundColor: '#09090B', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                formatter={v => [`$\${v.toLocaleString()}`, 'Earnings']}
+                formatter={v => [\\\`$\\\${v.toLocaleString()}\\\`, 'Earnings']}
               />
               <Area type="monotone" dataKey="earnings" stroke="#7C3AED" fill="url(#earningsGrad)" strokeWidth={2.5} />
             </AreaChart>
@@ -202,7 +203,7 @@ export default function RevenueWallet() {
                 <div className="space-y-5">
                   <div className="bg-[#7C3AED]/10 border border-[#7C3AED]/20 rounded-xl p-4 text-sm">
                     <div className="text-gray-400 text-xs mb-1">Available Balance</div>
-                    <div className="font-black text-white text-2xl">$${((wallet?.totalRevenuePool || 0)/100).toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+                    <div className="font-black text-white text-2xl">$\${((wallet?.totalRevenuePool || 0)/100).toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
                   </div>
                   <div>
                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">Withdrawal Amount</label>
@@ -234,3 +235,6 @@ export default function RevenueWallet() {
     </div>
   );
 }
+`;
+// Replace the double backslashes which we needed to escape the JS string literal
+fs.writeFileSync('frontend/src/pages/dashboard/superadmin/processors/RevenueWallet.jsx', content.replace(/\\\\`/g, '`').replace(/\\`/g, '`'));

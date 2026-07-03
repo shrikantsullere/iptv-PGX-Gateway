@@ -1,10 +1,82 @@
-import { useState } from 'react';
-import { Box, Globe, Lock, UploadCloud, Mail, CreditCard, Save, RefreshCw, CheckCircle2, Monitor, Smartphone } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Box, Globe, Lock, UploadCloud, Mail, CreditCard, Save, RefreshCw, CheckCircle2, Monitor, Smartphone, Loader2 } from 'lucide-react';
+import apiClient from '../../../utils/apiClient';
 
 const WhiteLabel = () => {
   const [activeTab, setActiveTab] = useState('domain');
-  const [primaryColor, setPrimaryColor] = useState('#7C3AED');
   const [previewMode, setPreviewMode] = useState('desktop');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const [settings, setSettings] = useState({
+    domain: '',
+    dnsVerified: false,
+    logoUrl: '',
+    primaryColor: '#7C3AED',
+    typography: 'Inter (Default)',
+    senderName: 'Acme Digital Billing',
+    replyToAddress: 'support@acme.com',
+    removePoweredBy: false,
+    customFooter: false,
+    requireBillingAddress: false,
+    requirePhoneNumber: false,
+    collectCustomerKyc: true,
+    showCryptoFeeEstimates: false
+  });
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get('/merchant/whitelabel');
+      if (res.success && res.data) {
+        setSettings({
+          ...settings,
+          ...res.data
+        });
+      }
+    } catch (err) {
+      console.error('Failed to fetch white label settings:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      const res = await apiClient.put('/merchant/whitelabel', settings);
+      if (res.success) {
+        alert('Configuration saved successfully!');
+        if (res.data) {
+           setSettings({
+             ...settings,
+             ...res.data
+           });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to save white label settings:', err);
+      alert('Failed to save configuration');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const updateSetting = (key, value) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  if (loading) {
+    return (
+      <div className="w-full flex items-center justify-center p-12 text-teal-500">
+        <Loader2 className="w-8 h-8 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full animate-in fade-in zoom-in-95 duration-500">
@@ -20,8 +92,13 @@ const WhiteLabel = () => {
                 </h1>
                 <p className="text-gray-400">Completely remove PGX branding. Host your own checkout and emails.</p>
               </div>
-              <button className="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white px-6 py-2.5 rounded-xl transition-all font-bold shadow-[0_0_20px_rgba(20,184,166,0.2)]">
-                <Save className="w-4 h-4" /> Save Configuration
+              <button 
+                onClick={handleSave} 
+                disabled={saving}
+                className="flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-white px-6 py-2.5 rounded-xl transition-all font-bold shadow-[0_0_20px_rgba(20,184,166,0.2)] disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                {saving ? 'Saving...' : 'Save Configuration'}
               </button>
             </div>
 
@@ -60,7 +137,13 @@ const WhiteLabel = () => {
                     <div className="space-y-4 mb-8">
                       <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">Checkout Domain</label>
-                        <input type="text" placeholder="pay.acme.com" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500" />
+                        <input 
+                          type="text" 
+                          value={settings.domain || ''}
+                          onChange={(e) => updateSetting('domain', e.target.value)}
+                          placeholder="pay.acme.com" 
+                          className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500" 
+                        />
                       </div>
                       <button className="w-full bg-white/5 hover:bg-white/10 text-white font-medium px-4 py-3 rounded-xl border border-white/10 transition-colors">
                         Add Domain
@@ -122,21 +205,25 @@ const WhiteLabel = () => {
                           <div className="flex gap-4">
                             <input 
                               type="color" 
-                              value={primaryColor} 
-                              onChange={(e) => setPrimaryColor(e.target.value)}
+                              value={settings.primaryColor} 
+                              onChange={(e) => updateSetting('primaryColor', e.target.value)}
                               className="w-12 h-12 rounded-lg cursor-pointer bg-transparent border-0 p-0"
                             />
                             <input 
                               type="text" 
-                              value={primaryColor}
-                              onChange={(e) => setPrimaryColor(e.target.value)}
+                              value={settings.primaryColor}
+                              onChange={(e) => updateSetting('primaryColor', e.target.value)}
                               className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white font-mono text-sm" 
                             />
                           </div>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-400 mb-2">Typography (Google Fonts)</label>
-                          <select className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500 appearance-none text-sm">
+                          <select 
+                            value={settings.typography}
+                            onChange={(e) => updateSetting('typography', e.target.value)}
+                            className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500 appearance-none text-sm"
+                          >
                             <option>Inter (Default)</option>
                             <option>Roboto</option>
                             <option>Open Sans</option>
@@ -157,11 +244,21 @@ const WhiteLabel = () => {
                     <div className="space-y-4 mb-6">
                       <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">Sender Name</label>
-                        <input type="text" defaultValue="Acme Digital Billing" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500" />
+                        <input 
+                          type="text" 
+                          value={settings.senderName} 
+                          onChange={(e) => updateSetting('senderName', e.target.value)}
+                          className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500" 
+                        />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">Reply-To Address</label>
-                        <input type="email" defaultValue="support@acme.com" className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500" />
+                        <input 
+                          type="email" 
+                          value={settings.replyToAddress} 
+                          onChange={(e) => updateSetting('replyToAddress', e.target.value)}
+                          className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500" 
+                        />
                       </div>
                     </div>
 
@@ -171,8 +268,11 @@ const WhiteLabel = () => {
                           <h4 className="font-bold text-sm">Remove "Powered by PGX"</h4>
                           <p className="text-xs text-gray-500">Remove all PGX Gateway watermarks from emails.</p>
                         </div>
-                        <div className="w-12 h-6 bg-teal-500 rounded-full relative cursor-pointer">
-                          <div className="w-4 h-4 bg-white rounded-full absolute right-1 top-1"></div>
+                        <div 
+                          onClick={() => updateSetting('removePoweredBy', !settings.removePoweredBy)}
+                          className={`w-12 h-6 rounded-full relative cursor-pointer transition-colors ${settings.removePoweredBy ? 'bg-teal-500' : 'bg-gray-600'}`}
+                        >
+                          <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all ${settings.removePoweredBy ? 'right-1' : 'left-1'}`}></div>
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
@@ -180,8 +280,11 @@ const WhiteLabel = () => {
                           <h4 className="font-bold text-sm">Custom Footer Note</h4>
                           <p className="text-xs text-gray-500">Add your company address to email footers.</p>
                         </div>
-                        <div className="w-12 h-6 bg-teal-500 rounded-full relative cursor-pointer">
-                          <div className="w-4 h-4 bg-white rounded-full absolute right-1 top-1"></div>
+                        <div 
+                          onClick={() => updateSetting('customFooter', !settings.customFooter)}
+                          className={`w-12 h-6 rounded-full relative cursor-pointer transition-colors ${settings.customFooter ? 'bg-teal-500' : 'bg-gray-600'}`}
+                        >
+                          <div className={`w-4 h-4 bg-white rounded-full absolute top-1 transition-all ${settings.customFooter ? 'right-1' : 'left-1'}`}></div>
                         </div>
                       </div>
                     </div>
@@ -194,11 +297,19 @@ const WhiteLabel = () => {
                     <p className="text-sm text-gray-400 mb-6">Configure what information you collect during the checkout flow.</p>
                     
                     <div className="space-y-4">
-                      {['Require Billing Address', 'Require Phone Number', 'Collect Customer KYC', 'Show Crypto Network Fee Estimates'].map((setting, i) => (
+                      {[
+                        { label: 'Require Billing Address', key: 'requireBillingAddress' },
+                        { label: 'Require Phone Number', key: 'requirePhoneNumber' },
+                        { label: 'Collect Customer KYC', key: 'collectCustomerKyc' },
+                        { label: 'Show Crypto Network Fee Estimates', key: 'showCryptoFeeEstimates' }
+                      ].map((item, i) => (
                         <div key={i} className="flex items-center justify-between p-4 bg-black/50 border border-white/10 rounded-xl">
-                          <span className="text-sm font-medium">{setting}</span>
-                          <div className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${i % 2 === 0 ? 'bg-teal-500' : 'bg-gray-600'}`}>
-                            <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-[3px] transition-all ${i % 2 === 0 ? 'right-1' : 'left-1'}`}></div>
+                          <span className="text-sm font-medium">{item.label}</span>
+                          <div 
+                            onClick={() => updateSetting(item.key, !settings[item.key])}
+                            className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${settings[item.key] ? 'bg-teal-500' : 'bg-gray-600'}`}
+                          >
+                            <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-[3px] transition-all ${settings[item.key] ? 'right-1' : 'left-1'}`}></div>
                           </div>
                         </div>
                       ))}
@@ -253,7 +364,7 @@ const WhiteLabel = () => {
                         <div>
                           {/* Fake Logo */}
                           <div className="flex items-center gap-2 mb-8">
-                            <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white" style={{ backgroundColor: primaryColor }}>A</div>
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center font-black text-white" style={{ backgroundColor: settings.primaryColor }}>A</div>
                             <span className="font-bold text-lg tracking-tight">Acme</span>
                           </div>
                           <div className="text-sm text-gray-400 mb-1">Subscribe to</div>
@@ -280,8 +391,8 @@ const WhiteLabel = () => {
 
                         <h3 className="font-bold mb-4">Payment Method</h3>
                         <div className="grid grid-cols-2 gap-3 mb-4">
-                          <div className="h-12 rounded-lg border-2 flex items-center justify-center gap-2 bg-[#1A1A24]" style={{ borderColor: primaryColor }}>
-                            <div className="w-4 h-4 rounded-full border-4" style={{ borderColor: primaryColor }}></div>
+                          <div className="h-12 rounded-lg border-2 flex items-center justify-center gap-2 bg-[#1A1A24]" style={{ borderColor: settings.primaryColor }}>
+                            <div className="w-4 h-4 rounded-full border-4" style={{ borderColor: settings.primaryColor }}></div>
                             <span className="font-bold text-sm">Card</span>
                           </div>
                           <div className="h-12 bg-white/5 rounded-lg border border-white/5 flex items-center justify-center gap-2 text-gray-400">
@@ -300,7 +411,7 @@ const WhiteLabel = () => {
 
                         <button 
                           className="w-full h-12 rounded-lg font-bold text-white shadow-lg transition-all"
-                          style={{ backgroundColor: primaryColor }}
+                          style={{ backgroundColor: settings.primaryColor }}
                         >
                           Subscribe
                         </button>

@@ -44,7 +44,7 @@ const Navbar = () => {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7C3AED] to-blue-600 flex items-center justify-center font-black text-white text-lg shadow-[0_0_15px_rgba(124,58,237,0.5)] group-hover:shadow-[0_0_25px_rgba(124,58,237,0.8)] transition-all">
             P
           </div>
-          <span className="font-bold text-xl tracking-tight text-white">PGX Gateway</span>
+          <span className="font-bold text-xl tracking-tight text-white">PGX-SPORTS</span>
         </Link>
 
         {/* Desktop Menu */}

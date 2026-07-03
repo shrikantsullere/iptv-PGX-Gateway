@@ -29,7 +29,8 @@ const Transactions = () => {
   const filteredTransactions = transactions.filter(tx => {
     const matchesSearch = 
       (tx.transactionId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (tx.customerId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (tx.customerName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (tx.customerEmail || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       String(tx.amount).includes(searchTerm);
     
     const matchesStatus = statusFilter === 'All Statuses' || tx.status === statusFilter;
@@ -38,11 +39,11 @@ const Transactions = () => {
   });
 
   const handleExportCSV = () => {
-    const headers = ['TxID', 'Date & Time', 'Customer', 'Type', 'Amount', 'Status'];
+    const headers = ['TxID', 'Date & Time', 'Customer', 'Email', 'Type', 'Amount', 'Status'];
     const csvContent = [
       headers.join(','),
       ...filteredTransactions.map(tx => 
-        `"${tx.transactionId}","${new Date(tx.createdAt).toLocaleString()}","${tx.customerId}","${tx.paymentMethod}","${tx.amount}","${tx.status}"`
+        `"${tx.transactionId}","${new Date(tx.createdAt).toLocaleString()}","${tx.customerName || 'N/A'}","${tx.customerEmail || 'N/A'}","${tx.paymentMethod}","${tx.amount}","${tx.status}"`
       )
     ].join('\n');
 
@@ -124,7 +125,10 @@ const Transactions = () => {
                     <tr key={tx.transactionId} className="hover:bg-white/[0.02] transition-colors group cursor-pointer">
                       <td className="p-4 text-[#7C3AED] font-mono text-xs font-medium">{tx.transactionId}</td>
                       <td className="p-4 text-gray-400 text-xs">{new Date(tx.createdAt).toLocaleString()}</td>
-                      <td className="p-4 text-gray-200">{tx.customerId || 'Guest Customer'}</td>
+                      <td className="p-4">
+                        <div className="text-gray-200 font-medium">{tx.customerName || 'Guest'}</div>
+                        <div className="text-gray-500 text-xs">{tx.customerEmail || 'No Email'}</div>
+                      </td>
                       <td className="p-4 text-gray-400">{tx.paymentMethod}</td>
                       <td className="p-4 text-white font-bold text-right">${Number(tx.amount).toLocaleString()} {tx.currency}</td>
                       <td className="p-4 text-right">

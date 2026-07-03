@@ -35,4 +35,27 @@ router.get('/fee-split', feeSplitController.getFeeSplit);
 router.post('/fee-split/rules', feeSplitController.createMarkupRule);
 router.put('/fee-split/rules/:id', feeSplitController.updateMarkupRule);
 
+// Geo Routing Routes
+router.get('/geo-routing/rules', processorController.getGeoRoutingRules);
+router.post('/geo-routing/rules', processorController.createGeoRoutingRule);
+router.put('/geo-routing/rules/:id', processorController.updateGeoRoutingRule);
+router.delete('/geo-routing/rules/:id', processorController.deleteGeoRoutingRule);
+
+// Merchant Fee Rules Routes
+router.get('/merchant-fees', processorController.getMerchantFees);
+router.put('/merchant-fees/:merchantId', processorController.overrideMerchantFee);
+
+// Merchant Fee Rules Routes
+router.get('/merchant-rules', processorController.getMerchantRules);
+router.put('/merchant-rules/:id', processorController.updateMerchantRule);
+
+// Settlement Engine Routes
+router.get('/settlement-engine', processorController.getSettlementEngineData);
+router.post('/settlement-engine/settle', processorController.initiateSettlement);
+router.put('/settlement-engine/auto-settle', processorController.updateAutoSettleRules);
+
+// Revenue Wallet Routes
+router.get('/revenue-wallet', processorController.getRevenueWalletData);
+router.post('/revenue-wallet/withdraw', processorController.withdrawRevenue);
+
 module.exports = router;

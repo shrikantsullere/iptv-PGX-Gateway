@@ -6,13 +6,34 @@ const { sendResponse } = require('../utils/responseHandler');
  */
 const getAllWallets = async (req, res, next) => {
     try {
-        const wallets = await prisma.wallets.findMany();
+        let wallets = await prisma.wallets.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+
+        if (wallets.length === 0) {
+            await prisma.wallets.createMany({
+                data: [
+                    { walletName: 'USD Coin', walletAddress: '0x123...abc', walletType: 'Merchant', network: 'ERC-20', balanceUSD: 124500, balanceCrypto: 124500, assetSymbol: 'USDC', status: 'Active', lastTransactionAt: new Date(), createdAt: new Date(), updatedAt: new Date() },
+                    { walletName: 'Tether', walletAddress: '0x456...def', walletType: 'Merchant', network: 'TRC-20', balanceUSD: 45200, balanceCrypto: 45200, assetSymbol: 'USDT', status: 'Active', lastTransactionAt: new Date(), createdAt: new Date(), updatedAt: new Date() },
+                    { walletName: 'Bitcoin', walletAddress: 'bc1q...', walletType: 'Merchant', network: 'Bitcoin', balanceUSD: 158400, balanceCrypto: 2, assetSymbol: 'BTC', status: 'Active', lastTransactionAt: new Date(), createdAt: new Date(), updatedAt: new Date() },
+                    { walletName: 'Ethereum', walletAddress: '0x789...ghi', walletType: 'Merchant', network: 'ERC-20', balanceUSD: 64200, balanceCrypto: 18, assetSymbol: 'ETH', status: 'Active', lastTransactionAt: new Date(), createdAt: new Date(), updatedAt: new Date() }
+                ]
+            });
+            wallets = await prisma.wallets.findMany({
+                orderBy: { createdAt: 'desc' }
+            });
+        }
         
         // Map missing fields so frontend doesn't break
         const mappedWallets = wallets.map(w => ({
             ...w,
-            balance: 0,
-            currency: 'USDT',
+            id: w.assetSymbol,
+            name: w.walletName,
+            balance: Number(w.balanceCrypto).toLocaleString(),
+            fiat: '$' + Number(w.balanceUSD).toLocaleString(),
+            color: w.assetSymbol === 'USDC' ? 'bg-blue-500' : w.assetSymbol === 'USDT' ? 'bg-teal-500' : w.assetSymbol === 'BTC' ? 'bg-orange-500' : 'bg-purple-500',
+            trend: '+1.0%', // default trend
+            currency: w.assetSymbol,
             merchantId: 'PGX-Treasury'
         }));
 
@@ -44,19 +65,23 @@ const getWalletById = async (req, res, next) => {
  */
 const createWallet = async (req, res, next) => {
     try {
-        const { merchantId, currency, type } = req.body;
+        const { id, name, network } = req.body; // id is assetSymbol, name is walletName
         
-        if (!merchantId || !currency) {
-            return sendResponse(res, 400, false, 'Merchant ID and currency are required');
+        if (!id || !name) {
+            return sendResponse(res, 400, false, 'Asset ID and Name are required');
         }
 
         const newWallet = await prisma.wallets.create({
             data: {
-                merchantId,
-                balance: 0,
-                currency,
+                walletName: name,
+                walletAddress: '0x' + Math.random().toString(16).slice(2, 10) + '...new',
+                walletType: 'Merchant',
+                network: network || 'Mainnet',
+                balanceUSD: 0,
+                balanceCrypto: 0,
+                assetSymbol: id,
                 status: 'Active',
-                type: type || 'Standard',
+                lastTransactionAt: new Date(),
                 createdAt: new Date(),
                 updatedAt: new Date()
             }
